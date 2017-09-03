@@ -1,0 +1,40 @@
+{% load mathfilters %}
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+  	  .row1 {
+  		    background-color:#999999;
+  	  }
+      .rows {
+          font-size: x-small;
+      }
+    </style>
+</head>
+<body>
+    {% for club in clubs %}
+    <h3 style="text-align:center">{{ club.name }}</h3>
+    {% endfor %}
+    <h4 style="text-align:center">{% now "DATE_FORMAT" %}</h4>
+    <table style="width:100%">
+        <tr class="rows">
+            <th style="text-align:left">Number</th>
+            <th style="text-align:left">Name</th>
+            <th style="text-align:left">hcp</th>
+            {% for courseTee in courseTees %}
+            <th>{{ courseTee.course__name }} - {{ courseTee.name }} | {{ courseTee.slope }}</th>
+            {% endfor %}
+        </tr>
+        {% for player in players %}
+        <tr class="rows {% cycle 'row1' 'row2' %}">
+            <td style="text-align:left">{{ player.club_member_number }}</td>
+            <td style="text-align:left">{{ player.name }}</td>
+            <td style="text-align:left">{{ player.handicap_index }}</td>
+            {% for courseTee in courseTees %}
+            <td>{{ player.handicap_index|mul:courseTee.slope|div:113|floatformat:"0" }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

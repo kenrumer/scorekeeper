@@ -1,0 +1,460 @@
+{% extends "golf/base.html" %}
+
+{% load static %}
+
+{% block title %} Edit Tournament {% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+    <script src="{% static "scorekeeper/js/edittournament.js" %}" type="text/javascript"></script>
+    <style>
+        body .modal-dialog {
+          width: 1160px;
+        }
+        .plusMinusButton {
+          width: 24px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<script>
+    var table;
+    var addRowId = 0;
+    var players;
+    var courseTees = [{ 'color': 'white', 'slope': 86}, {'color': 'red', 'slope': 82}]
+    var everyonePlayedTheSameCourse = true;
+    var everyonePlayedTheSameTee = true;
+    var slope = 86;
+
+    function updateTotals(data) {
+        rowId = data.getAttribute('data-rowId');
+        hcp = document.getElementById('hcp'+rowId).value;
+        holes = document.getElementsByName('holeout'+rowId);
+        var totalout = 0;
+        for (var i=0;i<holes.length;i++) {
+            if (parseInt(holes[i].value)) {
+                totalout += parseInt(holes[i].value);
+            }
+        }
+        document.getElementById('totalout'+rowId).value = totalout;
+        holes = document.getElementsByName('holein'+rowId);
+        var totalin = 0;
+        for (var i=0;i<holes.length;i++) {
+            if (parseInt(holes[i].value)) {
+                totalin += parseInt(holes[i].value);
+            }
+        }
+        document.getElementById('totalin'+rowId).value = totalin;
+        var total = totalin+totalout;
+        document.getElementById('total'+rowId).value = total;
+        document.getElementById('totalnet'+rowId).value = total-hcp;
+    }
+
+    function playerChange(data) {
+        rowId = data.getAttribute('data-rowId');
+        hcpInput = document.getElementById('hcp'+rowId);
+        selValue = data.options[data.selectedIndex].value;
+        id = selValue.split('|')[0];
+        hcp = selValue.split('|')[1];
+        if (hcp) {
+            hcpInput.value = Math.round(hcp * slope / 113);
+        } else {
+            hcpInput.value = 0;
+        }
+        updateTotals(hcpInput);
+    }
+
+    function editScorecard(scorecard_id) {
+        addRowId = 0;
+        $('#addRowToScorecard').css('display', 'block');
+        if (!everyonePlayedTheSameCourse) {
+            $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
+        } else {
+            $('#scorecard >tbody').html('');
+            addRowToScorecard(player_id);
+            $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
+        }
+    }
+
+    function editScorecardRow(player_id) {
+        addRowId = 0;
+        if (!everyonePlayedTheSameCourse) {
+            $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
+        } else {
+            $('#scorecard >tbody').html('');
+            addRowToScorecard(player_id);
+            $('#addRowToScorecard').css('display', 'none');
+            $('#scorecardRowButton0').css('display', 'none');
+            $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
+        }
+    }
+
+    function addRowToScorecard() {
+        var teeList = '';
+        var playerList = '';
+        $.each(players, function(i, item) {
+            playerList += '<option value='+item.id+'|'+item.handicap_index+'>'+item.name+'</option>';
+        });
+        if (everyonePlayedTheSameTee) {
+            teeList = ' \
+              <div style="background-color:black"></div>';
+        } else {
+            teeList = ' \
+                <div class="dropdown"> \
+                    <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:black" type="button" data-toggle="dropdown" aria-expanded="true"> \
+                        <span class="caret"></span> \
+                    </button> \
+                    <ul id="courseTees'+addRowId+'" class="dropdown-menu" aria-labelledby="dropdownMenu1">';
+            $.each(courseTees, function(i, item) {
+                teeList += '<li style="background-color:'+item.color+'"><a href="#" onclick="javascript:teeChange('+addRowId+', "'+item.color+'", '+item.slope+')">item.color</a>';
+            })
+            teeList += ' \
+                    </ul> \
+                </div>';
+        }
+        $('#scorecard > tbody').append(' \
+            <tr id="scorecardRow'+addRowId+' data-rowId='+addRowId+'"> \
+                <td> \
+                  <button class="plusMinusButton" id="removeRowFromeScorecard">-</button> \
+                </td> \
+                <td> \
+                    <select name="playerNames" id="playerNames'+addRowId+'" style="width: 140px" data-rowId="'+addRowId+'" onchange="javascript:playerChange(this);"> \
+                        <option>----------------------------</option>'+playerList+'</select> \
+                </td><td>'+teeList+'</td><td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" data-rowId="'+addRowId+'" id="totalout'+addRowId+'" value="36" disabled> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" data-rowId="'+addRowId+'" id="totalin'+addRowId+'" value="36" disabled> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" data-rowId="'+addRowId+'" id="total'+addRowId+'" value="72" disabled> \
+                </td> \
+                <td> \
+                    <input style="width: 40px" onkeydown="javascript:updateTotals(this);" onpaste="javascript:updateTotals(this);" oninput="javascript:updateTotals(this);" data-rowId="'+addRowId+'" id="hcp'+addRowId+'" type=number min=1 max=99 value=0 disabled> \
+                </td> \
+                <td> \
+                    <input style="width: 37px" data-rowId="'+addRowId+'" id="totalnet'+addRowId+'" value="72" disabled> \
+                </td> \
+            </tr>');
+        var sel = document.getElementById('playerNames'+addRowId);
+        sel.focus();
+        addRowId++;
+    }
+
+    function teeChange(rowId, color, newSlope) {
+        var sel = document.getElementById('playerNames'+rowId);
+        var hcpValue = sel.options[sel.selectedIndex].value.split('|')[1];
+        var hcp = document.getElementById('hcp'+rowId);
+        hcp.value = Math.round(hcpValue * newSlope / 113);
+        var button = document.getElementById('teeSelectButton'+rowId);
+        button.setAttribute('style', 'background-color:'+color);
+    }
+
+
+</script>
+
+    <ul class="nav nav-pills">
+      <li class="active"><a href="#">Round 1</a></li>
+      <li><a href="#">Round 2</a></li>
+      <li><a href="#">Round 3</a></li>
+      <li><a href="#">Round 4</a></li>
+      <li><a href="#">Total</a></li>
+    </ul>
+    <table class="table edit-tournament-table cell-border compact stripe" id="edit-tournament-table">
+        <thead border=true>
+            <tr>
+                <th>Rank</th>
+                <th>Edit</th>
+                <th>Player</th>
+                <th>TEE</th>
+                <th>01</th>
+                <th>02</th>
+                <th>03</th>
+                <th>04</th>
+                <th>05</th>
+                <th>06</th>
+                <th>07</th>
+                <th>08</th>
+                <th>09</th>
+                <th>OUT</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12</th>
+                <th>13</th>
+                <th>14</th>
+                <th>15</th>
+                <th>16</th>
+                <th>17</th>
+                <th>18</th>
+                <th>IN</th>
+                <th>TOT</th>
+                <th>HCP</th>
+                <th>NET</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Rank</th>
+                <th>Edit</th>
+                <th>Player</th>
+                <th>TEE</th>
+                <th>01</th>
+                <th>02</th>
+                <th>03</th>
+                <th>04</th>
+                <th>05</th>
+                <th>06</th>
+                <th>07</th>
+                <th>08</th>
+                <th>09</th>
+                <th>OUT</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12</th>
+                <th>13</th>
+                <th>14</th>
+                <th>15</th>
+                <th>16</th>
+                <th>17</th>
+                <th>18</th>
+                <th>IN</th>
+                <th>TOT</th>
+                <th>HCP</th>
+                <th>NET</th>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>
+                  <button style="background: url('/static/scorekeeper/icons/scorecard.png') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecard();" />
+                  <button style="background: url('/static/scorekeeper/icons/scorecardrow.png') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecardRow();" />
+                </td>
+                <td>Ken Rumer</td>
+                <td></td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>36</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>36</td>
+                <td>72</td>
+                <td>20</td>
+                <td>52</td>
+            </tr>
+        </tbody>
+    </table>
+    <ul class="nav nav-pills">
+      <li class="active"><a href="#">Raw Scores</a></li>
+      <li><a href="#">Calculated Scores</a></li>
+      <li><a href="#">Payout</a></li>
+    </ul>
+
+    <div class="modal fade" id="enterScorecardCourse" tabindex="-1" role="dialog" aria-labelledby="enterScorecardCourseLabel">
+        <div class="modal-dialog modal-score-card" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="enterScorecardCourseLabel">Enter Score Card</h4>
+                </div>
+                <div class="modal-body">
+                    Everyone on this scorecard played the same course:
+                    <select>
+                        <option>---------------------</option>
+                        <option>Oaks North Golf Course - East/South</option>
+                        <option>Oaks North Golf Course - South/North</option>
+                    </select><br/>
+                    Everyone on this scorecard played the same tee:
+                    <select>
+                        <option>---------------------</option>
+                        <option>Oaks North Golf Course - East/South - White</option>
+                        <option>Oaks North Golf Course - East/South - Red</option>
+                        <option>Oaks North Golf Course - South/North - White</option>
+                        <option>Oaks North Golf Course - South/North - Red</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-10"></div>
+                    <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="enterScorecardButton" onclick="javascript:setScorecardCourseAndCourseTee(this);">Save</button></div>
+                    <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="enterScorecard" tabindex="-1" role="dialog" aria-labelledby="enterScorecardLabel">
+        <div class="modal-dialog modal-score-card" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="enterScorecardLabel">Enter Score Card</h4>
+                </div>
+                <div class="modal-body">
+                  <table id="scorecard" class="display compact" width="100%">
+                    <thead>
+                      <tr>
+                        <td><button id="addRowToScorecard" style="width:24px;" onclick="javascript:addRowToScorecard();">+</button></td>
+                        <th>Player</th>
+                        <th>TEE</th>
+                        <th><input style="width: 37px" value="01" disabled></th>
+                        <th><input style="width: 37px" value="02" disabled></th>
+                        <th><input style="width: 37px" value="03" disabled></th>
+                        <th><input style="width: 37px" value="04" disabled></th>
+                        <th><input style="width: 37px" value="05" disabled></th>
+                        <th><input style="width: 37px" value="06" disabled></th>
+                        <th><input style="width: 37px" value="07" disabled></th>
+                        <th><input style="width: 37px" value="08" disabled></th>
+                        <th><input style="width: 37px" value="09" disabled></th>
+                        <th><input style="width: 37px" value="OUT" disabled></th>
+                        <th><input style="width: 37px" value="10" disabled></th>
+                        <th><input style="width: 37px" value="11" disabled></th>
+                        <th><input style="width: 37px" value="12" disabled></th>
+                        <th><input style="width: 37px" value="13" disabled></th>
+                        <th><input style="width: 37px" value="14" disabled></th>
+                        <th><input style="width: 37px" value="15" disabled></th>
+                        <th><input style="width: 37px" value="16" disabled></th>
+                        <th><input style="width: 37px" value="17" disabled></th>
+                        <th><input style="width: 37px" value="18" disabled></th>
+                        <th><input style="width: 37px" value="IN" disabled></th>
+                        <th><input style="width: 37px" value="TOT" disabled></th>
+                        <th><input style="width: 37px" value="HCP" disabled></th>
+                        <th><input style="width: 37px" value="NET" disabled></th>
+                      </tr>
+                      <tr>
+                        <th></th>
+                        <th></th>
+                        <th>White</th>
+                        <th><input style="width: 37px" value="175" disabled></th>
+                        <th><input style="width: 37px" value="235" disabled></th>
+                        <th><input style="width: 37px" value="306" disabled></th>
+                        <th><input style="width: 37px" value="134" disabled></th>
+                        <th><input style="width: 37px" value="157" disabled></th>
+                        <th><input style="width: 37px" value="153" disabled></th>
+                        <th><input style="width: 37px" value="144" disabled></th>
+                        <th><input style="width: 37px" value="185" disabled></th>
+                        <th><input style="width: 37px" value="260" disabled></th>
+                        <th><input style="width: 37px" value="1749" disabled></th>
+                        <th><input style="width: 37px" value="260" disabled></th>
+                        <th><input style="width: 37px" value="127" disabled></th>
+                        <th><input style="width: 37px" value="162" disabled></th>
+                        <th><input style="width: 37px" value="166" disabled></th>
+                        <th><input style="width: 37px" value="282" disabled></th>
+                        <th><input style="width: 37px" value="242" disabled></th>
+                        <th><input style="width: 37px" value="112" disabled></th>
+                        <th><input style="width: 37px" value="177" disabled></th>
+                        <th><input style="width: 37px" value="140" disabled></th>
+                        <th><input style="width: 37px" value="1668" disabled></th>
+                        <th><input style="width: 37px" value="3417" disabled></th>
+                      </tr>
+                      <tr>
+                        <th></th>
+                        <th></th>
+                        <th>Par</th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="4" disabled></th>
+                        <th><input style="width: 37px" value="4" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="4" disabled></th>
+                        <th><input style="width: 37px" value="30" disabled></th>
+                        <th><input style="width: 37px" value="4" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="4" disabled></th>
+                        <th><input style="width: 37px" value="4" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="3" disabled></th>
+                        <th><input style="width: 37px" value="30" disabled></th>
+                        <th><input style="width: 37px" value="60" disabled></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-10"></div>
+                    <div class="col-sm-1"><button class="btn btn-primary" id="enterScorecardButton">Save</button></div>
+                    <div class="col-sm-1"><button class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

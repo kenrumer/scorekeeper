@@ -1,0 +1,574 @@
+{% extends "golf/base.html" %}
+
+{% load static %}
+
+{% block title %} Scorekeeper {% endblock %}
+
+{% block head_extra %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdn.rawgit.com/mgalante/jquery.redirect/master/jquery.redirect.js"></script>
+    <link href="{% static "scorekeeper/css/multi-select.css" %}" media="screen" rel="stylesheet" type="text/css">
+    <script src="{% static "scorekeeper/js/jquery.multi-select.js" %}" type="text/javascript"></script>
+    <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
+    <script src="{% static "scorekeeper/js/index.js" %}" type="text/javascript"></script>
+    <link href="{% static "scorekeeper/css/index.css" %}" media="screen" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+      <div class="col-xs-5">
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton newTournament" id="newTournamentButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Enter a golf tournament
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Start entering the scores for a new tournament
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton editTournament"  id="editTournamentButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Edit or view an existing golf tournament
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Load an existing tournament.
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton loadPlayers"  id="loadPlayersButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Load players
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Last loaded: <span id="playerLoadDate">{{ clubs.0.players_last_updated|date:"D M d Y" }}</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                <div class="loadingHidden" id="playersLoading"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>  Loading...</div>
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton printIndexes" id="printIndexesButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Print player handicap indexes
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Print your players, member numbers and handicap indexes.  Will also print course indexes for this clubs default courses
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton signupStarterSheets" id="signupSheetsButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Print signup and starter sheets
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="col-xs-1">
+      </div>
+      <div class="col-xs-6">
+        <div class="row bottomSpaced">
+          <div class="panel panel-default recentPanel optionButton">
+            <div class="panel-heading">Recent activity</div>
+            <ul class="list-group recentList">
+              <li class="list-group-item">Added Modal for new tournament</li>
+              <li class="list-group-item">Probably need an edit tournament or something, how would you get to an old tournament?</li>
+            </ul>
+          </div>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton editcourses" id="editCoursesButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Edit Courses
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Edit or add courses
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton importexport" id="importExportBackupButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Import/Export/Backup
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Import or export plugins or all data
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton settings" id="settingsButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Settings
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Set values for this club, add players, formats or courses
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="newTournament" tabindex="-1" role="dialog" aria-labelledby="newTournamentLabel">
+      <div class="modal-dialog modalNewTournament modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="newTournamentLabel">Enter New Tournament</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="newTournamentName">Name</label>
+              </div>
+              <div class="col-sm-3">
+                <input type=text class="newTournamentName" id="newTournamentName" value="{{ clubs.0.default_tournament_name }} - {% now 'SHORT_DATE_FORMAT' %}" />
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="newTournamentDateStart">Date started</label>
+              </div>
+              <div class="col-sm-3">
+                <div class="input-group date" id="newTournamentDateStartDatePicker">
+                  <input type="text" class="form-control" id="newTournamentDateStart" value="{% now 'SHORT_DATE_FORMAT' %}" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="newTournamentFormat">Select Format</label>
+              </div>
+              <div class="col-sm-3">
+                <select class="newTournamentFormat" id="newTournamentFormat">
+                {% for format in formats %}
+                  <option value="{{ format.id }}">{{ format.name }}</option>
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="newTournamentNumRounds">Number of rounds</label>
+              </div>
+              <div class="col-sm-3">
+                <input type="number" class="newTournamentNumRounds" id="newTournamentNumRounds" value=1 min=1 max=99 />
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="newTournamentCourses" multiple="multiple" name="newTournamentCourses[]">
+                {% for course in courses %}
+                  {% if course.default == 0 %}
+                  <option value="{{ course.id }}">{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for course in courses %}
+                  {% if course.default == 1 %}
+                  <option value="{{ course.id }}" selected>{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="newTournamentTees" multiple="multiple" name="newTournamentTees[]">
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 0 %}
+                  <option value="{{ courseTee.id }}">{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 1 %}
+                  <option value="{{ courseTee.id }}" selected>{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-9"></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary" data-id="id" id="startTournamentButton">Start Tournament</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="editTournament" tabindex="-1" role="dialog" aria-labelledby="editTournamentLabel">
+      <div class="modal-dialog modalEditTournament modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="editTournamentLabel">Edit or View Tournament</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-4">
+                <label for="editTournamentSearchStartDate">Search start date</label>
+              </div>
+              <div class="col-sm-4">
+                <div class="input-group date" id="editTournamentSearchStartDateDateTimePicker">
+                  <input type="text" class="form-control" id="editTournamentSearchStartDate" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-4">
+                <label for="editTournamentSearchEndDate">Search end date</label>
+              </div>
+              <div class="col-sm-4">
+                <div class="input-group date" id="editTournamentSearchEndDateDateTimePicker">
+                  <input type="text" class="form-control" id="editTournamentSearchEndDate" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+    	      <div id="editTournamentSearch">
+                <div class="input-group col-md-12">
+           		  <input id="editTournamentSearchInput" type="text" class="form-control input-lg" placeholder="Search" />
+               	  <span class="input-group-btn">
+                   	<button class="btn btn-info btn-lg" type="button">
+                      <i class="glyphicon glyphicon-search"></i>
+                   	</button>
+               	  </span>
+               	</div>
+               	<ul class="editTournamentList">
+                {% for tournament in tournaments %}
+               	  <li class="list-group-item" value="{{ tournament.id }}">{{ tournament.name }}</li>
+                {% endfor %}
+               	</ul>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-9"></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary" id="loadTournamentButton">Load Tournament</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel">
+      <div class="modal-dialog modal-settings modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="settingsLabel">Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsClubName">Club Name Edit</label>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" id="settingsClubName" value="{{ clubs.0.name }}">
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="settingsDefaultTournamentName">Tournament Name</label>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" id="settingsDefaultTournamentName" value="{{ clubs.0.default_tournament_name }}">
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsLogo">Logo</label>
+              </div>
+              <div class="col-sm-3">
+                <input type="file" id="settingsLogo" value="{{ clubs.0.logo }}" />
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="settingsClubScoringType">Club Scoring Type</label>
+              </div>
+              <div class="col-sm-3">
+                <input list="clubTypes" id="settingsClubType" value="{{ clubs.0.player_plugin__name }}">
+                  <datalist id="clubTypes">
+                  {% for playerplugin in playerplugins %}
+                    <option value="{{ playerplugin.name }}"></option>
+                  {% endfor %}
+                  </datalist>
+                </input>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsClubData">Club Data</label>
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-8">
+                <input type="text" class="settingsClubData" id="settingsClubData" placeholder="{assn-number:<number>, club-number:<number>, password:<string>}" value="{{ clubs.0.data }}"/>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="settingsClubCourses" multiple="multiple" name="settingsClubCourses[]">
+                {% for course in courses %}
+                  {% if course.default == 0 %}
+                  <option value="{{ course.id }}">{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for course in courses %}
+                  {% if course.default == 1 %}
+                  <option value="{{ course.id }}" selected>{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="settingsClubTees" multiple="multiple" name="settingsClubTees[]">
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 0 %}
+                  <option value="{{ courseTee.id }}">{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 1 %}
+                  <option value="{{ courseTee.id }}" selected>{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="storeSettingsButton">Save</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="editCourses" tabindex="-1" role="dialog" aria-labelledby="editCoursesLabel">
+      <div class="modal-dialog modalEditCourses modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="editCoursesLabel">Edit Course</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+    	      <div id="editTournamentSearch">
+                <div class="input-group col-md-12">
+           		  <input id="editTournamentSearchInput" type="text" class="form-control input-lg" placeholder="Search" />
+               	  <span class="input-group-btn">
+                   	<button class="btn btn-info btn-lg" type="button">
+                      <i class="glyphicon glyphicon-search"></i>
+                   	</button>
+               	  </span>
+               	</div>
+               	<ul class="editTournamentList">
+                {% for course in courses %}
+               	  <li class="list-group-item" value="{{ course.id }}">{{ course.name }}</li>
+                {% endfor %}
+               	</ul>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-7"></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary" id="newCourseButton">New Course</button></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary" id="editCourseButton">Edit Course</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="importExportBackup" tabindex="-1" role="dialog" aria-labelledby="importExportBackupLabel">
+      <div class="modal-dialog modal-settings modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="importExportBackupLabel">Import/Export/Backup</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-3">
+                <label for="importExportClubCourses">Courses</label>
+              </div>
+              <div class="col-sm-5">
+                <input list="importExportClubCourses" id="importExportClubCourse">
+                  <datalist id="importExportClubCourses">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-2">
+                Export
+              </div>
+              <div class="col-sm-2">
+                Import
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-3">
+                <label for="importExportClubScore">Club Scores</label>
+              </div>
+              <div class="col-sm-5">
+                <input list="importExportClubScores" id="importExportClubScore">
+                  <datalist id="importExportClubScores">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-2">
+                Export
+              </div>
+              <div class="col-sm-2">
+                Import
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-3">
+                <label for="importExportClubType">Club Type</label>
+              </div>
+              <div class="col-sm-5">
+                <input list="importExportClubTypes" id="importExportClubType">
+                  <datalist id="importExportClubTypes">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-2">
+                Export
+              </div>
+              <div class="col-sm-2">
+                Import
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-3">
+                <label for="importExportTournamentFormat">Tournament Format</label>
+              </div>
+              <div class="col-sm-5">
+                <input list="importExportTournamentFormats" id="importExportTournamentFormat">
+                  <datalist id="importExportTournamentFormats">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-2">
+                Export
+              </div>
+              <div class="col-sm-2">
+                Import
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="storeSettingsButton">Save</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
