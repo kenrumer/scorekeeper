@@ -34,4 +34,8 @@ urlpatterns = [
     url(r'^addplayertoscorecard/$', views.addPlayerToScorecard, name='addplayertoscorecard'),
     url(r'^addscoretoscorecard/$', views.addScoreToScorecard, name='addscoretoscorecard'),
     url(r'^addroundtoplayer/$', views.addRoundToPlayer, name='addroundtoplayer'),
+    url(r'^docs/$', views.docs, name='docs'),
+    url(r'^docs/codestyle$', views.docscodestyle, name='docscodestyle'),
+    url(r'^docs/install$', views.docsinstall, name='docsinstall'),
+    url(r'^docs/editting$', views.docseditting, name='docseditting'),
 ]

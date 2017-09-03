@@ -5,6 +5,30 @@ from .models import Tournament, TournamentDate, Format, Player, Round, Score, Co
 from django.forms.models import model_to_dict
 import importlib
 
+def docs(request):
+    """
+    View function for documentation
+    """
+    return render(request, 'golf/documentation.html', {})
+
+def docscodestyle(request):
+    """
+    View function for code style documentation
+    """
+    return render(request, 'golf/docscodestyle.html', {})
+
+def docsinstall(request):
+    """
+    View function for software installation documentation
+    """
+    return render(request, 'golf/docsinstall.html', {})
+
+def docseditting(request):
+    """
+    View function for source code editting documentation
+    """
+    return render(request, 'golf/docseditting.html', {})
+
 def index(request):
     """
     View function for home page
