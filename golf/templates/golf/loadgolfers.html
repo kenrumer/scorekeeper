@@ -1,0 +1,146 @@
+{% extends "golf/base.html" %}
+
+{% load static %}
+
+{% block title %} Edit Course Details {% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+    <style>
+	  #summary-table .popover {
+		    max-width: 100%;
+	  }
+	  .terminated {
+		    color:#4933FF;
+		    font-style: italic;
+	  }
+    tr.highlight {
+        background-color: whitesmoke !important;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<script>
+    var table;
+    var remove_id = -1;
+
+    function rowHasChanged(row) {
+        var childChanged = false;
+        for (var i = 0; i < row.cells.length; i++) {
+            var child = row.cells[i].children[0];
+            if (child.type === 'checkbox') {
+                if (String(child.checked) != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            } else if (child.type === 'number') {
+                if (String(child.value) != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            } else {
+                if (child.value != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function valueChange(data) {
+        var table1 = document.getElementById('edit-courses-table');
+        if ((data.type === 'checkbox') && (data.getAttribute('data-checkbox-type') === 'only-one')) {
+            if (event.stopPropagation) {
+                event.stopPropagation();
+            } else {
+                window.event.cancelBubble = true;
+            }
+            if (!data.checked) {
+                data.checked = false;
+            } else {
+                for (var j = 1; j < table1.rows.length; j++) {
+                    var row = table1.rows[j];
+                    var child = row.cells[0].children[0];
+                    child.checked = false;
+                }
+                data.checked = true;
+            }
+        }
+        for (var j = 1; j < table1.rows.length; j++) {
+            var row = table1.rows[j];
+            var id = row.getAttribute('id');
+            if (id > 0) {
+                if (rowHasChanged(row)) {
+                    row.classList.add('highlight');
+                } else {
+                    row.classList.remove('highlight');
+                }
+            } else {
+                row.classList.add('highlight');
+            }
+        }
+    }
+
+    function updateCourse(data) {
+        var id = data.getAttribute('data-id');
+        var row = document.getElementById(id);
+        var isDefault = row.cells[0].children[0].checked;
+        var priority = row.cells[1].children[0].value;
+        var name = row.cells[2].children[0].value;
+        if (rowHasChanged(row)) {
+            $.post('/golf/updatecourse/'+id, { 'id': id , 'default': isDefault, 'priority': priority, 'name': name}).done(function(data) {
+                row.classList.remove('highlight');
+            });
+        }
+    }
+
+    function createCourse(data) {
+        var id = data.getAttribute('data-id');
+        var row = document.getElementById(id);
+        var isDefault = row.cells[0].children[0].checked;
+        var priority = row.cells[1].children[0].value;
+        var name = row.cells[2].children[0].value;
+        var actions = row.cells[3];
+        $.post('/golf/createcourse/', { 'default': isDefault, 'priority': priority, 'name': name}).done(function(data) {
+            var id = data.data[0].id;
+            row.classList.remove('highlight');
+            row.setAttribute('id', id);
+            actions.innerHTML = ' \
+                <div class="dropdown"> \
+                    <button class="btn btn-default dropdown-toggle editcourses-actions-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> \
+                        &#9733 \
+                        <span class="caret"></span> \
+                    </button> \
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"> \
+                        <li><a href="/golf/editcoursetees/'+id+'">Edit Course Tees</a></li> \
+                        <li><a href="#" onclick="updateCourse(this);" data-id="'+id+'">Update Course</a></li> \
+                        <li><a href="#" data-action="remove-course" data-id="'+id+'">Remove Course</a></li> \
+                    </ul> \
+                </div>';
+        })
+    }
+
+    function removeCourse(data) {
+        var id = data.getAttribute('data-id');
+        $.get('/golf/removecourse/'+id).done(function() {
+            $('#remove-course').modal('hide');
+            table.row('#'+id).remove().draw();
+        }).fail(function() {
+            $('#remove-course-error').text();
+        });
+    }
+
+    function removeCreatedCourse(data) {
+        var id = data.getAttribute('data-id');
+        table.row('#'+id).remove().draw();
+    }
+
+    $(document).ready(function() {
+    });
+</script>
+{% endblock %}

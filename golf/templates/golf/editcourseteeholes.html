@@ -1,0 +1,312 @@
+{% extends "golf/base.html" %}
+
+{% load static %}
+
+{% block title %} Edit Course Tee Hole Details {% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+    <style>
+	  #summary-table .popover {
+		    max-width: 100%;
+	  }
+	  .terminated {
+		    color:#4933FF;
+		    font-style: italic;
+	  }
+    tr.highlight {
+        background-color: whitesmoke !important;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<script>
+    var table;
+    var remove_id = -1;
+
+    function rowHasChanged(row) {
+        var childChanged = false;
+        for (var i = 0; i < row.cells.length; i++) {
+            var child = row.cells[i].children[0];
+            if (child.type === 'checkbox') {
+                if (String(child.checked) != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            } else if (child.type === 'number') {
+                if (String(child.value) != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            } else {
+                if (child.value != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function valueChange(data) {
+        var table1 = document.getElementById('edit-course-tee-holes-table');
+        if ((data.type === 'checkbox') && (data.getAttribute('data-checkbox-type') === 'only-one')) {
+            if (event.stopPropagation) {
+                event.stopPropagation();
+            } else {
+                window.event.cancelBubble = true;
+            }
+            if (!data.checked) {
+                data.checked = false;
+            } else {
+                for (var j = 1; j < table1.rows.length; j++) {
+                    var row = table1.rows[j];
+                    var child = row.cells[0].children[0];
+                    child.checked = false;
+                }
+                data.checked = true;
+            }
+        }
+        for (var j = 1; j < table1.rows.length; j++) {
+            var row = table1.rows[j];
+            var id = row.getAttribute('id');
+            if (id > 0) {
+                if (rowHasChanged(row)) {
+                    row.classList.add('highlight');
+                } else {
+                    row.classList.remove('highlight');
+                }
+            } else {
+                row.classList.add('highlight');
+            }
+        }
+    }
+
+    function updateCourseTeeHole(data) {
+        console.log(data);
+        var id = data.getAttribute('data-id');
+        var course_id = data.getAttribute('data-course-id');
+        var course_tee_id = data.getAttribute('data-course-tee-id');
+        var row = document.getElementById(id);
+        var number = row.cells[0].children[0].value;
+        var name = row.cells[1].children[0].value;
+        var yardage = row.cells[2].children[0].value;
+        var par = row.cells[3].children[0].value;
+        var handicap = row.cells[4].children[0].value;
+        if (rowHasChanged(row)) {
+            $.post('/golf/updatecourseteehole/'+course_id+'/'+course_tee_id+'/'+id, { 'id': id , 'number': number, 'name': name, 'yardage': yardage, 'par': par, 'handicap': handicap}).done(function(data) {
+                row.classList.remove('highlight');
+            });
+        }
+    }
+
+    function createCourseTeeHole(data) {
+        console.log(data);
+        var id = data.getAttribute('data-id');
+        var course_id = data.getAttribute('data-course-id');
+        var course_tee_id = data.getAttribute('data-course-tee-id');
+        var row = document.getElementById(id);
+        var number = row.cells[0].children[0].value;
+        var name = row.cells[1].children[0].value;
+        var yardage = row.cells[2].children[0].value;
+        var par = row.cells[3].children[0].value;
+        var handicap = row.cells[4].children[0].value;
+        var actions = row.cells[5];
+        $.post('/golf/createcourseteehole/'+course_id+'/'+course_tee_id, { 'number': number, 'name': name, 'yardage': yardage, 'par': par, 'handicap': handicap}).done(function(data) {
+            var id = data.data[0].id;
+            row.classList.remove('highlight');
+            row.setAttribute('id', id);
+            actions.innerHTML = ' \
+            <div class="dropdown"> \
+                <button class="btn btn-default dropdown-toggle editcourses-actions-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> \
+                    &#9733 \
+                    <span class="caret"></span> \
+                </button> \
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"> \
+                    <li><a href="#" onclick="updateCourseTeeHole(this);" data-id="'+id+'" data-course-id="{{ course_id }}" data-course-tee-id="{{ course_tee_id }}">Update Course Tee Hole</a></li> \
+                    <li><a href="#" data-action="remove-course-tee-hole" data-id="'+id+'">Remove Course Tee Hole</a></li> \
+                </ul> \
+            </div>';
+        });
+    }
+
+    function removeCourseTeeHole(data) {
+        console.log(data);
+        var id = data.getAttribute('data-id');
+        $.get('/golf/removecourseteehole/'+id).done(function() {
+            $('#remove-course-tee-hole').modal('hide');
+            table.row('#'+id).remove().draw();
+        }).fail(function() {
+            $('#remove-course-tee-hole-error').text();
+        });
+    }
+
+    function removeCreatedCourseTeeHole(data) {
+        var id = data.getAttribute('data-id');
+        table.row('#'+id).remove().draw();
+    }
+
+    $(document).ready(function() {
+
+        $('#remove-course-tee-hole').on('show.bs.modal', function(event) {
+            var $button = $(event.relatedTarget);
+            var id = $button.attr('data-id');
+            var row = document.getElementById(id);
+            var number = row.cells[0].children[0].value;
+            var name = row.cells[1].children[0].value;
+            $('#remove-course-tee-hole-button').attr('data-id', id);
+            $('#remove-course-tee-hole-number').text(number);
+            $('#remove-course-tee-hole-name').text(name);
+        });
+
+        table = $('#edit-course-tee-holes-table').DataTable( {
+            'dom': 'Bfrtip',
+            'buttons': [
+                {
+                    'text': '<u>A</u>dd Course Tee Hole',
+                    'key': {
+                        'key': 'a',
+                        'shiftKey': true
+                    },
+                    'action': function ( e, dt, node, config ) {
+                        var rowNode = dt.row.add({'id': remove_id, 'hole__number': 1, 'hole__name': '', 'yardage': 0, 'par': 0, 'handicap': 0}).draw().node();
+                        $(rowNode).addClass('highlight');
+                        remove_id--;
+                    }
+                }
+            ],
+            'scrollY': '75vh',
+            'scrollCollapse': false,
+            'paging': false,
+            'ajax': '/golf/getcourseteeholes/{{ course_id }}/{{ course_tee_id }}',
+            'columnDefs': [ {
+                'targets': 0,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    $(td).html('<input id="course-tee-hole-number" type="number" min="0" max="18" value="'+cellData+'" onclick="javascript:valueChange(this);" data-id='+rowData['id']+' data-original-value="'+cellData+'">');
+                },
+                'orderable': true
+            }, {
+                'targets': 1,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    $(td).html('<input id="course-tee-hole-name" type="text" value="'+cellData+'" size="80px" onkeydown="javascript:valueChange(this);" onpaste="javascript:valueChange(this);" oninput="javascript:valueChange(this);" data-id='+rowData['id']+' data-original-value="'+cellData+'">');
+                },
+                'orderable': true
+            }, {
+                'targets': 2,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    $(td).html('<input id="course-tee-yardage" type="number" min="0" max="1000" value="'+cellData+'" onclick="javascript:valueChange(this);" data-id='+rowData['id']+' data-original-value="'+cellData+'">');
+                },
+                'orderable': true
+            }, {
+                'targets': 3,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    $(td).html('<input id="course-tee-par" type="number" min="0" max="6" value="'+cellData+'" onclick="javascript:valueChange(this);" data-id='+rowData['id']+' data-original-value="'+cellData+'">');
+                },
+                'orderable': true
+            }, {
+                'targets': 4,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    $(td).html('<input id="course-tee-handicap" type="number" min="0" max="18" value="'+cellData+'" onclick="javascript:valueChange(this);" data-id='+rowData['id']+' data-original-value="'+cellData+'">');
+                },
+                'orderable': true
+            }, {
+                'targets': 5,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    var $cell = $(td);
+                    $cell.addClass('actions-cell');
+                    if (rowData.id < 0) {
+                        $(td).html(' \
+                            <div class="dropdown"> \
+                                <button class="btn btn-default dropdown-toggle editcourses-actions-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> \
+                                    &#9733 \
+                                    <span class="caret"></span> \
+                                </button> \
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"> \
+                                    <li><a href="#" onclick="createCourseTeeHole(this);" data-id="'+rowData.id+'" data-course-id="{{ course_id }}" data-course-tee-id="{{ course_tee_id }}">Create Course Tee Hole</a></li> \
+                                    <li><a href="#" onclick="removeCreatedCourseTeeHole(this);" data-id="'+rowData.id+'">Remove Course Tee Hole</a></li> \
+                                </ul> \
+                            </div>');
+                    } else {
+                        $(td).html(' \
+                            <div class="dropdown"> \
+                                <button class="btn btn-default dropdown-toggle editcourses-actions-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> \
+                                    &#9733 \
+                                    <span class="caret"></span> \
+                                </button> \
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"> \
+                                    <li><a href="#" onclick="updateCourseTeeHole(this);" data-id="'+rowData.id+'" data-course-id="{{ course_id }}" data-course-tee-id="{{ course_tee_id }}">Update Course Tee Hole</a></li> \
+                                    <li><a href="#" data-action="remove-course-tee-hole" data-id="'+rowData.id+'">Remove Course Tee Hole</a></li> \
+                                </ul> \
+                            </div>');
+                    }
+                },
+                'orderable': false
+            } ],
+            'columns': [
+                { 'data': 'hole__number' },
+                { 'data': 'hole__name' },
+                { 'data': 'yardage'},
+                { 'data': 'par'},
+                { 'data': 'handicap'},
+                { 'data': null }
+            ],
+            'order': [[ 0, 'asc' ]],
+            'rowId': 'id',
+            'drawCallback': function(settings) {
+                $('[data-action="remove-course-tee-hole"]').click(function(event) {
+                    event.stopPropagation();
+                    $('#remove-course-tee-hole').modal({}, event.target).show();
+                });
+            },
+            'processing': true,
+            'language': {
+                'processing': '<p class="bg-warning">Processing...</p>'
+            }
+        });
+    });
+</script>
+
+    <div class="row">
+      <div class="edit-course-tee-holes-table">
+          <table class="table edit-course-tee-holes-table" id="edit-course-tee-holes-table">
+              <thead>
+                  <tr>
+                      <th>Hole</th>
+                      <th>Name</th>
+                      <th>Yardage</th>
+                      <th>Par</th>
+                      <th>Handicap</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+              </tbody>
+          </table>
+      </div>
+    </div>
+
+    <div class="modal fade" id="remove-course-tee-hole" tabindex="-1" role="dialog" aria-labelledby="remove-course-tee-hole-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="remove-course-tee-label">Remove Course Tee Hole</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row"><div class="col-sm-12"><span class="label label-default">Are you sure you would like to remove this course tee hole?</span></div></div>
+                    <div class="row"><div class="col-sm-12"><span class="label label-default" id="remove-course-tee-hole-number"></span></div></div>
+                    <div class="row"><div class="col-sm-12"><span class="label label-default" id="remove-course-tee-hole-name"></span></div></div>
+                    <div class="row"><div class="col-sm-12" id="remove-course-tee-hole-error"></div></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-4"><button type="button" class="btn btn-primary remove-course-tee-hole" data-id="id" id="remove-course-tee-hole-button" onclick="javascript:removeCourseTeeHole(this);">Yes</button></div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

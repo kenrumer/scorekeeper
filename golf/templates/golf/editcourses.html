@@ -1,0 +1,284 @@
+{% extends "golf/base.html" %}
+
+{% load static %}
+
+{% block title %} Edit Course Details {% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+    <style>
+	  #summary-table .popover {
+		    max-width: 100%;
+	  }
+	  .terminated {
+		    color:#4933FF;
+		    font-style: italic;
+	  }
+    tr.highlight {
+        background-color: whitesmoke !important;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<script>
+    var table;
+    var remove_id = -1;
+
+    function rowHasChanged(row) {
+        var childChanged = false;
+        for (var i = 0; i < row.cells.length; i++) {
+            var child = row.cells[i].children[0];
+            if (child.type === 'checkbox') {
+                if (String(child.checked) != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            } else if (child.type === 'number') {
+                if (String(child.value) != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            } else {
+                if (child.value != child.getAttribute('data-original-value')) {
+                    row.classList.add('highlight');
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function valueChange(data) {
+        var table1 = document.getElementById('edit-courses-table');
+        if ((data.type === 'checkbox') && (data.getAttribute('data-checkbox-type') === 'only-one')) {
+            if (event.stopPropagation) {
+                event.stopPropagation();
+            } else {
+                window.event.cancelBubble = true;
+            }
+            if (!data.checked) {
+                data.checked = false;
+            } else {
+                for (var j = 1; j < table1.rows.length; j++) {
+                    var row = table1.rows[j];
+                    var child = row.cells[0].children[0];
+                    child.checked = false;
+                }
+                data.checked = true;
+            }
+        }
+        for (var j = 1; j < table1.rows.length; j++) {
+            var row = table1.rows[j];
+            var id = row.getAttribute('id');
+            if (id > 0) {
+                if (rowHasChanged(row)) {
+                    row.classList.add('highlight');
+                } else {
+                    row.classList.remove('highlight');
+                }
+            } else {
+                row.classList.add('highlight');
+            }
+        }
+    }
+
+    function updateCourse(data) {
+        var id = data.getAttribute('data-id');
+        var row = document.getElementById(id);
+        var isDefault = row.cells[0].children[0].checked;
+        var priority = row.cells[1].children[0].value;
+        var name = row.cells[2].children[0].value;
+        if (rowHasChanged(row)) {
+            $.post('/golf/updatecourse/'+id, { 'id': id , 'default': isDefault, 'priority': priority, 'name': name}).done(function(data) {
+                row.classList.remove('highlight');
+            });
+        }
+    }
+
+    function createCourse(data) {
+        var id = data.getAttribute('data-id');
+        var row = document.getElementById(id);
+        var isDefault = row.cells[0].children[0].checked;
+        var priority = row.cells[1].children[0].value;
+        var name = row.cells[2].children[0].value;
+        var actions = row.cells[3];
+        $.post('/golf/createcourse/', { 'default': isDefault, 'priority': priority, 'name': name}).done(function(data) {
+            var id = data.data[0].id;
+            row.classList.remove('highlight');
+            row.setAttribute('id', id);
+            actions.innerHTML = ' \
+                <div class="dropdown"> \
+                    <button class="btn btn-default dropdown-toggle editcourses-actions-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> \
+                        &#9733 \
+                        <span class="caret"></span> \
+                    </button> \
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"> \
+                        <li><a href="/golf/editcoursetees/'+id+'">Edit Course Tees</a></li> \
+                        <li><a href="#" onclick="updateCourse(this);" data-id="'+id+'">Update Course</a></li> \
+                        <li><a href="#" data-action="remove-course" data-id="'+id+'">Remove Course</a></li> \
+                    </ul> \
+                </div>';
+        })
+    }
+
+    function removeCourse(data) {
+        var id = data.getAttribute('data-id');
+        $.get('/golf/removecourse/'+id).done(function() {
+            $('#remove-course').modal('hide');
+            table.row('#'+id).remove().draw();
+        }).fail(function() {
+            $('#remove-course-error').text();
+        });
+    }
+
+    function removeCreatedCourse(data) {
+        var id = data.getAttribute('data-id');
+        table.row('#'+id).remove().draw();
+    }
+
+    $(document).ready(function() {
+
+        $('#remove-course').on('show.bs.modal', function(event) {
+            var $button = $(event.relatedTarget);
+            var id = $button.attr('data-id');
+            var row = document.getElementById(id);
+            var name = row.cells[2].children[0].value;
+            $('#remove-course-button').attr('data-id', id);
+            $('#remove-course-name').text(name);
+        });
+
+        table = $('#edit-courses-table').DataTable( {
+            'dom': 'Bfrtip',
+            'buttons': [
+                {
+                    'text': '<u>A</u>dd Course',
+                    'key': {
+                        'key': 'a',
+                        'shiftKey': true
+                    },
+                    'action': function ( e, dt, node, config ) {
+                        var rowNode = dt.row.add({'id': remove_id, 'priority': -1, 'default': false, 'name': ''}).draw().node();
+                        $(rowNode).addClass('highlight');
+                        remove_id--;
+                    }
+                }
+            ],
+            'scrollY': '75vh',
+            'scrollCollapse': false,
+            'paging': false,
+            'ajax': '/golf/getcourses/',
+            'columnDefs': [ {
+                'targets': 0,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    if (cellData) {
+                        $(td).html('<input id="course-default" type="checkbox" onchange="javascript:valueChange(this);return false;" data-checkbox-type="only-one" data-id='+rowData['id']+' data-original-value=true checked=true>');
+                    } else {
+                        $(td).html('<input id="course-default" type="checkbox" onchange="javascript:valueChange(this);return false;" data-checkbox-type="only-one" data-id='+rowData['id']+' data-original-value=false>');
+                    }
+                },
+                'orderable': true
+            }, {
+                'targets': 1,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    $(td).html('<input id="course-priority" type="number" min="-1" max="99" value="'+cellData+'" onclick="javascript:valueChange(this);" data-id='+rowData['id']+' data-original-value="'+cellData+'">');
+                },
+                'orderable': true
+            }, {
+                'targets': 2,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    $(td).html('<input id="course-name" type="text" value="'+cellData+'" size="80px" onkeydown="javascript:valueChange(this);" onpaste="javascript:valueChange(this);" oninput="javascript:valueChange(this);" data-id='+rowData['id']+' data-original-value="'+cellData+'">');
+                },
+                'orderable': false
+            }, {
+                'targets': 3,
+                'createdCell': function (td, cellData, rowData, row, col) {
+                    var $cell = $(td);
+                    $cell.addClass('actions-cell');
+                    if (rowData.id < 0) {
+                        $cell.html(' \
+                            <div class="dropdown"> \
+                                <button class="btn btn-default dropdown-toggle editcourses-actions-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> \
+                                    &#9733 \
+                                    <span class="caret"></span> \
+                                </button> \
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"> \
+                                    <li><a href="#" onclick="createCourse(this);" data-id="'+rowData.id+'">Create Course</a></li> \
+                                    <li><a href="#" onclick="removeCreatedCourse(this);" data-id="'+rowData.id+'">Remove Course</a></li> \
+                                </ul> \
+                            </div>');
+                    } else {
+                        $cell.html(' \
+                            <div class="dropdown"> \
+                                <button class="btn btn-default dropdown-toggle editcourses-actions-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> \
+                                    &#9733 \
+                                    <span class="caret"></span> \
+                                </button> \
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"> \
+                                    <li><a href="/golf/editcoursetees/'+rowData.id+'">Edit Course Tees</a></li> \
+                                    <li><a href="#" onclick="updateCourse(this);" data-id="'+rowData.id+'">Update Course</a></li> \
+                                    <li><a href="#" data-action="remove-course" data-id="'+rowData.id+'">Remove Course</a></li> \
+                                </ul> \
+                            </div>');
+                    }
+                },
+                'orderable': false
+            } ],
+            'columns': [
+                { 'data': 'default' },
+                { 'data': 'priority'},
+                { 'data': 'name' },
+                { 'data': null }
+            ],
+            'order': [[ 1, 'desc' ]],
+            'rowId': 'id',
+            'drawCallback': function(settings) {
+                $('[data-action="remove-course"]').click(function(event) {
+                    event.stopPropagation();
+                    $('#remove-course').modal({}, event.target).show();
+                });
+            },
+            'processing': true,
+            'language': {
+                'processing': '<p class="bg-warning">Processing...</p>'
+            }
+        });
+    });
+</script>
+
+    <table class="table edit-courses-table" id="edit-courses-table">
+        <thead>
+            <tr>
+                <th>Default</th>
+                <th>Priority</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="remove-course" tabindex="-1" role="dialog" aria-labelledby="remove-course-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="remove-course-label">Remove Course</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row"><div class="col-sm-12"><span class="label label-default">Are you sure you would like to remove this course?</span></div></div>
+                    <div class="row"><div class="col-sm-12"><span class="label label-default" id="remove-course-name"></span></div></div>
+                    <div class="row"><div class="col-sm-12" id="remove-course-error"></div></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-4"><button type="button" class="btn btn-primary remove-course" data-id="id" id="remove-course-button" onclick="javascript:removeCourse(this);">Yes</button></div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,325 @@
+{% load mathfilters %}
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+  	  .row1 {
+  		    background-color:#999999;
+  	  }
+      .rows {
+          font-size: small;
+      }
+    </style>
+</head>
+<body>
+    {% for club in clubs %}
+    <h3 style="text-align:center">{{ club.name }}</h3>
+    {% endfor %}
+    <h4 style="text-align:center">Groups</h4>
+    <table style="width:100%">
+        <tr class="rows">
+            <td style="text-align:left">1_______________________________</td>
+            <td style="text-align:left">7_______________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">2_______________________________</td>
+            <td style="text-align:left">8_______________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">3_______________________________</td>
+            <td style="text-align:left">9_______________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">4_______________________________</td>
+            <td style="text-align:left">10______________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">5_______________________________</td>
+            <td style="text-align:left">11______________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left"></td>
+            <td style="text-align:left"></td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">6_______________________________</td>
+            <td style="text-align:left">12______________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">________________________________</td>
+            <td style="text-align:left">________________________________</td>
+        </tr>
+    </table>
+    <p style="page-break-before: always" ></p>
+    {% for club in clubs %}
+    <h3 style="text-align:center">{{ club.name }}</h3>
+    {% endfor %}
+    <h4 style="text-align:center">Starter</h4>
+    <table style="width:100%">
+        <tr class="rows">
+            <td style="text-align:left">1_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">2_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">3_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">4_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">5_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">6_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">7_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">8_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">9_______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">10______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">11______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">12______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">13______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">14______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">15______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">16______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">17______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">18______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">19______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">20______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">21______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">22______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">23______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">24______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">25______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">26______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">27______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">28______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">29______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">30______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">31______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">32______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">33______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">34______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">35______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">36______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">37______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">38______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">39______________________________________________________________</td>
+        </tr>
+        <tr class="rows">
+            <td style="text-align:left">40______________________________________________________________</td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,25 @@
+
+.enterScorecardHoleInput{
+    width: 37px;
+}
+.addRowToScorecard {
+    width:24px;
+}
+body .modal-dialog {
+    width: 1160px;
+}
+.plusMinusButton {
+    width: 24px;
+}
+#scorecard > thead > tr > th > input {
+    width: 37px;
+}
+#scorecard > tfoot > tr > th > input {
+    width: 37px;
+}
+#scorecard > tbody > tr > th > input {
+    width: 37px;
+}
+#scorecard > tbody > tr > td > input {
+    width: 37px;
+}
