@@ -340,112 +340,6 @@
       </div>
     </div>
 
-    <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel">
-      <div class="modal-dialog modal-settings modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="settingsLabel">Settings</h4>
-          </div>
-          <div class="modal-body">
-            <div class="row bottomSpaced">
-              <div class="col-sm-2">
-                <label for="settingsClubName">Club Name Edit</label>
-              </div>
-              <div class="col-sm-3">
-                <input type="text" id="settingsClubName" value="{{ clubs.0.name }}">
-              </div>
-              <div class="col-sm-2">
-              </div>
-              <div class="col-sm-2">
-                <label for="settingsDefaultTournamentName">Tournament Name</label>
-              </div>
-              <div class="col-sm-3">
-                <input type="text" id="settingsDefaultTournamentName" value="{{ clubs.0.default_tournament_name }}">
-              </div>
-            </div>
-            <div class="row bottomSpaced">
-              <div class="col-sm-2">
-                <label for="settingsLogo">Logo</label>
-              </div>
-              <div class="col-sm-3">
-                <input type="file" id="settingsLogo" value="{{ clubs.0.logo }}" />
-              </div>
-              <div class="col-sm-2">
-              </div>
-              <div class="col-sm-2">
-                <label for="settingsClubScoringType">Club Scoring Type</label>
-              </div>
-              <div class="col-sm-3">
-                <input list="clubTypes" id="settingsClubType" value="{{ clubs.0.player_plugin__name }}">
-                  <datalist id="clubTypes">
-                  {% for playerplugin in playerplugins %}
-                    <option value="{{ playerplugin.name }}"></option>
-                  {% endfor %}
-                  </datalist>
-                </input>
-              </div>
-            </div>
-            <div class="row bottomSpaced">
-              <div class="col-sm-2">
-                <label for="settingsClubData">Club Data</label>
-              </div>
-              <div class="col-sm-2">
-              </div>
-              <div class="col-sm-8">
-                <input type="text" class="settingsClubData" id="settingsClubData" placeholder="{assn-number:<number>, club-number:<number>, password:<string>}" value="{{ clubs.0.data }}"/>
-              </div>
-            </div>
-            <div class="row bottomSpaced">
-              <div class="col-sm-1">
-              </div>
-              <div class="col-sm-10">
-                <select id="settingsClubCourses" multiple="multiple" name="settingsClubCourses[]">
-                {% for course in courses %}
-                  {% if course.default == 0 %}
-                  <option value="{{ course.id }}">{{ course.name }}</option>
-                  {% endif %}
-                {% endfor %}
-                {% for course in courses %}
-                  {% if course.default == 1 %}
-                  <option value="{{ course.id }}" selected>{{ course.name }}</option>
-                  {% endif %}
-                {% endfor %}
-                </select>
-              </div>
-              <div class="col-sm-1">
-              </div>
-            </div>
-            <div class="row bottomSpaced">
-              <div class="col-sm-1">
-              </div>
-              <div class="col-sm-10">
-                <select id="settingsClubTees" multiple="multiple" name="settingsClubTees[]">
-                {% for courseTee in courseTees %}
-                  {% if courseTee.default == 0 %}
-                  <option value="{{ courseTee.id }}">{{ courseTee.course__name }} - {{ courseTee.name }}</option>
-                  {% endif %}
-                {% endfor %}
-                {% for courseTee in courseTees %}
-                  {% if courseTee.default == 1 %}
-                  <option value="{{ courseTee.id }}" selected>{{ courseTee.course__name }} - {{ courseTee.name }}</option>
-                  {% endif %}
-                {% endfor %}
-                </select>
-              </div>
-              <div class="col-sm-1">
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <div class="col-sm-10"></div>
-            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="storeSettingsButton">Save</button></div>
-            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="modal fade" id="editCourses" tabindex="-1" role="dialog" aria-labelledby="editCoursesLabel">
       <div class="modal-dialog modalEditCourses modal-lg" role="document">
         <div class="modal-content">
@@ -560,6 +454,112 @@
               </div>
               <div class="col-sm-2">
                 Import
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="storeSettingsButton">Save</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel">
+      <div class="modal-dialog modal-settings modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="settingsLabel">Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsClubName">Club Name Edit</label>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" id="settingsClubName" value="{{ clubs.0.name }}">
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="settingsDefaultTournamentName">Tournament Name</label>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" id="settingsDefaultTournamentName" value="{{ clubs.0.default_tournament_name }}">
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsLogo">Logo</label>
+              </div>
+              <div class="col-sm-3">
+                <input type="file" id="settingsLogo" value="{{ clubs.0.logo }}" />
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="settingsClubScoringType">Club Scoring Type</label>
+              </div>
+              <div class="col-sm-3">
+                <input list="clubTypes" id="settingsClubType" value="{{ clubs.0.player_plugin__name }}">
+                  <datalist id="clubTypes">
+                  {% for playerplugin in playerplugins %}
+                    <option value="{{ playerplugin.name }}"></option>
+                  {% endfor %}
+                  </datalist>
+                </input>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsClubData">Club Data</label>
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-8">
+                <input type="text" class="settingsClubData" id="settingsClubData" placeholder="{assn-number:<number>, club-number:<number>, password:<string>}" value="{{ clubs.0.data }}"/>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="settingsClubCourses" multiple="multiple" name="settingsClubCourses[]">
+                {% for course in courses %}
+                  {% if course.default == 0 %}
+                  <option value="{{ course.id }}">{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for course in courses %}
+                  {% if course.default == 1 %}
+                  <option value="{{ course.id }}" selected>{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="settingsClubTees" multiple="multiple" name="settingsClubTees[]">
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 0 %}
+                  <option value="{{ courseTee.id }}">{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 1 %}
+                  <option value="{{ courseTee.id }}" selected>{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
               </div>
             </div>
           </div>

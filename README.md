@@ -53,7 +53,10 @@ double quote strings in html
 
 ## Deployment
 
-In the cloud9 workspace there is a simple script that will commit to github called cgh.  It takes an optional parameter of 'message' which will override the default 'commit from cloud9'.  Use this if there is valuable commit messaging required.
+In the cloud9 workspace there is a simple script that will commit to github called cgh.
+It takes an optional parameter of 'message' which will override the default 'commit from cloud9'.  Use this if there is valuable commit messaging required.
+In the pythonanywhere console, use the pull github script pgh to get the latest from github.  This may require web app reload from https://www.pythonanywhere.com/user/kenrumer/webapps/#tab_id_kenrumer_pythonanywhere_com
+
 
 ## Built With
 

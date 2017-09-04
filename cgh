@@ -1,0 +1,5 @@
+#!/bin/bash
+
+git add .
+git commit -m 'commit from cloud9'
+git push origin master
