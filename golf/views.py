@@ -40,6 +40,7 @@ def index(request):
     tournamentDates = list(TournamentDate.objects.values('id', 'date', 'tournament__id', 'tournament__name'))
     tournaments = list(Tournament.objects.values('id', 'name'))
     formats = list(Format.objects.values('id', 'name', 'priority', 'default'))
+    players = list(Player.objects.values('id', 'club_member_number', 'name', 'handicap_index', 'high_handicap_index', 'low_handicap_index', 'last_updated', 'data', 'priority'))
     context = {
         'clubs': clubs,
         'playerplugins': playerPlugins,
@@ -47,7 +48,8 @@ def index(request):
         'courseTees': courseTees,
         'tournamentDates': tournamentDates,
         'formats': formats,
-        'tournaments': tournaments
+        'tournaments': tournaments,
+        'players': players
     }
     return render(request, 'golf/index.html', context=context)
 
