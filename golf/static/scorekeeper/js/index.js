@@ -21,11 +21,11 @@
       $('#editTournament').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#editTournamentSearchInput').keyup(function(event){
-    	var current_query = $('#editTournamentSearchInput').val();
+    	var current_query = $('#editTournamentSearchInput').val().toUpperCase();
     	if (current_query !== '') {
       	$('.editTournamentList li').hide();
       	$('.editTournamentList li').each(function(){
-        	var current_keyword = $(this).text();
+        	var current_keyword = $(this).text().toUpperCase();
         	if (current_keyword.indexOf(current_query) >=0) {
         		$(this).show();
         	}
@@ -58,11 +58,11 @@
       $('#editPlayers').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#editPlayersSearchInput').keyup(function(event){
-    	var current_query = $('#editPlayersSearchInput').val();
+    	var current_query = $('#editPlayersSearchInput').val().toUpperCase();
     	if (current_query !== '') {
       	$('.editPlayersList li').hide();
       	$('.editPlayersList li').each(function(){
-        	var current_keyword = $(this).text();
+        	var current_keyword = $(this).text().toUpperCase();
         	if (current_keyword.indexOf(current_query) >=0) {
         		$(this).show();
         	}
@@ -88,11 +88,11 @@
       $('#editCourses').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#editCoursesSearchInput').keyup(function(event){
-    	var current_query = $('#editCoursesSearchInput').val();
+    	var current_query = $('#editCoursesSearchInput').val().toUpperCase();
     	if (current_query !== '') {
       	$('.editCoursesList li').hide();
       	$('.editCoursesList li').each(function(){
-        	var current_keyword = $(this).text();
+        	var current_keyword = $(this).text().toUpperCase();
         	if (current_keyword.indexOf(current_query) >=0) {
         		$(this).show();
         	}
