@@ -391,6 +391,43 @@
       </div>
     </div>
 
+    <!-- Edit players -->
+    <div class="modal fade" id="editPlayers" tabindex="-1" role="dialog" aria-labelledby="editPlayersLabel">
+      <div class="modal-dialog modalEditPlayers modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="editPlayersLabel">Edit Course</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+    	      <div id="editPlayersSearch">
+                <div class="input-group col-md-12">
+           		  <input id="editPlayersSearchInput" type="text" class="form-control input-lg" placeholder="Search" />
+               	  <span class="input-group-btn">
+                   	<button class="btn btn-info btn-lg" type="button">
+                      <i class="glyphicon glyphicon-search"></i>
+                   	</button>
+               	  </span>
+               	</div>
+               	<ul class="editPlayersList">
+                {% for player in players %}
+               	  <li class="list-group-item" value="{{ player.id }}">{{ player.name }}</li>
+                {% endfor %}
+               	</ul>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" id="newPlayerButton">New Player</button></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary" id="editPlayersButton">Edit Player</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Edit courses -->
     <div class="modal fade" id="editCourses" tabindex="-1" role="dialog" aria-labelledby="editCoursesLabel">
       <div class="modal-dialog modalEditCourses modal-lg" role="document">
@@ -401,16 +438,16 @@
           </div>
           <div class="modal-body">
             <div class="row bottomSpaced">
-    	      <div id="editTournamentSearch">
+    	      <div id="editCoursesSearch">
                 <div class="input-group col-md-12">
-           		  <input id="editTournamentSearchInput" type="text" class="form-control input-lg" placeholder="Search" />
+           		  <input id="editCoursesSearchInput" type="text" class="form-control input-lg" placeholder="Search" />
                	  <span class="input-group-btn">
                    	<button class="btn btn-info btn-lg" type="button">
                       <i class="glyphicon glyphicon-search"></i>
                    	</button>
                	  </span>
                	</div>
-               	<ul class="editTournamentList">
+               	<ul class="editCoursesList">
                 {% for course in courses %}
                	  <li class="list-group-item" value="{{ course.id }}">{{ course.name }}</li>
                 {% endfor %}
