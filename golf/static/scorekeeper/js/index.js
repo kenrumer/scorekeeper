@@ -56,7 +56,21 @@
     
     $('#editPlayersButton').click(function(event) {
       $('#editPlayers').modal({backdrop: 'static', keyboard: false}, event.target).show();
-    })
+    });
+    $('#editPlayersSearchInput').keyup(function(event){
+    	var current_query = $('#editPlayersSearchInput').val();
+    	if (current_query !== '') {
+      	$('.editPlayersList li').hide();
+      	$('.editPlayersList li').each(function(){
+        	var current_keyword = $(this).text();
+        	if (current_keyword.indexOf(current_query) >=0) {
+        		$(this).show();
+        	}
+      	});
+    	} else {
+    		$('.editPlayersList li').show();
+    	}
+  	});
 
     $('#printIndexesButton').click(function(event) {
       window.open('/golf/printplayers/');
@@ -73,6 +87,20 @@
     $('#editCoursesButton').click(function(event) {
       $('#editCourses').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
+    $('#editCoursesSearchInput').keyup(function(event){
+    	var current_query = $('#editCoursesSearchInput').val();
+    	if (current_query !== '') {
+      	$('.editCoursesList li').hide();
+      	$('.editCoursesList li').each(function(){
+        	var current_keyword = $(this).text();
+        	if (current_keyword.indexOf(current_query) >=0) {
+        		$(this).show();
+        	}
+      	});
+    	} else {
+    		$('.editCoursesList li').show();
+    	}
+  	});
     $('#newCourseButton').click(function(event) {
       $('#enterNewCourseName').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
