@@ -119,6 +119,18 @@ body .modal-dialog {
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
+.editCoursesList {
+  height: 169px;
+  overflow-y: scroll;
+  -webkit-padding-start: 0px;
+  -moz-padding-start: 0px;
+}
+.editPlayersList {
+  height: 169px;
+  overflow-y: scroll;
+  -webkit-padding-start: 0px;
+  -moz-padding-start: 0px;
+}
 .glyphicon-refresh-animate {
   -animation: spin .7s infinite linear;
   -webkit-animation: spin2 .7s infinite linear;
