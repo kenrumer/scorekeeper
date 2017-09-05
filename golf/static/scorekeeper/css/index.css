@@ -1,131 +1,148 @@
 .newTournamentName {
-    width:450px;
+  width:450px;
 }
 .settingsClubData {
-    width:650px;
+  width:650px;
 }
 .newTournamentFormat {
-    width:450px;
+  width:450px;
 }
 .newTournamentNumRounds {
-    width: 37px;
+  width: 37px;
 }
 .bottomSpaced {
-    margin-bottom:8px;
+  margin-bottom:8px;
 }
 .loadingHidden {
-    visibility:hidden;
+  visibility:hidden;
 }
 .settingsHidden {
-    visibility:hidden;
+  visibility:hidden;
 }
 .buttonHeading {
-    font-weight: bold;
-    text-align:center;
+  font-weight: bold;
+  text-align:center;
 }
 .optionButton {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.19);
-    border-radius: 8px;
-    width: 100%;
-    height: 90px;
-    background-size: 100%;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.19);
+  border-radius: 8px;
+  width: 100%;
+  height: 90px;
+  background-size: 100%;
 }
 .newTournament {
-    background: url('/static/scorekeeper/icons/golf.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/golf.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .editTournament {
-    background: url('/static/scorekeeper/icons/golfgreen.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/golfgreen.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .loadPlayers {
-    background: url('/static/scorekeeper/icons/golfcart.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/golfcart.png') no-repeat;
+  background-position: left center;
+  color: #666666;
+}
+.editPlayers {
+  background: url('/static/scorekeeper/icons/golfplayers.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .printIndexes {
-    background: url('/static/scorekeeper/icons/golfbag.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/golfbag.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .signupStarterSheets {
-    background: url('/static/scorekeeper/icons/golfball.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/golfball.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .settings {
-    background: url('/static/scorekeeper/icons/settings.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/settings.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .importexport {
-    background: url('/static/scorekeeper/icons/importexport.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/importexport.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .editcourses {
-    background: url('/static/scorekeeper/icons/golfpin.png') no-repeat;
-    background-position: left center;
-    color: #666666;
+  background: url('/static/scorekeeper/icons/golfpin.png') no-repeat;
+  background-position: left center;
+  color: #666666;
 }
 .recentPanel {
-    height: 188px;
-    border-width: 2px;
-    margin-bottom: 0px;
+  height: 188px;
+  border-width: 2px;
+  margin-bottom: 0px;
 }
 .recentList {
-  height: 143px;
-  overflow: scroll;
+height: 143px;
+overflow: scroll;
 }
 body .modal-dialog {
-    width: 1160px;
+  width: 1160px;
 }
 .search-input {
-    width: 450px;
+  width: 450px;
 }
 #editTournamentSearch {
-    padding: 3px;
-    border: solid 1px #E4E4E4;
-    border-radius: 6px;
-    background-color: #fff;
+  padding: 3px;
+  border: solid 1px #E4E4E4;
+  border-radius: 6px;
+  background-color: #fff;
 }
 #editTournamentSearch input{
-    border: 0;
-    box-shadow: none;
+  border: 0;
+  box-shadow: none;
 }
 #editTournamentSearch button{
-    margin: 2px 0 0 0;
-    background: none;
-    box-shadow: none;
-    border: 0;
-    color: #666666;
-    padding: 0 8px 0 10px;
-    border-left: solid 1px #ccc;
+  margin: 2px 0 0 0;
+  background: none;
+  box-shadow: none;
+  border: 0;
+  color: #666666;
+  padding: 0 8px 0 10px;
+  border-left: solid 1px #ccc;
 }
 #editTournamentSearch button:hover{
-    border: 0;
-    box-shadow: none;
-    border-left: solid 1px #ccc;
+  border: 0;
+  box-shadow: none;
+  border-left: solid 1px #ccc;
 }
 #editTournamentSearch .glyphicon-search{
-    font-size: 23px;
+  font-size: 23px;
 }
 .editTournamentList {
-    height: 169px;
-    overflow-y: scroll;
-    -webkit-padding-start: 0px;
+  height: 169px;
+  overflow-y: scroll;
+  -webkit-padding-start: 0px;
+  -moz-padding-start: 0px;
 }
 .glyphicon-refresh-animate {
   -animation: spin .7s infinite linear;
   -webkit-animation: spin2 .7s infinite linear;
+  -moz-animation: spin2 .7s infinite linear;
 }
 @-webkit-keyframes spin2 {
-  from { -webkit-transform: rotate(0deg);}
-  to { -webkit-transform: rotate(360deg);}
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 @keyframes spin {
-  from { transform: scale(1) rotate(0deg);}
-  to { transform: scale(1) rotate(360deg);}
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    transform: scale(1) rotate(360deg);
+  }
 }

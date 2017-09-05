@@ -34,11 +34,11 @@
     		$('.editTournamentList li').show();
     	}
   	});
-    $('#loadTournamentButton').click(function(){
+    $('#loadTournamentButton').click(function(event){
       window.location.href = '/golf/edittournament/0';
     });
 
-    $('#loadPlayersButton').click(function() {
+    $('#loadPlayersButton').click(function(event) {
       $('#playersLoading').css('visibility', 'visible');
       $.post('/golf/loadplayers/', {}).done(function(data) {
         var d = new Date();
@@ -53,12 +53,16 @@
         $('#playersLoading').css('visibility', 'hidden');
       });
     });
+    
+    $('#editPlayersButton').click(function(event) {
+      $('#editPlayers').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    })
 
-    $('#printIndexesButton').click(function() {
+    $('#printIndexesButton').click(function(event) {
       window.open('/golf/printplayers/');
     });
 
-    $('#signupSheetsButton').click(function() {
+    $('#signupSheetsButton').click(function(event) {
       window.open('/golf/printsignupsheets/');
     });
 
@@ -107,16 +111,16 @@
         selectionSearchString = '#'+that.$container.attr('id')+' .ms-elem-selection.ms-selected';
 
         that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
-        .on('keydown', function(e) {
-          if (e.which === 40) {
+        .on('keydown', function(event) {
+          if (event.which === 40) {
             that.$selectableUl.focus();
             return false;
           }
         });
 
         that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
-        .on('keydown', function(e) {
-          if (e.which == 40) {
+        .on('keydown', function(event) {
+          if (event.which == 40) {
             that.$selectionUl.focus();
             return false;
           }
@@ -142,16 +146,16 @@
           selectionSearchString = '#'+that.$container.attr('id')+' .ms-elem-selection.ms-selected';
 
         that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
-        .on('keydown', function(e) {
-          if (e.which === 40) {
+        .on('keydown', function(event) {
+          if (event.which === 40) {
             that.$selectableUl.focus();
             return false;
           }
         });
 
         that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
-        .on('keydown', function(e) {
-          if (e.which == 40) {
+        .on('keydown', function(event) {
+          if (event.which == 40) {
             that.$selectionUl.focus();
             return false;
           }
@@ -177,16 +181,16 @@
           selectionSearchString = '#'+that.$container.attr('id')+' .ms-elem-selection.ms-selected';
 
         that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
-        .on('keydown', function(e) {
-          if (e.which === 40) {
+        .on('keydown', function(event) {
+          if (event.which === 40) {
             that.$selectableUl.focus();
             return false;
           }
         });
 
         that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
-        .on('keydown', function(e) {
-          if (e.which == 40) {
+        .on('keydown', function(event) {
+          if (event.which == 40) {
             that.$selectionUl.focus();
             return false;
           }
@@ -212,16 +216,16 @@
           selectionSearchString = '#'+that.$container.attr('id')+' .ms-elem-selection.ms-selected';
 
         that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
-        .on('keydown', function(e) {
-          if (e.which === 40) {
+        .on('keydown', function(event) {
+          if (event.which === 40) {
             that.$selectableUl.focus();
             return false;
           }
         });
 
         that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
-        .on('keydown', function(e) {
-          if (e.which == 40) {
+        .on('keydown', function(event) {
+          if (event.which == 40) {
             that.$selectionUl.focus();
             return false;
           }
