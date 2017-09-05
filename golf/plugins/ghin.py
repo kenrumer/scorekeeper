@@ -16,6 +16,7 @@ class GHINPlayers(PlayerBase):
     def loadPlayers(self, data):
         import requests
         jsondata = json.loads(data)
+        print (jsondata)
 
         url = "http://ghp.ghin.com/GHPOnline/Club/LogonClub.aspx"
 
