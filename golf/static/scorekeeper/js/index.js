@@ -67,7 +67,7 @@
       $('#importExportBackup').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
 
-    $('#editCoursesButton').click(function() {
+    $('#editCoursesButton').click(function(event) {
       $('#editCourses').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#newCourseButton').click(function(event) {
@@ -77,8 +77,7 @@
     $('#settingsButton').click(function(event) {
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
-    $('#storeSettingsButton').click(function(){
-      console.log('got here');
+    $('#storeSettingsButton').click(function(event) {
       $('#settings').modal('hide');
       $.post('/golf/storesettings/', {}).done(function(data) {
         var d = new Date();
