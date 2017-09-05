@@ -5,7 +5,7 @@
     $('#newTournamentButton').click(function(event) {
       $('#newTournament').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
-    $('#startTournamentButton').click(function(event){
+    $('#startTournamentButton').click(function(event) {
       var context = {
         name: $('#newTournamentName').val(),
         dateStart: $('#newTournamentDateStart').val(),
@@ -14,7 +14,6 @@
         courses: $('#newTournamentCourses').val(),
         tees: $('#newTournamentTees').val()
       };
-      console.log(context);
       $.redirect('/golf/newtournament/', context, 'POST', '', true);
     });
 
