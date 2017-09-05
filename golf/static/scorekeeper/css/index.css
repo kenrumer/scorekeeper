@@ -60,6 +60,11 @@
   background-position: left center;
   color: #666666;
 }
+.recentActivity {
+  background: url('/static/scorekeeper/icons/hourglass.png') no-repeat;
+  background-position: left center;
+  color: #666666;
+}
 .settings {
   background: url('/static/scorekeeper/icons/settings.png') no-repeat;
   background-position: left center;
@@ -74,15 +79,6 @@
   background: url('/static/scorekeeper/icons/golfpin.png') no-repeat;
   background-position: left center;
   color: #666666;
-}
-.recentPanel {
-  height: 188px;
-  border-width: 2px;
-  margin-bottom: 0px;
-}
-.recentList {
-height: 143px;
-overflow: scroll;
 }
 body .modal-dialog {
   width: 1160px;
