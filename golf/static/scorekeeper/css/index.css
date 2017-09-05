@@ -16,6 +16,9 @@
 .loadingHidden {
     visibility:hidden;
 }
+.settingsHidden {
+    visibility:hidden;
+}
 .buttonHeading {
     font-weight: bold;
     text-align:center;

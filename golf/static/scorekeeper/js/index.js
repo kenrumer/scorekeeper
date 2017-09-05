@@ -78,7 +78,18 @@
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#storeSettingsButton').click(function(){
-      storeSettings();
+      $.post('/golf/storesettings/', {}).done(function(data) {
+        var d = new Date();
+        $('#settingsLoadDate').html(d.toDateString());
+        $('#settingsLoading').css('visibility', 'hidden');
+      }).fail(function(xhr, textStatus, error) {
+        alert('failed to store settings: '+xhr.responseText);
+        console.log('failed to store settings!');
+        console.log(xhr.responseText);
+        console.log(textStatus);
+        console.log(error);
+        $('#settingsLoading').css('visibility', 'hidden');
+      });
     });
 
     //jquery controls
