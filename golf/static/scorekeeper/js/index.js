@@ -1,12 +1,12 @@
-
+/* global $ */
   $(document).ready(function() {
 
     //Menu buttons
     $('#newTournamentButton').click(function(event) {
       $('#newTournament').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
-    $('#startTournamentButton').click(function(){
-      context = {
+    $('#startTournamentButton').click(function(event){
+      var context = {
         name: $('#newTournamentName').val(),
         dateStart: $('#newTournamentDateStart').val(),
         format: $('#newTournamentFormat').val(),
@@ -21,7 +21,7 @@
     $('#editTournamentButton').click(function(event) {
       $('#editTournament').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
-    $('#editTournamentSearchInput').keyup(function(){
+    $('#editTournamentSearchInput').keyup(function(event){
     	var current_query = $('#editTournamentSearchInput').val();
     	if (current_query !== '') {
       	$('.editTournamentList li').hide();
@@ -33,7 +33,7 @@
       	});
     	} else {
     		$('.editTournamentList li').show();
-    	};
+    	}
   	});
     $('#loadTournamentButton').click(function(){
       window.location.href = '/golf/edittournament/0';
@@ -72,7 +72,7 @@
     });
     $('#newCourseButton').click(function(event) {
       $('#enterNewCourseName').modal({backdrop: 'static', keyboard: false}, event.target).show();
-    })
+    });
 
     $('#settingsButton').click(function(event) {
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();
