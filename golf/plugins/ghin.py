@@ -52,6 +52,8 @@ class GHINPlayers(PlayerBase):
         }
 
         response = requests.request("POST", url, data=payload, headers=headers)
+        
+        print(response.headers)
 
         print(response.headers['Set-Cookie'].split(" ")[0])
         print(response.headers['Set-Cookie'].split(" ")[3])
