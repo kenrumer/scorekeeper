@@ -58,10 +58,6 @@ It takes an optional parameter of 'message' which will override the default 'com
 In the pythonanywhere console, use the pull github script pgh to get the latest from github.  This may require web app reload from https://www.pythonanywhere.com/user/kenrumer/webapps/#tab_id_kenrumer_pythonanywhere_com
 
 
-## Built With
-
-* [Dropwizard](https://www.djangoproject.com/) - Django
-
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.

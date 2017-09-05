@@ -34,7 +34,7 @@ def index(request):
     View function for home page
     """
     clubs = list(Club.objects.values('id', 'name', 'logo', 'default_tournament_name', 'player_plugin__name', 'players_last_updated', 'data'))
-    playerplugins = list(PlayerPlugin.objects.values('id', 'name', 'class_package', 'class_name'))
+    playerPlugins = list(PlayerPlugin.objects.values('id', 'name', 'class_package', 'class_name'))
     courses = list(Course.objects.values('id', 'name', 'priority', 'default'))
     courseTees = list(CourseTee.objects.values('id', 'name', 'priority', 'default', 'slope', 'course', 'course__name', 'short_color', 'color'))
     tournamentDates = list(TournamentDate.objects.values('id', 'date', 'tournament__id', 'tournament__name'))
@@ -42,7 +42,7 @@ def index(request):
     formats = list(Format.objects.values('id', 'name', 'priority', 'default'))
     context = {
         'clubs': clubs,
-        'playerplugins': playerplugins,
+        'playerplugins': playerPlugins,
         'courses': courses,
         'courseTees': courseTees,
         'tournamentDates': tournamentDates,
