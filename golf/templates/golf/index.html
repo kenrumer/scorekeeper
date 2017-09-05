@@ -13,13 +13,13 @@
     <script src="{% static "scorekeeper/js/jquery.multi-select.js" %}" type="text/javascript"></script>
     <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
     <script>
-      var clubs = {{ clubs }};
-      var playerPlugins = {{ playerPlugins }};
-      var courses = {{ courses }};
-      var courseTees = {{ courseTees }};
-      var tournamentDates = {{ tournamentDates }};
-      var formats = {{ formats }};
-      var tournaments = {{ tournaments }};
+      var clubs = {{ clubs|escape }};
+      var playerPlugins = {{ playerPlugins|escape }};
+      var courses = {{ courses|escape }};
+      var courseTees = {{ courseTees|escape }};
+      var tournamentDates = {{ tournamentDates|escape }};
+      var formats = {{ formats|escape }};
+      var tournaments = {{ tournaments|escape }};
     </script>
     <script src="{% static "scorekeeper/js/index.js" %}" type="text/javascript"></script>
     <link href="{% static "scorekeeper/css/index.css" %}" media="screen" rel="stylesheet" type="text/css">
