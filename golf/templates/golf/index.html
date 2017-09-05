@@ -26,6 +26,7 @@
       var tournamentDates = escapeDjango('{{ tournamentDates|escapejs }}');
       var formats = escapeDjango('{{ formats|escapejs }}');
       var tournaments = escapeDjango('{{ tournaments|escapejs }}');
+      var players = escapeDjango('{{ players|escapejs }}')
     </script>
     <script src="{% static "scorekeeper/js/index.js" %}" type="text/javascript"></script>
     <link href="{% static "scorekeeper/css/index.css" %}" media="screen" rel="stylesheet" type="text/css">
