@@ -78,6 +78,7 @@
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#storeSettingsButton').click(function(){
+      $('#settings').modal('hide');
       $.post('/golf/storesettings/', {}).done(function(data) {
         var d = new Date();
         $('#settingsLoadDate').html(d.toDateString());
