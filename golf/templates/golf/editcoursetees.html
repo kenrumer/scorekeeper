@@ -8,17 +8,17 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
     <script>
       function escapeDjango(context) {
-        var retString = retString.replace(/\"/g, '\"')
-                             .replace(/False/g, 'false')
-                             .replace(/True/g, 'true');
+        var retString = context.replace(/\"/g, '\"')
+                               .replace(/False/g, 'false')
+                               .replace(/True/g, 'true');
         return retString;
       }
       var courseId = {{ courseId }};
       var courseTees = escapeDjango('{{ courseTees|escapejs }}');
     </script>
-    <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{% static "scorekeeper/css/editcoursetees.css" %}">
     <script src="{% static "scorekeeper/js/editcoursetees.js" %}"></script>
 {% endblock %}

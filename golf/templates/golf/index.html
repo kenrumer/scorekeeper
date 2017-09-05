@@ -14,9 +14,9 @@
     <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
     <script>
       function escapeDjango(context) {
-        var retString = retString.replace(/\"/g, '\'')
-                             .replace(/False/g, 'false')
-                             .replace(/True/g, 'true');
+        var retString = context.replace(/\"/g, '\'')
+                               .replace(/False/g, 'false')
+                               .replace(/True/g, 'true');
         return retString;
       }
       var clubs = escapeDjango('{{ clubs|escapejs }}');
@@ -32,7 +32,7 @@
 {% endblock %}
 
 {% block content %}
-
+    <!-- Main menu -->
     <div class="row">
       <div class="col-xs-5">
         <div class="row bottomSpaced">
@@ -195,6 +195,7 @@
       </div>
     </div>
 
+    <!-- New tournament -->
     <div class="modal fade" id="newTournament" tabindex="-1" role="dialog" aria-labelledby="newTournamentLabel">
       <div class="modal-dialog modalNewTournament modal-lg" role="document">
         <div class="modal-content">
@@ -294,6 +295,7 @@
       </div>
     </div>
 
+    <!-- Edit tournament -->
     <div class="modal fade" id="editTournament" tabindex="-1" role="dialog" aria-labelledby="editTournamentLabel">
       <div class="modal-dialog modalEditTournament modal-lg" role="document">
         <div class="modal-content">
@@ -355,6 +357,7 @@
       </div>
     </div>
 
+    <!-- Edit courses -->
     <div class="modal fade" id="editCourses" tabindex="-1" role="dialog" aria-labelledby="editCoursesLabel">
       <div class="modal-dialog modalEditCourses modal-lg" role="document">
         <div class="modal-content">
@@ -390,7 +393,27 @@
         </div>
       </div>
     </div>
+    
+    <!-- Enter new course name -->
+    <div class="modal fade" id="enterNewCourseName" tabindex="-1" role="dialog" aria-labelledby="enterNewCourseNameLabel">
+      <div class="modal-dialog modal-settings modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="enterNewCourseNameLabel">Enter New Course Name</h4>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="enterNewCourseNameButton">Save</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Import export backup -->
     <div class="modal fade" id="importExportBackup" tabindex="-1" role="dialog" aria-labelledby="importExportBackupLabel">
       <div class="modal-dialog modal-settings modal-lg" role="document">
         <div class="modal-content">
@@ -481,6 +504,7 @@
       </div>
     </div>
 
+    <!-- Settings -->
     <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel">
       <div class="modal-dialog modal-settings modal-lg" role="document">
         <div class="modal-content">
