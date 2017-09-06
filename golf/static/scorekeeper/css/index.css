@@ -127,6 +127,13 @@ body .modal-dialog {
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
+.recentActivityList {
+  height: 169px;
+  width: 100%;
+  overflow-y: scroll;
+  -webkit-padding-start: 0px;
+  -moz-padding-start: 0px;
+}
 .editPlayersList {
   height: 169px;
   width: 100%;

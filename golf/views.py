@@ -1,7 +1,7 @@
 import json
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, JsonResponse
-from .models import Tournament, TournamentDate, Format, Player, Round, Score, Course, CourseTee, Tee, Hole, Club, PlayerPlugin
+from .models import Tournament, TournamentDate, Format, Player, Round, Score, Course, CourseTee, Tee, Hole, Club, Activity, PlayerPlugin
 from django.forms.models import model_to_dict
 import importlib
 
@@ -41,6 +41,7 @@ def index(request):
     tournaments = list(Tournament.objects.values('id', 'name'))
     formats = list(Format.objects.values('id', 'name', 'priority', 'default'))
     players = list(Player.objects.values('id', 'club_member_number', 'name', 'handicap_index', 'high_handicap_index', 'low_handicap_index', 'last_updated', 'data', 'priority'))
+    activities = list(Activity.objects.values('id', 'date', 'title', 'notes'))
     context = {
         'clubs': clubs,
         'playerplugins': playerPlugins,
@@ -49,7 +50,8 @@ def index(request):
         'tournamentDates': tournamentDates,
         'formats': formats,
         'tournaments': tournaments,
-        'players': players
+        'players': players,
+        'activities': activities
     }
     return render(request, 'golf/index.html', context=context)
 

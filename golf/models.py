@@ -188,6 +188,19 @@ class Hole(models.Model):
         """
         return self.name
 
+class Activity(models.Model):
+    """
+    Model representing recent activity from the app
+    """
+    title = models.CharField(max_length=40, null=True, blank=True, help_text='Enter the title for this activity')
+    notes = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the notes for this activity')
+    date = models.DateField(verbose_name='Date', null=True, blank=True, help_text='Enter the date for the scorecard')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        return self.title
+
 class Club(models.Model):
     """
     Model representing the club probably a configuration item because there can only be 1

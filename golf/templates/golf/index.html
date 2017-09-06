@@ -192,7 +192,7 @@
               <div class="col-sm-1">
               </div>
               <div class="col-sm-11">
-                Import or export plugins or all data
+                Import or export plugins, scores, formats or the database
               </div>
             </div>
           </button>
@@ -531,11 +531,11 @@
                	  </span>
                	</div>
                	<div class="list-group recentActivityList">
-                {% for course in courses %}
-                  <div class="row" id="recentActivityListItem" data-name="{{ course.name }}">
+                {% for activity in activities %}
+                  <div class="row" id="recentActivityListItem" data-name="{{ activity.title }}">
                	    <div class="col-sm-1"></div>
-               	    <input type="number" class="col-sm-1" value="09/01/2017" />
-               	    <input type="text" class="col-sm-9" value="{{ course.name }}" />
+               	    <input type="text" class="col-sm-1" value="{{ activity.date }}" />
+               	    <input type="text" class="col-sm-9" value="{{ activity.title }}" />
                	    <div class="col-sm-1"></div>
                   </div>
                 {% endfor %}
@@ -545,7 +545,7 @@
           </div>
           <div class="modal-footer">
             <div class="col-sm-11"></div>
-            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Exit</button></div>
           </div>
         </div>
       </div>
@@ -576,9 +576,10 @@
                 Export
               </button>
               <div class="col-sm-1"></div>
-              <button class="col-sm-1">
-                Import
-              </button>
+              <label class="custom-file">
+                <input type="file" id="courses" class="custom-file-input">
+                <span class="custom-file-control"></span>
+              </label>
               <div class="col-sm-1"></div>
             </div>
             <div class="row bottomSpaced">
@@ -597,15 +598,16 @@
                 Export
               </button>
               <div class="col-sm-1"></div>
-              <button class="col-sm-1">
-                Import
-              </button>
+              <label class="custom-file">
+                <input type="file" id="clubScore" class="custom-file-input">
+                <span class="custom-file-control"></span>
+              </label>
               <div class="col-sm-1"></div>
             </div>
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-3">
-                <label for="importExportClubScore">Club Type</label>
+                <label for="importExportClubScore">Club Types</label>
               </div>
               <div class="col-sm-4">
                 <input list="importExportClubScores" id="importExportClubScore">
@@ -618,15 +620,16 @@
                 Export
               </button>
               <div class="col-sm-1"></div>
-              <button class="col-sm-1">
-                Import
-              </button>
+              <label class="custom-file">
+                <input type="file" id="clubType" class="custom-file-input">
+                <span class="custom-file-control"></span>
+              </label>
               <div class="col-sm-1"></div>
             </div>
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-3">
-                <label for="importExportClubScore">Tournament Format</label>
+                <label for="importExportClubScore">Tournament Formats</label>
               </div>
               <div class="col-sm-4">
                 <input list="importExportClubScores" id="importExportClubScore">
@@ -639,9 +642,9 @@
                 Export
               </button>
               <div class="col-sm-1"></div>
-              <button class="col-sm-1">
-                Import
-              </button>
+              <label class="btn btn-default">
+                Browse <input type="file" id="tournamentFormat" hidden>
+              </label>
               <div class="col-sm-1"></div>
             </div>
           </div>
