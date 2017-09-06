@@ -36,7 +36,7 @@ def index(request):
     clubs = list(Club.objects.values('id', 'name', 'logo', 'default_tournament_name', 'player_plugin__name', 'players_last_updated', 'data'))
     playerPlugins = list(PlayerPlugin.objects.values('id', 'name', 'class_package', 'class_name'))
     courses = list(Course.objects.values('id', 'name', 'priority', 'default'))
-    courseTees = list(CourseTee.objects.values('id', 'name', 'priority', 'default', 'slope', 'course', 'course__name', 'short_color', 'color'))
+    courseTees = list(CourseTee.objects.values('id', 'name', 'priority', 'default', 'slope', 'course', 'course__name', 'color'))
     tournamentDates = list(TournamentDate.objects.values('id', 'date', 'tournament__id', 'tournament__name'))
     tournaments = list(Tournament.objects.values('id', 'name'))
     formats = list(Format.objects.values('id', 'name', 'priority', 'default'))
@@ -101,7 +101,7 @@ def editCourseTees(request, courseId):
     """
     View function for editting the list of course holes and tees
     """
-    courseTees = list(CourseTee.objects.filter(course_id=courseId).values('id', 'default', 'priority', 'name', 'slope', 'short_color', 'color'))
+    courseTees = list(CourseTee.objects.filter(course_id=courseId).values('id', 'default', 'priority', 'name', 'slope', 'color'))
     context = {
         'courseId': courseId,
         'courseTees': courseTees
@@ -120,10 +120,10 @@ def updateCourseTee(request, courseId, courseTeeId):
     Setter function for existing course tee
     """
     if (request.POST['default'] == 'true'):
-        ct = CourseTee(id=courseTeeId, default=True, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], short_color=request.POST['color'], color=request.POST['color'], course_id=courseId)
+        ct = CourseTee(id=courseTeeId, default=True, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], color=request.POST['color'], course_id=courseId)
         ct.save()
     else:
-        ct = CourseTee(id=courseTeeId, default=False, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], short_color=request.POST['color'], color=request.POST['color'], course_id=courseId)
+        ct = CourseTee(id=courseTeeId, default=False, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], color=request.POST['color'], course_id=courseId)
         ct.save()
     return JsonResponse({'data' : [{'id':ct.id, 'default':ct.default, 'priority':ct.priority, 'name':ct.name, 'slope':ct.slope, 'color':ct.color, 'course_id':ct.course_id}]})
 
@@ -132,10 +132,10 @@ def createCourseTee(request, courseId):
     Create function for course tee
     """
     if (request.POST['default'] == 'true'):
-        ct = CourseTee(default=True, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], short_color=request.POST['color'], color=request.POST['color'], course_id=courseId)
+        ct = CourseTee(default=True, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], color=request.POST['color'], course_id=courseId)
         ct.save()
     else:
-        ct = CourseTee(default=False, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], short_color=request.POST['color'], color=request.POST['color'], course_id=courseId)
+        ct = CourseTee(default=False, priority=request.POST['priority'], name=request.POST['name'], slope=request.POST['slope'], color=request.POST['color'], course_id=courseId)
         ct.save()
     return JsonResponse({'data' : [{'id':ct.id, 'default':ct.default, 'priority':ct.priority, 'name':ct.name, 'slope':ct.slope, 'color':ct.color, 'course_id':ct.course_id}]})
 
@@ -276,8 +276,7 @@ def newTournament(request):
     courseIds = request.POST.getlist('courses')
     teeIds = request.POST.getlist('tees')
     for i, teeId in enumerate(teeIds):
-        courseTees.append(CourseTee.objects.filter(id=teeId).values('id', 'name', 'slope', 'course__name', 'short_color', 'color')[0])
-        courseTees[i]['short_color_text'] = CourseTee.SHORT_COLOR_CHOICES[courseTees[i]['short_color']][1]
+        courseTees.append(CourseTee.objects.filter(id=teeId).values('id', 'name', 'slope', 'course__name', 'color')[0])
         courseTees[i]['color_text'] = CourseTee.COLOR_CHOICES[courseTees[i]['color']][1]
         courseTees[i]['tees'] = list(Tee.objects.filter(course_tee__id=teeId).values('id', 'yardage', 'par', 'hole__name', 'hole__number'))
         courseTees[i]['hole_count'] = len(courseTees[i]['tees'])

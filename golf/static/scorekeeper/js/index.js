@@ -60,17 +60,20 @@
     $('#editPlayersSearchInput').keyup(function(event){
     	var current_query = $('#editPlayersSearchInput').val().toUpperCase();
     	if (current_query !== '') {
-      	$('.editPlayersList li').hide();
-      	$('.editPlayersList li').each(function(){
-        	var current_keyword = $(this).text().toUpperCase();
+      	$('.editPlayersList #editPlayersListItem').hide();
+      	$('.editPlayersList #editPlayersListItem').each(function() {
+        	var current_keyword = $(this).data('name').toUpperCase();
         	if (current_keyword.indexOf(current_query) >=0) {
         		$(this).show();
         	}
       	});
     	} else {
-    		$('.editPlayersList li').show();
+    		$('.editPlayersList #editPlayersListItem').show();
     	}
   	});
+  	$('.btn-group > .btn').click(function(event){
+      $(this).addClass("active").siblings().removeClass("active");
+    });
 
     $('#printIndexesButton').click(function(event) {
       window.open('/golf/printplayers/');
@@ -90,20 +93,24 @@
     $('#editCoursesSearchInput').keyup(function(event){
     	var current_query = $('#editCoursesSearchInput').val().toUpperCase();
     	if (current_query !== '') {
-      	$('.editCoursesList li').hide();
-      	$('.editCoursesList li').each(function(){
-        	var current_keyword = $(this).text().toUpperCase();
+      	$('.editCoursesList #editCoursesListItem').hide();
+      	$('.editCoursesList #editCoursesListItem').each(function() {
+        	var current_keyword = $(this).data('name').toUpperCase();
         	if (current_keyword.indexOf(current_query) >=0) {
         		$(this).show();
         	}
       	});
     	} else {
-    		$('.editCoursesList li').show();
+    		$('.editCoursesList #editCoursesListItem').show();
     	}
   	});
     $('#newCourseButton').click(function(event) {
       $('#enterNewCourseName').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
+
+    $('#recentActivityButton').click(function(event) {
+      $('#recentActivity').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    })
 
     $('#settingsButton').click(function(event) {
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();

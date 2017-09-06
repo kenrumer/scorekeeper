@@ -143,17 +143,6 @@ class CourseTee(models.Model):
     default = models.BooleanField(verbose_name='Default', default=False, help_text='Set a default for faster starts to putting scores in')
     slope = models.IntegerField(verbose_name='Slope', help_text='Enter the slope for this course and tee')
     course = models.ForeignKey('Course', default=113, verbose_name='Course Id')
-    SHORT_COLOR_CHOICES = (
-        (0, 'N'),
-        (1, 'Y'),
-        (2, 'GR'),
-        (3, 'R'),
-        (4, 'W'),
-        (5, 'BU'),
-        (6, 'BA'),
-        (7, 'GO'),
-    )
-    short_color = models.IntegerField(choices=SHORT_COLOR_CHOICES, verbose_name='Tee Color Initials', help_text='Enter the number associated with the tee color initials (0:None:N,1:Yellow:Y,2:Green:GR,3:Red:R,4:White:W,5:Blue:BU,6:Black:BA,7:Gold:G)')
     COLOR_CHOICES = (
         (0, 'None'),
         (1, 'Yellow'),
@@ -184,7 +173,7 @@ class Tee(models.Model):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.course_tee.name + " - " + str(self.hole.number)
+        return self.course_tee.name + " - " + str(self.hole__number)
 
 class Hole(models.Model):
     """

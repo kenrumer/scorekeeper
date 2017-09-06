@@ -115,18 +115,21 @@ body .modal-dialog {
 }
 .editTournamentList {
   height: 169px;
+  width: 100%;
   overflow-y: scroll;
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
 .editCoursesList {
   height: 169px;
+  width: 100%;
   overflow-y: scroll;
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
 .editPlayersList {
   height: 169px;
+  width: 100%;
   overflow-y: scroll;
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;

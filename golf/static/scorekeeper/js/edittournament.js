@@ -1,4 +1,4 @@
-/* global $ */
+/* global $, courseTees */
   var editTournamentTable;
   var newTournamentTable;
   var addRowId = 0;
@@ -193,11 +193,11 @@
       updateScorecardRow(this);
     });
     $('#scorecard').on('click', '#removeRowFromScorecard', function() {
-      rowId = this.getAttribute('data-rowId');
+      var rowId = this.getAttribute('data-rowId');
       $('#scorecardRow'+rowId).html('');
     });
     $('#enterScorecardButton').click(function() {
-      console.log($('#scorecard'))
+      console.log($('#scorecard'));
     });
     $('#addRowToScorecard').click(function(event) {
       addRowToScorecard();
