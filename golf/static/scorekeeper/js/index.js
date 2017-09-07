@@ -111,8 +111,44 @@
     $('#importExportBackupButton').click(function(event) {
       $('#importExportBackup').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
-    $("#importFormat").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import format(s)'}).on('files.bs.filedialog', function(ev) {
+    $("#importCourses").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Course(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importClubScores").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Club Score(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importClubTypes").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Club Type(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importFormats").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Format(s)'}).on('files.bs.filedialog', function(ev) {
         var files = ev.files;
         var text = "";
         files.forEach(function(f) {
