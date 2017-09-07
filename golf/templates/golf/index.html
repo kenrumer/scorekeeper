@@ -23,6 +23,8 @@
     var tournaments = escapeDjango('{{ tournaments|escapejs }}');
     var players = escapeDjango('{{ players|escapejs }}')
   </script>
+  <link rel="stylesheet" href="{% static "/scorekeeper/css/bootstrap.fd.css" %}">
+  <script src="{% static "scorekeeper/js/bootstrap.fd.js" %}" type="text/javascript"></script>
   <script src="{% static "scorekeeper/js/index.js" %}" type="text/javascript"></script>
   <link href="{% static "scorekeeper/css/index.css" %}" media="screen" rel="stylesheet" type="text/css">
 {% endblock %}
@@ -648,14 +650,21 @@
                   </datalist>
                 </input>
               </div>
-              <button class="col-sm-1">
-                Export
-              </button>
+              <div class="col-sm-1">
+                <button class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Export
+                  </span>
+                </button>
+              </div>
               <div class="col-sm-1"></div>
-              <label class="custom-file">
-                <input type="file" id="courses" class="custom-file-input">
-                <span class="custom-file-control"></span>
-              </label>
+              <div class="col-sm-1">
+                <button class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Import <input type="file" style="display: none;">
+                  </span>
+                </button>
+              </div>
               <div class="col-sm-1"></div>
             </div>
             <div class="row bottomSpaced">
@@ -670,14 +679,21 @@
                   </datalist>
                 </input>
               </div>
-              <button class="col-sm-1">
-                Export
-              </button>
+              <div class="col-sm-1">
+                <button class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Export
+                  </span>
+                </button>
+              </div>
               <div class="col-sm-1"></div>
-              <label class="custom-file">
-                <input type="file" id="clubScore" class="custom-file-input">
-                <span class="custom-file-control"></span>
-              </label>
+              <div class="col-sm-1">
+                <button class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Import <input type="file" style="display: none;">
+                  </span>
+                </button>
+              </div>
               <div class="col-sm-1"></div>
             </div>
             <div class="row bottomSpaced">
@@ -692,14 +708,21 @@
                   </datalist>
                 </input>
               </div>
-              <button class="col-sm-1">
-                Export
-              </button>
+              <div class="col-sm-1">
+                <button class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Export
+                  </span>
+                </button>
+              </div>
               <div class="col-sm-1"></div>
-              <label class="custom-file">
-                <input type="file" id="clubType" class="custom-file-input">
-                <span class="custom-file-control"></span>
-              </label>
+              <div class="col-sm-1">
+                <button class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Import <input type="file" style="display: none;">
+                  </span>
+                </button>
+              </div>
               <div class="col-sm-1"></div>
             </div>
             <div class="row bottomSpaced">
@@ -714,15 +737,15 @@
                   </datalist>
                 </input>
               </div>
-              <button class="col-sm-1">
-                Export
-              </button>
+              <div class="col-sm-1">
+                <button type="button" class="btn btn-primary">
+                  Export
+                </button>
+              </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-1">
-                <button class="input-group-btn">
-                  <span class="btn btn-primary">
-                    Browse&hellip; <input type="file" style="display: none;">
-                  </span>
+                <button class="btn btn-primary" id="importFormat">
+                  Import
                 </button>
               </div>
               <div class="col-sm-1"></div>

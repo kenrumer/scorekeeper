@@ -277,4 +277,16 @@
         this.qs2.cache();
       }
     });
+    $("#importFormat").click(function() {
+      $.FileDialog({multiple: true, dropheight: 250, title: 'Import format(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        alert(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        alert("Cancelled!");
+      });
+    });
   });
