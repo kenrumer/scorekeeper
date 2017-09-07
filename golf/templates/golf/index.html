@@ -644,7 +644,7 @@
                 <label for="importExportClubScore">Courses</label>
               </div>
               <div class="col-sm-4">
-                <input list="importExportClubScores" id="importExportClubScore">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
                   <datalist id="importExportClubScores">
                     <option value="GHIN"></option>
                   </datalist>
@@ -669,7 +669,7 @@
                 <label for="importExportClubScore">Club Scores</label>
               </div>
               <div class="col-sm-4">
-                <input list="importExportClubScores" id="importExportClubScore">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
                   <datalist id="importExportClubScores">
                     <option value="GHIN"></option>
                   </datalist>
@@ -694,7 +694,7 @@
                 <label for="importExportClubScore">Club Types</label>
               </div>
               <div class="col-sm-4">
-                <input list="importExportClubScores" id="importExportClubScore">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
                   <datalist id="importExportClubScores">
                     <option value="GHIN"></option>
                   </datalist>
@@ -719,7 +719,7 @@
                 <label for="importExportClubScore">Tournament Formats</label>
               </div>
               <div class="col-sm-4">
-                <input list="importExportClubScores" id="importExportClubScore">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
                   <datalist id="importExportClubScores">
                     <option value="GHIN"></option>
                   </datalist>
@@ -738,12 +738,35 @@
               </div>
               <div class="col-sm-1"></div>
             </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-3">
+                <label for="importExportDatabase">Database</label>
+              </div>
+              <div class="col-sm-4">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
+                  <datalist id="importExportClubScores">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-1">
+                <button type="button" class="btn btn-primary">
+                  Export
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <button class="btn btn-primary" id="backup">
+                  Backup
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-8"></div>
-            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="storeSettingsButton1">Save</button></div>
-            <div class="col-sm-1"></div>
-            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Done</button></div>
             <div class="col-sm-1"></div>
           </div>
         </div>
