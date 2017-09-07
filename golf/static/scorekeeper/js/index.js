@@ -75,18 +75,6 @@
       $('#enterNewPlayer').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
 
-    $('#printIndexesButton').click(function(event) {
-      window.open('/golf/printplayers/');
-    });
-
-    $('#signupSheetsButton').click(function(event) {
-      window.open('/golf/printsignupsheets/');
-    });
-
-    $('#importExportBackupButton').click(function(event) {
-      $('#importExportBackup').modal({backdrop: 'static', keyboard: false}, event.target).show();
-    });
-
     $('#editCoursesButton').click(function(event) {
       $('#editCourses').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
@@ -108,8 +96,32 @@
       $('#enterNewCourseName').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
 
+    $('#printIndexesButton').click(function(event) {
+      window.open('/golf/printplayers/');
+    });
+
+    $('#signupSheetsButton').click(function(event) {
+      window.open('/golf/printsignupsheets/');
+    });
+
     $('#recentActivityButton').click(function(event) {
       $('#recentActivity').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    });
+
+    $('#importExportBackupButton').click(function(event) {
+      $('#importExportBackup').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    });
+    $("#importFormat").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import format(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
     });
 
     $('#settingsButton').click(function(event) {
@@ -276,17 +288,5 @@
         this.qs1.cache();
         this.qs2.cache();
       }
-    });
-    $("#importFormat").click(function() {
-      $.FileDialog({multiple: true, dropheight: 250, title: 'Import format(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        alert(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        alert("Cancelled!");
-      });
     });
   });
