@@ -239,7 +239,7 @@
                 <label for="newTournamentName">Name</label>
               </div>
               <div class="col-sm-3">
-                <input type=text class="newTournamentName" id="newTournamentName" value="{{ clubs.0.default_tournament_name }} - {% now 'SHORT_DATE_FORMAT' %}" />
+                <input type=text class="newTournamentName form-control" id="newTournamentName" value="{{ clubs.0.default_tournament_name }} - {% now 'SHORT_DATE_FORMAT' %}" />
               </div>
               <div class="col-sm-2">
               </div>
@@ -260,7 +260,7 @@
                 <label for="newTournamentFormat">Select Format</label>
               </div>
               <div class="col-sm-3">
-                <select class="newTournamentFormat" id="newTournamentFormat">
+                <select class="newTournamentFormat form-control" id="newTournamentFormat">
                 {% for format in formats %}
                   <option value="{{ format.id }}">{{ format.name }}</option>
                 {% endfor %}
@@ -272,7 +272,7 @@
                 <label for="newTournamentNumRounds">Number of rounds</label>
               </div>
               <div class="col-sm-3">
-                <input type="number" class="newTournamentNumRounds" id="newTournamentNumRounds" value=1 min=1 max=99 />
+                <input type="number" class="newTournamentNumRounds form-control" id="newTournamentNumRounds" value=1 min=1 max=99 />
               </div>
             </div>
             <div class="row bottomSpaced">
@@ -317,9 +317,11 @@
             </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-9"></div>
-            <div class="col-sm-2"><button type="button" class="btn btn-primary" data-id="id" id="startTournamentButton">Start Tournament</button></div>
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="startTournamentButton">Start Tournament</button></div>
+            <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
           </div>
         </div>
       </div>
@@ -373,20 +375,17 @@
                	<div class="list-group editTournamentList">
                 {% for tournament in tournaments %}
                	  <li class="list-group-item" value="{{ tournament.id }}">{{ tournament.name }}</li>
-                  <div class="row" id="editTournamentListItem" data-name="{{ tournament.name }}">
-               	    <input type="text" class="col-sm-2" value="{{ tournament.club_member_number }}" />
-               	    <input type="text" class="col-sm-8" value="{{ tournament.name }}" />
-               	    <input type="text" class="col-sm-2" value="{{ tournament.handicap_index }}" />
-                  </div>
                 {% endfor %}
                	</div>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-9"></div>
-            <div class="col-sm-2"><button type="button" class="btn btn-primary" id="loadTournamentButton">Load Tournament</button></div>
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" id="loadTournamentButton">Load Tournament</button></div>
+            <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
           </div>
         </div>
       </div>
@@ -413,10 +412,30 @@
                	</div>
                	<div class="list-group editPlayersList">
                 {% for player in players %}
-                  <div class="row" id="editPlayersListItem" data-name="{{ player.name }}">
-               	    <input type="text" class="col-sm-2" value="{{ player.club_member_number }}" />
-               	    <input type="text" class="col-sm-8" value="{{ player.name }}" />
-               	    <input type="text" class="col-sm-2" value="{{ player.handicap_index }}" />
+                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="{{ player.name }}">
+                    <div class="row">
+                      <div class="col-sm-1"></div>
+                      <div class="col-sm-10">
+                        <div class="input-group">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                              <li><a href="#">Activate</a></li>
+                              <li><a href="#">Inactivate</a></li>
+                              <li><a href="#">View Player Page</a></li>
+                              <li role="separator" class="divider"></li>
+                              <li><a href="#">Delete</a></li>
+                            </ul>
+                          </div>
+                     	    <input id="editPlayersClubMemberNumber" type="text" class="form-control input-group-addon" size="1" style="text-align:left;background-color:#fff;" value="{{ player.club_member_number }}" data-original-value="{{ player.club_member_number }}" />
+                     	    <span class="input-group-btn" style="width:0px;"></span>
+                     	    <input id="editPlayersName" type="text" class="form-control input-group-addon" style="text-align:left;background-color:#fff;" value="{{ player.name }}" data-original-value="{{ player.name }}" />
+                     	    <span class="input-group-btn" style="width:0px;"></span>
+                     	    <input id="editPlayersHandicapIndex" type="text" class="form-control input-group-addon" size="1" style="text-align:left;background-color:#fff;" value="{{ player.handicap_index }}" data-original-value="{{ player.handicap_index }}" />
+                        </div>
+                      </div>
+                      <div class="col-sm-1"></div>
+                    </div>
                   </div>
                 {% endfor %}
                	</div>
@@ -428,6 +447,41 @@
             <div class="col-sm-1"><button type="button" class="btn btn-primary" id="newPlayerButton">New Player</button></div>
             <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-primary" id="savePlayersButton">Save Players</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Enter new player -->
+    <div class="modal fade" id="enterNewPlayer" tabindex="-1" role="dialog" aria-labelledby="enterNewPlayerLabel">
+      <div class="modal-dialog modal-settings modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="enterNewPlayerLabel">Enter New Player</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-4">
+                <label for="newPlayerName">Player Name</label>
+              </div>
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-5">
+                <input type="text" id="newPlayerName" size="50" />
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="enterNewPlayerButton">Save</button></div>
             <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
             <div class="col-sm-1"></div>
@@ -457,11 +511,28 @@
                	</div>
                	<div class="list-group editCoursesList">
                 {% for course in courses %}
-                  <div class="row" id="editCoursesListItem" data-name="{{ course.name }}">
-                    <input type="checkbox" class="col-sm-1"{% if course.default is True %} checked{% endif %}>
-               	    <input type="number" class="col-sm-1" value="{{ course.priority }}" />
-               	    <input type="text" class="col-sm-9" value="{{ course.name }}" />
-               	    <div class="col-sm-1"></div>
+                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editCoursesListItem" data-name="{{ course.name }}">
+                    <div class="row">
+                      <div class="col-sm-1"></div>
+                      <div class="col-sm-10">
+                        <div class="input-group">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                              <li><a href="#">Set as default</a></li>
+                              <li><a href="#">Not default</a></li>
+                              <li><a href="#">Edit course tees</a></li>
+                              <li role="separator" class="divider"></li>
+                              <li><a href="#">Delete</a></li>
+                            </ul>
+                          </div>
+                     	    <input id="editCoursesPriority" type="text" class="form-control input-group-addon" size="1" style="text-align:left;background-color:#fff;" value="{{ course.priority }}" data-original-value="{{ course.priority }}" />
+                     	    <span class="input-group-btn" style="width:0px;"></span>
+                     	    <input id="editCoursesName" type="text" class="form-control input-group-addon" style="text-align:left;background-color:#fff;" value="{{ course.name }}" data-original-value="{{ course.name }}" />
+                        </div>
+                      </div>
+                      <div class="col-sm-1"></div>
+                    </div>
                   </div>
                 {% endfor %}
                	</div>
@@ -469,16 +540,18 @@
             </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-8"></div>
+            <div class="col-sm-6"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-primary" id="newCourseButton">New Course</button></div>
-            <div class="col-sm-2"><button type="button" class="btn btn-primary" id="editCourseButton">Edit Course</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" id="editCourseButton">Save Courses</button></div>
+            <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Enter new course name -->
+    <!-- Enter new course -->
     <div class="modal fade" id="enterNewCourseName" tabindex="-1" role="dialog" aria-labelledby="enterNewCourseNameLabel">
       <div class="modal-dialog modal-settings modal-lg" role="document">
         <div class="modal-content">
@@ -503,9 +576,11 @@
             </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-10"></div>
+            <div class="col-sm-8"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="enterNewCourseNameButton">Save</button></div>
+            <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
           </div>
         </div>
       </div>
@@ -544,8 +619,9 @@
             </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-11"></div>
+            <div class="col-sm-10"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Exit</button></div>
+            <div class="col-sm-1"></div>
           </div>
         </div>
       </div>
@@ -642,16 +718,22 @@
                 Export
               </button>
               <div class="col-sm-1"></div>
-              <label class="btn btn-default">
-                Browse <input type="file" id="tournamentFormat" hidden>
-              </label>
+              <div class="col-sm-1">
+                <button class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Browse&hellip; <input type="file" style="display: none;">
+                  </span>
+                </button>
+              </div>
               <div class="col-sm-1"></div>
             </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-10"></div>
+            <div class="col-sm-8"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="storeSettingsButton1">Save</button></div>
+            <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
           </div>
         </div>
       </div>
@@ -756,11 +838,24 @@
             </div>
           </div>
           <div class="modal-footer">
-            <div class="col-sm-10"></div>
+            <div class="col-sm-8"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="storeSettingsButton">Save</button></div>
+            <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="modal fade" id="loadingDialog" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+		  <div class="modal-dialog modal-m">
+		    <div class="modal-content">
+		      <div class="modal-header"><h3 style="margin:0;">Loading...</h3></div>
+		      <div class="modal-body">
+		        <div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 {% endblock %}

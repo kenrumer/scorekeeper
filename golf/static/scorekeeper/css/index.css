@@ -1,14 +1,11 @@
-.newTournamentName {
-  width:450px;
+
+/*Main menu*/
+body .modal-dialog {
+  width: 1160px;
 }
-.settingsClubData {
-  width:650px;
-}
-.newTournamentFormat {
-  width:450px;
-}
-.newTournamentNumRounds {
-  width: 37px;
+.buttonHeading {
+  font-weight: bold;
+  text-align:center;
 }
 .bottomSpaced {
   margin-bottom:8px;
@@ -19,9 +16,28 @@
 .settingsHidden {
   visibility:hidden;
 }
-.buttonHeading {
-  font-weight: bold;
-  text-align:center;
+.glyphicon-refresh-animate {
+  -animation: spin .7s infinite linear;
+  -webkit-animation: spin2 .7s infinite linear;
+  -moz-animation: spin2 .7s infinite linear;
+}
+@-webkit-keyframes spin2 {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    transform: scale(1) rotate(360deg);
+  }
 }
 .optionButton {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.19);
@@ -80,12 +96,30 @@
   background-position: left center;
   color: #666666;
 }
-body .modal-dialog {
-  width: 1160px;
+
+/*Bootstrap overrides*/
+.btn-primary {
+  width: 164px;
+}
+.btn-default {
+  width: 164px;
 }
 .search-input {
-  width: 450px;
+  width: 451px;
 }
+
+/*New Tournament*/
+.newTournamentName {
+  width:450px;
+}
+.newTournamentFormat {
+  width:450px;
+}
+.newTournamentNumRounds {
+  width: 74px;
+}
+
+/*Edit Tournament*/
 #editTournamentSearch {
   padding: 3px;
   border: solid 1px #E4E4E4;
@@ -114,53 +148,45 @@ body .modal-dialog {
   font-size: 23px;
 }
 .editTournamentList {
-  height: 169px;
+  height: 186px;
   width: 100%;
   overflow-y: scroll;
+  overflow-x: hidden;
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
-.editCoursesList {
-  height: 169px;
-  width: 100%;
-  overflow-y: scroll;
-  -webkit-padding-start: 0px;
-  -moz-padding-start: 0px;
-}
-.recentActivityList {
-  height: 169px;
-  width: 100%;
-  overflow-y: scroll;
-  -webkit-padding-start: 0px;
-  -moz-padding-start: 0px;
-}
+
+/*Edit Players*/
 .editPlayersList {
-  height: 169px;
+  height: 279px;
   width: 100%;
   overflow-y: scroll;
+  overflow-x: hidden;
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
-.glyphicon-refresh-animate {
-  -animation: spin .7s infinite linear;
-  -webkit-animation: spin2 .7s infinite linear;
-  -moz-animation: spin2 .7s infinite linear;
+
+/*Edit Courses*/
+.editCoursesList {
+  height: 279px;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-padding-start: 0px;
+  -moz-padding-start: 0px;
 }
-@-webkit-keyframes spin2 {
-  from {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
+
+/*Recent Activity*/
+.recentActivityList {
+  height: 279px;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-padding-start: 0px;
+  -moz-padding-start: 0px;
 }
-@keyframes spin {
-  from {
-    transform: scale(1) rotate(0deg);
-  }
-  to {
-    transform: scale(1) rotate(360deg);
-  }
+
+/*Settings*/
+.settingsClubData {
+  width:650px;
 }

@@ -39,18 +39,18 @@
     });
 
     $('#loadPlayersButton').click(function(event) {
-      $('#playersLoading').css('visibility', 'visible');
+        $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       $.post('/golf/loadplayers/', {}).done(function(data) {
         var d = new Date();
+        $('#loadingDialog').modal('hide');
         $('#playerLoadDate').html(d.toDateString());
-        $('#playersLoading').css('visibility', 'hidden');
       }).fail(function(xhr, textStatus, error) {
+        $('#loadingDialog').modal('hide');
         alert('failed to load players: '+xhr.responseText);
         console.log('failed to load players!');
         console.log(xhr.responseText);
         console.log(textStatus);
         console.log(error);
-        $('#playersLoading').css('visibility', 'hidden');
       });
     });
     
@@ -71,8 +71,8 @@
     		$('.editPlayersList #editPlayersListItem').show();
     	}
   	});
-  	$('.btn-group > .btn').click(function(event){
-      $(this).addClass("active").siblings().removeClass("active");
+    $('#newPlayerButton').click(function(event) {
+      $('#enterNewPlayer').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
 
     $('#printIndexesButton').click(function(event) {
@@ -110,24 +110,26 @@
 
     $('#recentActivityButton').click(function(event) {
       $('#recentActivity').modal({backdrop: 'static', keyboard: false}, event.target).show();
-    })
+    });
 
     $('#settingsButton').click(function(event) {
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#storeSettingsButton').click(function(event) {
-      $('#settings').modal('hide');
       $.post('/golf/storesettings/', {}).done(function(data) {
+        $('#loadingDialog').modal('hide');
+        $('#settings').modal('hide');
         var d = new Date();
         $('#settingsLoadDate').html(d.toDateString());
-        $('#settingsLoading').css('visibility', 'hidden');
+        $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       }).fail(function(xhr, textStatus, error) {
+        $('#loadingDialog').modal('hide');
+        $('#settings').modal('hide');
         alert('failed to store settings: '+xhr.responseText);
         console.log('failed to store settings!');
         console.log(xhr.responseText);
         console.log(textStatus);
         console.log(error);
-        $('#settingsLoading').css('visibility', 'hidden');
       });
     });
 
