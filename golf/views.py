@@ -337,7 +337,14 @@ def calculateScores(request):
     Save the data
     Return the rankings grosses and nets and colors per cell
     """
-    return JsonResponse([])
+    clubs = list(Club.objects.values('id', 'name', 'logo', 'player_plugin__class_package', 'player_plugin__class_name', 'data'))
+    for club in clubs:
+        classModule = importlib.import_module('golf.plugins.'+club['player_plugin__class_package'])
+        classAccess = getattr(classModule, club['player_plugin__class_name'])
+        classInst = classAccess()
+        classInst.loadPlayers(club['data'])
+    resultList = list(Player.objects.values('id', 'club_member_number', 'name', 'handicap_index', 'high_handicap_index', 'low_handicap_index', 'last_updated', 'data', 'priority'))
+    return JsonResponse({'data' : resultList})
 
 def editTournament(request, tournamentId):
     """
