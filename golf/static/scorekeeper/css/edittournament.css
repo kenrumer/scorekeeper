@@ -1,25 +1,19 @@
 
-.enterScorecardHoleInput{
-    width: 37px;
+/*Bootstrap overrides*/
+.btn-primary {
+  width: 164px;
 }
-.addRowToScorecard {
-    width:24px;
+.btn-default {
+  width: 164px;
 }
 body .modal-dialog {
     width: 1160px;
 }
+
+/*scorecard modal*/
 .plusMinusButton {
     width: 24px;
 }
-#scorecard > thead > tr > th > input {
-    width: 37px;
-}
-#scorecard > tfoot > tr > th > input {
-    width: 37px;
-}
-#scorecard > tbody > tr > th > input {
-    width: 37px;
-}
-#scorecard > tbody > tr > td > input {
+.scorecardCell {
     width: 37px;
 }

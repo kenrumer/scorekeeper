@@ -26,32 +26,32 @@
 
   {% if numRounds != '1' %}
     <ul class="nav nav-pills">
-        <li class="active"><a href="#">Round 1</a></li>
-        {% for i in numRoundsRange %}
-        <li><a href="#">Round {{ i }}</a></li>
-        {% endfor %}
-        <li><a href="#">Total</a></li>
+      <li class="active"><a href="#">Round 1</a></li>
+      {% for i in numRoundsRange %}
+      <li><a href="#">Round {{ i }}</a></li>
+      {% endfor %}
+      <li><a href="#">Total</a></li>
     </ul>
   {% endif %}
     <table class="table newTournamentTable cell-border compact stripe" id="newTournamentTable">
-        <thead border=true>
-            <tr>
-                <th>Rank</th><th>Edit</th><th>Player</th><th>TEE</th><th>01</th><th>02</th><th>03</th>
-                <th>04</th><th>05</th><th>06</th><th>07</th><th>08</th><th>09</th><th>OUT</th><th>10</th>
-                <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th>
-                <th>IN</th><th>TOT</th><th>HCP</th><th>NET</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        <tfoot>
-            <tr>
-                <th>Rank</th><th>Edit</th><th>Player</th><th>TEE</th><th>01</th><th>02</th><th>03</th>
-                <th>04</th><th>05</th><th>06</th><th>07</th><th>08</th><th>09</th><th>OUT</th><th>10</th>
-                <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th>
-                <th>IN</th><th>TOT</th><th>HCP</th><th>NET</th>
-            </tr>
-        </tfoot>
+      <thead border=true>
+        <tr>
+          <th>Rank</th><th>Edit</th><th>Player</th><th>TEE</th><th>01</th><th>02</th><th>03</th>
+          <th>04</th><th>05</th><th>06</th><th>07</th><th>08</th><th>09</th><th>OUT</th><th>10</th>
+          <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th>
+          <th>IN</th><th>TOT</th><th>HCP</th><th>NET</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Rank</th><th>Edit</th><th>Player</th><th>TEE</th><th>01</th><th>02</th><th>03</th>
+          <th>04</th><th>05</th><th>06</th><th>07</th><th>08</th><th>09</th><th>OUT</th><th>10</th>
+          <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th>
+          <th>IN</th><th>TOT</th><th>HCP</th><th>NET</th>
+        </tr>
+      </tfoot>
     </table>
     <ul class="nav nav-pills">
       <li class="active"><a href="#">Raw Scores</a></li>
@@ -60,135 +60,139 @@
     </ul>
 
     <div class="modal fade" id="enterScorecardCourse" tabindex="-1" role="dialog" aria-labelledby="enterScorecardCourseLabel">
-        <div class="modal-dialog modal-score-card" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="enterScorecardCourseLabel">Enter Score Card Course</h4>
-                </div>
-                <div class="modal-body">
-                  <select class="newScorecardCourse form-control" id="newScorecardCourse">
-                  {% for course in courses %}
-                    <option value="{{ course.id }}">{{ course.name|safe }}</option>
-                  {% endfor %}
-                  </select>
-                </div>
-                <div class="modal-footer">
-                    <div class="col-sm-9"></div>
-                    <div class="col-sm-2"><button type="button" class="btn btn-primary" data-id="id" id="enterScorecardButton" onclick="javascript:setScorecardCourseAndCourseTee(this);">Enter Scores</button></div>
-                    <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
-                </div>
-            </div>
+      <div class="modal-dialog modalEnterScorecardCourse" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="enterScorecardCourseLabel">Enter Score Card Course</h4>
+          </div>
+          <div class="modal-body">
+            <select class="enterScorecardCourse form-control" id="enterScorecardCourse">
+            {% for course in courses %}
+              <option value="{{ course.id }}">{{ course.name|safe }}</option>
+            {% endfor %}
+            </select>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="enterScorecardCourseButton">Enter Scores</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="modal fade" id="enterScorecard" tabindex="-1" role="dialog" aria-labelledby="enterScorecardLabel">
-        <div class="modal-dialog modal-score-card" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="enterScorecardLabel">Enter Score Card</h4>
-                </div>
-                <div class="modal-body">
-                    <table id="scorecard" class="display compact" width="100%">
-                        <thead>
-                            <tr>
-                                <td><button id="addRowToScorecard" style="width:24px;">+</button></td>
-                                <th>Player</th>
-                                <th>TEE</th>
-                                <th><input id="scorecardCell" value="01" disabled></th>
-                                <th><input id="scorecardCell" value="02" disabled></th>
-                                <th><input id="scorecardCell" value="03" disabled></th>
-                                <th><input id="scorecardCell" value="04" disabled></th>
-                                <th><input id="scorecardCell" value="05" disabled></th>
-                                <th><input id="scorecardCell" value="06" disabled></th>
-                                <th><input id="scorecardCell" value="07" disabled></th>
-                                <th><input id="scorecardCell" value="08" disabled></th>
-                                <th><input id="scorecardCell" value="09" disabled></th>
-                                <th><input id="scorecardCell" value="OUT" disabled></th>
-                                <th><input id="scorecardCell" value="10" disabled></th>
-                                <th><input id="scorecardCell" value="11" disabled></th>
-                                <th><input id="scorecardCell" value="12" disabled></th>
-                                <th><input id="scorecardCell" value="13" disabled></th>
-                                <th><input id="scorecardCell" value="14" disabled></th>
-                                <th><input id="scorecardCell" value="15" disabled></th>
-                                <th><input id="scorecardCell" value="16" disabled></th>
-                                <th><input id="scorecardCell" value="17" disabled></th>
-                                <th><input id="scorecardCell" value="18" disabled></th>
-                                <th><input id="scorecardCell" value="IN" disabled></th>
-                                <th><input id="scorecardCell" value="TOT" disabled></th>
-                                <th><input id="scorecardCell" value="HCP" disabled></th>
-                                <th><input id="scorecardCell" value="NET" disabled></th>
-                            </tr>
-                          {% for courseTee in courseTees %}
-                          <tr style="background-color:{{ courseTee.color_text }}">
-                                <th></th>
-                                <th></th>
-                                <th>{{ courseTee.color_text }}</th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.0.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.1.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.2.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.3.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.4.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.5.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.6.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.7.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.8.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.yardageIn }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.9.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.10.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.11.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.12.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.13.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.14.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.15.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.16.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.17.yardage }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.yardageOut }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.yardageTotal }}" disabled></th>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                            <tr style="background-color:{{ courseTee.color_text }}">
-                                <th></th>
-                                <th></th>
-                                <th>Par</th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.0.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.1.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.2.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.3.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.4.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.5.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.6.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.7.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.8.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.parIn }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.9.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.10.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.11.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.12.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.13.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.14.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.15.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.16.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.tees.17.par }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.parOut }}" disabled></th>
-                                <th><input id="scorecardCell" value="{{ courseTee.parTotal }}" disabled></th>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                      {% endfor %}
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <div class="col-sm-10"></div>
-                    <div class="col-sm-1"><button class="btn btn-primary" id="enterScorecardButton">Save</button></div>
-                    <div class="col-sm-1"><button class="btn btn-default" data-dismiss="modal">Cancel</button></div>
-                </div>
-            </div>
+      <div class="modal-dialog modalEnterScorecard" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="enterScorecardLabel">Enter Score Card</h4>
+          </div>
+          <div class="modal-body">
+            <table id="scorecard" class="display compact" width="100%">
+              <thead>
+                <tr>
+                  <td><button id="addRowToScorecard" class="plusMinusButton">+</button></td>
+                  <th>Player</th>
+                  <th>TEE</th>
+                  <th><input class="scorecardCell" value="01" disabled></th>
+                  <th><input class="scorecardCell" value="02" disabled></th>
+                  <th><input class="scorecardCell" value="03" disabled></th>
+                  <th><input class="scorecardCell" value="04" disabled></th>
+                  <th><input class="scorecardCell" value="05" disabled></th>
+                  <th><input class="scorecardCell" value="06" disabled></th>
+                  <th><input class="scorecardCell" value="07" disabled></th>
+                  <th><input class="scorecardCell" value="08" disabled></th>
+                  <th><input class="scorecardCell" value="09" disabled></th>
+                  <th><input class="scorecardCell" value="OUT" disabled></th>
+                  <th><input class="scorecardCell" value="10" disabled></th>
+                  <th><input class="scorecardCell" value="11" disabled></th>
+                  <th><input class="scorecardCell" value="12" disabled></th>
+                  <th><input class="scorecardCell" value="13" disabled></th>
+                  <th><input class="scorecardCell" value="14" disabled></th>
+                  <th><input class="scorecardCell" value="15" disabled></th>
+                  <th><input class="scorecardCell" value="16" disabled></th>
+                  <th><input class="scorecardCell" value="17" disabled></th>
+                  <th><input class="scorecardCell" value="18" disabled></th>
+                  <th><input class="scorecardCell" value="IN" disabled></th>
+                  <th><input class="scorecardCell" value="TOT" disabled></th>
+                  <th><input class="scorecardCell" value="HCP" disabled></th>
+                  <th><input class="scorecardCell" value="NET" disabled></th>
+                </tr>
+                {% for courseTee in courseTees %}
+                <tr style="background-color:{{ courseTee.color_text }}">
+                  <th></th>
+                  <th></th>
+                  <th>{{ courseTee.color_text }}</th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.0.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.1.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.2.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.3.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.4.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.5.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.6.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.7.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.8.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.yardageIn }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.9.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.10.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.11.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.12.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.13.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.14.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.15.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.16.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.17.yardage }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.yardageOut }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.yardageTotal }}" disabled></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+                <tr style="background-color:{{ courseTee.color_text }}">
+                  <th></th>
+                  <th></th>
+                  <th>Par</th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.0.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.1.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.2.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.3.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.4.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.5.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.6.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.7.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.8.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.parIn }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.9.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.10.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.11.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.12.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.13.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.14.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.15.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.16.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.tees.17.par }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.parOut }}" disabled></th>
+                  <th><input class="scorecardCell" value="{{ courseTee.parTotal }}" disabled></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+                {% endfor %}
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button class="btn btn-primary" id="enterScorecardButton">Save</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button class="btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
         </div>
+      </div>
     </div>
 {% endblock %}

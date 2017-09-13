@@ -2,97 +2,80 @@
   var editTournamentTable;
   var newTournamentTable;
   var addRowId = 0;
-  var slope = 86;
 
   function updateScorecardRow(data) {
+    console.log("test1");
     var rowId = data.getAttribute('data-rowId');
     var playerHCP = $('#hcp'+rowId).val();
     var holes = $('[name="holeout'+rowId+'"]');
     var totalout = 0;
     holes.each(function(i, item) {
-      totalout += parseInt($(item).val());
-    })
+      totalout += parseInt($(item).val(), 10);
+    });
     $('#totalout'+rowId).val(totalout);
     holes = $('[name="holein'+rowId+'"]');
     var totalin = 0;
     holes.each(function(i, item) {
-      totalin += parseInt($(item).val());
+      totalin += parseInt($(item).val(), 10);
     });
     $('#totalin'+rowId).val(totalin);
     $('#total'+rowId).val(totalin+totalout);
     $('#totalnet'+rowId).val(totalin+totalout-playerHCP);
   }
 
-  function playerChange(data) {
-    var rowId = data.getAttribute('data-rowId');
-    var hcpInput = document.getElementById('hcp'+rowId);
-    var selValue = data.options[data.selectedIndex].value;
-    var id = selValue.split('|')[0];
-    var hcp = selValue.split('|')[1];
-    if (hcp) {
-      hcpInput.value = Math.round(hcp * slope / 113);
-    } else {
-      hcpInput.value = 0;
-    }
-    updateScorecardRow(hcpInput);
-  }
-
   function editScorecard(scorecard_id) {
-    addRowId = 0;
+    console.log("test3");
+    /*addRowId = 0;
     $('#addRowToScorecard').css('display', 'block');
     if (courses.length > 1) {
       $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
     } else {
       $('#scorecard >tbody').html('');
-      addRowToScorecard(player_id);
+      addRowToScorecard();
       $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
-    }
+    }*/
   }
 
   function editScorecardRow(player_id) {
-    addRowId = 0;
+    console.log("test4");
+    /*addRowId = 0;
     if (!courses.length > 1) {
       $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
     } else {
       $('#scorecard >tbody').html('');
-      addRowToScorecard(player_id);
+      addRowToScorecard();
       $('#addRowToScorecard').css('display', 'none');
-      $('#scorecardRowButton0').css('display', 'none');
       $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
-    }
+    }*/
   }
 
   function addRowToScorecard() {
-    var teeList = '';
-    var playerList = '';
+    console.log("test5");
+    var teeList = "";
+    var playerList = "";
     for (var i = 0; i < players.length; i++) {
       playerList += '<option value='+players[i].fields.club_member_number+'|'+players[i].fields.handicap_index+'>'+players[i].fields.name+'</option>';
     }
     if (courseTees.length == 1) {
-      teeList = ' \
-        <div style="background-color:'+courseTees[0].color_text+'">&nbsp;</div>';
+      teeList = "<div style='background-color:"+courseTees[0].color_text+"'>&nbsp;</div>";
     } else {
-      teeList = ' \
-        <div class="dropdown"> \
-          <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+courseTees[0].color_text+'" type="button" data-toggle="dropdown" aria-expanded="true"> \
-            <span class="caret"></span> \
-          </button> \
-          <ul id="courseTees'+addRowId+'" class="dropdown-menu" aria-labelledby="dropdownMenu1">';
+      teeList = "<div class='dropdown'> \
+          <button id='teeSelectButton"+addRowId+"' class='dropdown-toggle' style='background-color:"+courseTees[0].color_text+"' type='button' data-toggle='dropdown' aria-expanded='true'> \
+            <span class='caret'></span></button> \
+          <ul id='courseTees"+addRowId+"' class='dropdown-menu' aria-labelledby='teeSelectButton"+addRowId+"'>";
       $.each(courseTees, function(i, item) {
-        teeList += '<li style="background-color:'+item.color_text+'"><a href="#" onclick="javascript:teeChange('+addRowId+', "'+item.color_text+'", '+item.slope+')">'+item.short_color_text+'</a>';
-      })
-      teeList += ' \
-          </ul> \
-        </div>';
+        teeList += "<li style='background-color:"+item.color_text+"'><a href='#'>"+item.color_text+"</a></li>";
+      });
+      teeList += "</ul></div>";
     }
-    console.log(courseTees);
-    $('#scorecard > tbody').append(' \
-      <tr id="scorecardRow'+addRowId+'" data-rowId="'+addRowId+'"> \
+    console.log(teeList);
+    $('#scorecard >tbody').append(' \
+      <tr id="scorecardRow'+addRowId+'" data-rowId="'+addRowId+'" data-currentSlope='+courseTees[0].slope+'> \
         <td> \
           <button class="plusMinusButton" id="removeRowFromScorecard" data-rowId="'+addRowId+'">-</button> \
         </td> \
         <td> \
-          <select name="playerNames" id="playerNames'+addRowId+'" style="width: 140px" data-rowId="'+addRowId+'" onchange="javascript:playerChange(this);"> \
+          <select name="playerNames" id="playerNames" style="width: 140px" data-rowId="'+addRowId+'"> \
             <option>----------------------------</option>'+playerList+'</select> \
         </td><td>'+teeList+'</td><td> \
           <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[0].par+'> \
@@ -164,38 +147,52 @@
           <input class="scorecardCell" data-rowId="'+addRowId+'" id="totalnet'+addRowId+'" value="'+courseTees[0].parTotal+'" disabled> \
         </td> \
       </tr>');
-    $('#playerNames'+addRowId).focus();
+    $('#playerNames').focus();
     addRowId++;
-  }
-  
-  function setScorecardCourseAndCourseTee() {
-    $('#enterScorecardCourse').modal('hide');
-    $('#scorecard >tbody').html('');
-    addRowToScorecard();
-    $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
   }
 
   function teeChange(rowId, color, newSlope) {
-    $('#hcp'+rowId).val(Math.round($('playerNames'+rowId).val().split('|')[1] * newSlope / 113));
+    console.log("test6");
+    console.log($('#playerNames').val());
+    $('#scorecardRow'+rowId).attr('data-currentSlope', newSlope);
+    $('#hcp'+rowId).val(Math.round($('#playerNames').val().split('|')[1] * newSlope / 113));
     $('#teeSelectButton'+rowId).css('background-color', color);
   }
 
   $(document).ready(function() {
+
+    //Select course actions
+    $('#enterScorecardCourseButton').click(function(event) {
+      $('#enterScorecardCourse').modal('hide');
+      $('#scorecard >tbody').html('');
+      addRowToScorecard();
+      $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    });
 
     //Scorecard actions
     $('#scorecard').on('input', '#scorecardCell', function(event) {
       updateScorecardRow(this);
     });
     $('#scorecard').on('click', '#removeRowFromScorecard', function() {
-      var rowId = this.getAttribute('data-rowId');
+      var rowId = $(this).attr('data-rowId');
       $('#scorecardRow'+rowId).html('');
-    });
-    $('#enterScorecardButton').click(function() {
-      console.log($('#scorecard'));
     });
     $('#addRowToScorecard').click(function(event) {
       addRowToScorecard();
     });
+    $('#scorecard').on('change', '#playerNames', function(event) {
+      var rowId = $(this).attr('data-rowId');
+      var hcp = $(this).val().split('|')[1];
+      if (hcp) {
+        $('#hcp'+rowId).val(Math.round(hcp * parseInt($('#scorecardRow'+rowId).attr('data-currentSlope'), 10) / 113));
+      } else {
+        $('#hcp'+rowId).val(0);
+      }
+      updateScorecardRow(this);
+    });
+    $('#scorecard').on('click', '.dropdown-toggle li > a', function(event) {
+      console.log(this);
+    })
 
     //New tournament table
     newTournamentTable = $('#newTournamentTable').DataTable( {
@@ -210,10 +207,9 @@
           'action': function ( event, dt, node, config ) {
             event.stopPropagation();
             addRowId = 0;
-            console.log(courses.length);
             if (courses.length > 1) {
               $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
-            } else {setScorecardCourseAndCourseTee
+            } else {
               $('#scorecard >tbody').html('');
               addRowToScorecard();
               $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
