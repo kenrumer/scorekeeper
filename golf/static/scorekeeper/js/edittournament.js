@@ -1,37 +1,26 @@
-/* global $, courseTees */
+/* global $, courseTees, courses, tournamentName, dateStart, numRounds, players */
   var editTournamentTable;
   var newTournamentTable;
   var addRowId = 0;
-  var tournamentName;
-  var dateStart;
-  var numRounds;
-  var courses;
-  var courseTees;
-  var players;
   var slope = 86;
 
   function updateScorecardRow(data) {
     var rowId = data.getAttribute('data-rowId');
-    var hcp = document.getElementById('hcp'+rowId).value;
-    var holes = document.getElementsByName('holeout'+rowId);
+    var playerHCP = $('#hcp'+rowId).val();
+    var holes = $('[name="holeout'+rowId+'"]');
     var totalout = 0;
-    for (var i=0;i<holes.length;i++) {
-      if (parseInt(holes[i].value)) {
-        totalout += parseInt(holes[i].value);
-      }
-    }
-    document.getElementById('totalout'+rowId).value = totalout;
-    holes = document.getElementsByName('holein'+rowId);
+    holes.each(function(i, item) {
+      totalout += parseInt($(item).val());
+    })
+    $('#totalout'+rowId).val(totalout);
+    holes = $('[name="holein'+rowId+'"]');
     var totalin = 0;
-    for (var i=0;i<holes.length;i++) {
-      if (parseInt(holes[i].value)) {
-        totalin += parseInt(holes[i].value);
-      }
-    }
-    document.getElementById('totalin'+rowId).value = totalin;
-    var total = totalin+totalout;
-    document.getElementById('total'+rowId).value = total;
-    document.getElementById('totalnet'+rowId).value = total - hcp;
+    holes.each(function(i, item) {
+      totalin += parseInt($(item).val());
+    });
+    $('#totalin'+rowId).val(totalin);
+    $('#total'+rowId).val(totalin+totalout);
+    $('#totalnet'+rowId).val(totalin+totalout-playerHCP);
   }
 
   function playerChange(data) {
@@ -51,7 +40,7 @@
   function editScorecard(scorecard_id) {
     addRowId = 0;
     $('#addRowToScorecard').css('display', 'block');
-    if (!everyonePlayedTheSameCourse) {
+    if (courses.length > 1) {
       $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
     } else {
       $('#scorecard >tbody').html('');
@@ -62,7 +51,7 @@
 
   function editScorecardRow(player_id) {
     addRowId = 0;
-    if (!everyonePlayedTheSameCourse) {
+    if (!courses.length > 1) {
       $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
     } else {
       $('#scorecard >tbody').html('');
@@ -96,6 +85,7 @@
           </ul> \
         </div>';
     }
+    console.log(courseTees);
     $('#scorecard > tbody').append(' \
       <tr id="scorecardRow'+addRowId+'" data-rowId="'+addRowId+'"> \
         <td> \
@@ -105,84 +95,88 @@
           <select name="playerNames" id="playerNames'+addRowId+'" style="width: 140px" data-rowId="'+addRowId+'" onchange="javascript:playerChange(this);"> \
             <option>----------------------------</option>'+playerList+'</select> \
         </td><td>'+teeList+'</td><td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[0].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[1].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[2].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[3].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[4].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[5].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[6].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[7].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[8].par+'> \
         </td> \
         <td> \
-          <input style="width: 37px" data-rowId="'+addRowId+'" id="totalout'+addRowId+'" value="36" disabled> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" id="totalout'+addRowId+'" value="'+courseTees[0].parOut+'" disabled> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[9].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[10].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[11].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[12].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[13].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[14].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[15].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[16].par+'> \
         </td> \
         <td> \
-          <input id="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value=4> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[17].par+'> \
         </td> \
         <td> \
-          <input style="width: 37px" data-rowId="'+addRowId+'" id="totalin'+addRowId+'" value="36" disabled> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" id="totalin'+addRowId+'" value="'+courseTees[0].parIn+'" disabled> \
         </td> \
         <td> \
-          <input style="width: 37px" data-rowId="'+addRowId+'" id="total'+addRowId+'" value="72" disabled> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" id="total'+addRowId+'" value="'+courseTees[0].parTotal+'" disabled> \
         </td> \
         <td> \
-          <input style="width: 40px" data-rowId="'+addRowId+'" id="hcp'+addRowId+'" value=0 disabled> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" id="hcp'+addRowId+'" value=0 disabled> \
         </td> \
         <td> \
-          <input style="width: 37px" data-rowId="'+addRowId+'" id="totalnet'+addRowId+'" value="72" disabled> \
+          <input class="scorecardCell" data-rowId="'+addRowId+'" id="totalnet'+addRowId+'" value="'+courseTees[0].parTotal+'" disabled> \
         </td> \
       </tr>');
     $('#playerNames'+addRowId).focus();
     addRowId++;
   }
+  
+  function setScorecardCourseAndCourseTee() {
+    $('#enterScorecardCourse').modal('hide');
+    $('#scorecard >tbody').html('');
+    addRowToScorecard();
+    $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
+  }
 
   function teeChange(rowId, color, newSlope) {
-    var sel = document.getElementById('playerNames'+rowId);
-    var hcpValue = sel.options[sel.selectedIndex].value.split('|')[1];
-    var hcp = document.getElementById('hcp'+rowId);
-    hcp.value = Math.round(hcpValue * newSlope / 113);
+    $('#hcp'+rowId).val(Math.round($('playerNames'+rowId).val().split('|')[1] * newSlope / 113));
     $('#teeSelectButton'+rowId).css('background-color', color);
   }
 
@@ -216,9 +210,10 @@
           'action': function ( event, dt, node, config ) {
             event.stopPropagation();
             addRowId = 0;
+            console.log(courses.length);
             if (courses.length > 1) {
               $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
-            } else {
+            } else {setScorecardCourseAndCourseTee
               $('#scorecard >tbody').html('');
               addRowToScorecard();
               $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();

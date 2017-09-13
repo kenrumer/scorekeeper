@@ -13,12 +13,12 @@
   <script src="{% static "scorekeeper/js/edittournament.js" %}" type="text/javascript"></script>
   <script type="text/javascript">
     /* global escapeDjango */
-    tournamentName = '{{ name }}';
-    dateStart = {{ dateStart }};
-    numRounds = {{ numRounds }};
-    courses = escapeDjango("{{ courses|escapejs }}");
-    courseTees = {{ courseTees|safe }};
-    players = {{ players|safe }};
+    var tournamentName = '{{ name }}';
+    var dateStart = '{{ dateStart }}';
+    var numRounds = '{{ numRounds }}';
+    var courses = JSON.parse(escapeDjango("{{ courses|escapejs }}"));
+    var courseTees = JSON.parse(escapeDjango("{{ courseTees|escapejs }}"));
+    var players = JSON.parse(escapeDjango("{{ players|escapejs }}"));
   </script>
 {% endblock %}
 
@@ -64,13 +64,18 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="enterScorecardCourseLabel">Enter Score Card</h4>
+                    <h4 class="modal-title" id="enterScorecardCourseLabel">Enter Score Card Course</h4>
                 </div>
                 <div class="modal-body">
+                  <select class="newScorecardCourse form-control" id="newScorecardCourse">
+                  {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.name|safe }}</option>
+                  {% endfor %}
+                  </select>
                 </div>
                 <div class="modal-footer">
-                    <div class="col-sm-10"></div>
-                    <div class="col-sm-1"><button type="button" class="btn btn-primary" data-id="id" id="enterScorecardButton" onclick="javascript:setScorecardCourseAndCourseTee(this);">Save</button></div>
+                    <div class="col-sm-9"></div>
+                    <div class="col-sm-2"><button type="button" class="btn btn-primary" data-id="id" id="enterScorecardButton" onclick="javascript:setScorecardCourseAndCourseTee(this);">Enter Scores</button></div>
                     <div class="col-sm-1"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button></div>
                 </div>
             </div>

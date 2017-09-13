@@ -290,25 +290,25 @@ def newTournament(request):
         parTotal = 0
         if (int(courseTees[i]['hole_count']) == 9):
             for front in range(0, 9):
-                yardageIn += int(courseTees[i]['tees'][front]['yardage'])
-                parIn += int(courseTees[i]['tees'][front]['par'])
-            courseTees[i]['yardageIn'] = yardageIn
-            courseTees[i]['yardageTotal'] = yardageIn
-            courseTees[i]['parIn'] = parIn
-            courseTees[i]['parTotal'] = parIn
+                yardageOut += int(courseTees[i]['tees'][front]['yardage'])
+                parOut += int(courseTees[i]['tees'][front]['par'])
+            courseTees[i]['yardageOut'] = yardageOut
+            courseTees[i]['yardageTotal'] = yardageOut
+            courseTees[i]['parOut'] = parOut
+            courseTees[i]['parTotal'] = parOut
         if (int(courseTees[i]['hole_count']) == 18):
             for front in range(0, 9):
-                yardageIn += int(courseTees[i]['tees'][front]['yardage'])
-                parIn += int(courseTees[i]['tees'][front]['par'])
-            courseTees[i]['yardageIn'] = yardageIn
-            courseTees[i]['parIn'] = parIn
-            for back in range(9, 18):
-                yardageOut += int(courseTees[i]['tees'][back]['yardage'])
-                parOut += int(courseTees[i]['tees'][back]['par'])
+                yardageOut += int(courseTees[i]['tees'][front]['yardage'])
+                parOut += int(courseTees[i]['tees'][front]['par'])
             courseTees[i]['yardageOut'] = yardageOut
-            courseTees[i]['yardageTotal'] = yardageIn + yardageOut
             courseTees[i]['parOut'] = parOut
-            courseTees[i]['parTotal'] = parIn + parOut
+            for back in range(9, 18):
+                yardageIn += int(courseTees[i]['tees'][back]['yardage'])
+                parIn += int(courseTees[i]['tees'][back]['par'])
+            courseTees[i]['yardageIn'] = yardageIn
+            courseTees[i]['yardageTotal'] = yardageOut + yardageIn
+            courseTees[i]['parIn'] = parIn
+            courseTees[i]['parTotal'] = parOut + parIn
     if (len(teeIds) != 1):
         for courseId in courseIds:
             courses.append(model_to_dict(Course.objects.get(id=courseId)))
@@ -316,13 +316,13 @@ def newTournament(request):
     players = list(Player.objects.values('id', 'club_member_number', 'name', 'handicap_index', 'priority'))
     from django.core import serializers
     context = {
-        'name': request.POST.get('name'),
-        'dateStart': request.POST.get('dateStart'),
-        'numRoundsRange': numRoundsRange,
-        'numRounds': request.POST.get('numRounds'),
-        'courses': courses,
-        'courseTees': courseTees,
-        'players': serializers.serialize('json', Player.objects.all())
+        "name": request.POST.get('name'),
+        "dateStart": request.POST.get('dateStart'),
+        "numRoundsRange": numRoundsRange,
+        "numRounds": request.POST.get('numRounds'),
+        "courses": courses,
+        "courseTees": courseTees,
+        "players": serializers.serialize('json', Player.objects.all())
     }
     return render(request, 'golf/newtournament.html', context=context)
 

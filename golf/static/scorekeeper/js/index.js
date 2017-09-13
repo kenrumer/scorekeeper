@@ -14,6 +14,7 @@
         courses: $('#newTournamentCourses').val(),
         tees: $('#newTournamentTees').val()
       };
+      console.log(context);
       $.redirect('/golf/newtournament/', context, 'POST', '', true);
     });
 
