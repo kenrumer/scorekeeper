@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^printsignupsheets/$', csrf_exempt(views.printSignupSheets), name='printsignupsheets'),
     url(r'^editformats/$', views.editFormats, name='editformats'),
     url(r'^newtournament/$', csrf_exempt(views.newTournament), name='newtournament'),
+    url(r'^calculatescores/$', csrf_exempt(views.calculateScores), name='calculatescores'),
     url(r'^edittournament/(?P<tournamentId>\d+)$', views.editTournament, name='edittournament'),
     url(r'^leaderboard/(?P<tournamentId>\d+)$', views.editTournament, name='edittournament'),
     url(r'^newscorecard/$', views.newScorecard, name='newscorecard'),

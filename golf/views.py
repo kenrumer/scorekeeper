@@ -271,23 +271,24 @@ def newTournament(request):
     Create function for tournaments
     Need to ask several questions about course, tee, format, if multi-round - how many... how do you ask from a plugin?
     """
+    from django.core import serializers
     courses = []
     courseTees = []
-    tees = []
-    teeColors = []
     courseIds = request.POST.getlist('courses')
     teeIds = request.POST.getlist('tees')
+    t = Tournament(name=request.POST.get('name'))
+    t.save()
     for i, teeId in enumerate(teeIds):
-        courseTees.append(CourseTee.objects.filter(id=teeId).values('id', 'name', 'slope', 'course__name', 'color')[0])
+        ct = CourseTee.objects.get(id=teeId)
+        t.course_tees.add(ct)
+        courseTees.append(list(CourseTee.objects.filter(id=teeId).values('id', 'name', 'slope', 'course__name', 'color'))[0])
         courseTees[i]['color_text'] = CourseTee.COLOR_CHOICES[courseTees[i]['color']][1]
         courseTees[i]['tees'] = list(Tee.objects.filter(course_tee__id=teeId).values('id', 'yardage', 'par', 'hole__name', 'hole__number'))
         courseTees[i]['hole_count'] = len(courseTees[i]['tees'])
         yardageIn = 0
         yardageOut = 0
-        yardageTotal = 0
         parIn = 0
         parOut = 0
-        parTotal = 0
         if (int(courseTees[i]['hole_count']) == 9):
             for front in range(0, 9):
                 yardageOut += int(courseTees[i]['tees'][front]['yardage'])
@@ -311,13 +312,17 @@ def newTournament(request):
             courseTees[i]['parTotal'] = parOut + parIn
     if (len(teeIds) != 1):
         for courseId in courseIds:
-            courses.append(model_to_dict(Course.objects.get(id=courseId)))
+            c = Course.objects.get(id=courseId)
+            courses.append(model_to_dict(c))
+            t.courses.add(c)
+    from datetime import datetime
+    d = datetime.strptime(request.POST.get('dateStart'), '%m/%d/%Y')
+    td = TournamentDate(date=d, tournament=t)
+    td.save()
     numRoundsRange = range(2, int(request.POST.get('numRounds'))+1)
-    players = list(Player.objects.values('id', 'club_member_number', 'name', 'handicap_index', 'priority'))
-    from django.core import serializers
     context = {
+        "tournamentId": t.id,
         "name": request.POST.get('name'),
-        "dateStart": request.POST.get('dateStart'),
         "numRoundsRange": numRoundsRange,
         "numRounds": request.POST.get('numRounds'),
         "courses": courses,
@@ -325,6 +330,14 @@ def newTournament(request):
         "players": serializers.serialize('json', Player.objects.all())
     }
     return render(request, 'golf/newtournament.html', context=context)
+
+def calculateScores(request):
+    """
+    Score the tournament
+    Save the data
+    Return the rankings grosses and nets and colors per cell
+    """
+    return JsonResponse([])
 
 def editTournament(request, tournamentId):
     """

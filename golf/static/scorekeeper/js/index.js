@@ -40,7 +40,7 @@
     });
 
     $('#loadPlayersButton').click(function(event) {
-        $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       $.post('/golf/loadplayers/', {}).done(function(data) {
         var d = new Date();
         $('#loadingDialog').modal('hide');
