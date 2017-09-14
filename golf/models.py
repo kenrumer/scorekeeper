@@ -36,10 +36,8 @@ class Format(models.Model):
     """
     name = models.CharField(max_length=200, help_text='Enter the name of the format')
     priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
-    default = models.BooleanField(verbose_name='Default', default=False, help_text='Set a default for faster starts to putting scores in')
-    #tournament_payout_plugin = models.ForeignKey('TournamentPayoutPlugin')
-    #round_payout_plugin = models.ForeignKey('RoundPayoutPlugin')
-    #format
+    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename with the .py) containing the class of your plugin')
+    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
@@ -50,26 +48,11 @@ class TournamentPayoutPlugin(models.Model):
     """
     Model representing the plugins that will calculate payout for the overall tournament
     Payout plugin gets a ton of data each time a scorecard is submitted
-    This plugin needs to return players that are paid for net scores, gross scores, skins, values for pins, number of drawings, others (magic holes, hole in one)
+    This plugin needs to return players that are paid (overall tournament and per round) for net scores, gross scores, skins, values for pins, number of drawings, others (magic holes, hole in one)
     """
     name = models.CharField(max_length=200, help_text="Enter the name of the plugin")
     class_package = models.CharField(max_length=200, help_text="Name of the module (filename with the .py) containing the class of your plugin")
     class_name = models.CharField(max_length=200, help_text="Enter the name of the class with the module")
-    def __str__(self):
-        """
-        String for representing the Model object (in Admin site etc.)
-        """
-        return self.class_package
-
-class RoundPayoutPlugin(models.Model):
-    """
-    Model representing the plugins that will calculate payout for the current round
-    Payout plugin gets a all of data for the round each time a scorecard is submitted.  also needs the overall tournament data
-    This plugin needs to return players that are paid for net scores, gross scores, skins, values for pins, number of drawings, others (magic holes, hole in one)
-    """
-    name = models.CharField(max_length=200, help_text='Enter the name of the plugin')
-    class_package = models.CharField(max_length=200, help_text='Name of the module (filename with the .py) containing the class of your plugin')
-    class_name = models.CharField(max_length=200, help_text='Enter the name of the class with the module')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
