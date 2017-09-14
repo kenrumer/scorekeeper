@@ -72,7 +72,7 @@ class FormatBase(object):
     @abstractmethod
     def calculateScores(self, input):
         """
-            Based on all scores from each player (on save from scorecard, what is the 'value' (store raw vs net)
+            Based on all scores from each player (on save from scorecard), what is the 'value' (store raw && net && cell style in the score table, assign score to player, round and scorecard)
             Retrieve data from the input (this saved scorecard) source and return an object.
             [{
                 clubMemberNumber:"701505",

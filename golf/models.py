@@ -65,10 +65,18 @@ class Round(models.Model):
     """
     handicap_index = models.DecimalField(max_digits=3, verbose_name='Handicap Index', decimal_places=1, help_text='Enter the players handicap index at time of tournament')
     course_handicap = models.IntegerField(verbose_name='Course Handicap', help_text='Enter the course handicap at time of tournament')
-    total_in = models.IntegerField(verbose_name='IN', help_text='Enter the score of the front 9 holes')
-    total_out = models.IntegerField(verbose_name='OUT', help_text='Enter the score of the back 9 holes')
-    total = models.IntegerField(verbose_name='Total', help_text='Enter the total score for the round')
-    net = models.IntegerField(verbose_name='Course Handicap', help_text='Enter the net score for the round')
+    total_out = models.IntegerField(verbose_name='OUT', null=True, blank=True, help_text='Enter the score of the front 9 holes')
+    total_out_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    total_out_net = models.IntegerField(verbose_name='Front 9 Net', null=True, blank=True, help_text='Enter the net score for the front nine')
+    total_out_net_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
+    total_in = models.IntegerField(verbose_name='IN', null=True, blank=True, help_text='Enter the score of the back 9 holes')
+    total_in_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    total_in_net = models.IntegerField(verbose_name='Back 9 Net', null=True, blank=True, help_text='Enter the net score for the back 9')
+    total_in_net_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
+    total = models.IntegerField(verbose_name='Total', null=True, blank=True, help_text='Enter the total score for the round')
+    total_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    net = models.IntegerField(verbose_name='Course Handicap', null=True, blank=True, help_text='Enter the net score for the round')
+    net_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     player = models.ForeignKey('Player', verbose_name='Player Id')
     tournament = models.ForeignKey('Tournament', verbose_name='Tournament Id', on_delete=models.SET_NULL, null=True, blank=True)
     scorecard = models.ForeignKey('Scorecard', verbose_name='Scorecard')
@@ -96,6 +104,9 @@ class Score(models.Model):
         when calibrated with a format, course, handicap, tee handicap
     """
     score = models.IntegerField(verbose_name='Score', help_text='Enter the score for the hole')
+    score_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    score_net = models.IntegerField(verbose_name='Score Net', null=True, blank=True, help_text='Enter the net score for the hole')
+    score_net_style = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     hole_played = models.IntegerField(verbose_name='Hole Played', null=True, blank=True, help_text='Enter the hole number played (e.g. in shotgun start if this is hole 16, but the second hole played enter 2)')
     tee = models.ForeignKey('Tee', verbose_name='Hole and Tee Id')
     def __str__(self):
