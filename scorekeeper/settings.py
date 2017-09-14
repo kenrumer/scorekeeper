@@ -25,7 +25,7 @@ SECRET_KEY = 'slp=ggk7226i@z^f_81avgup!@eq574a#bhiur=7akiiow_)mz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['kenrumer.pythonanywhere.com', 'scorekeeper-kenrumer.c9users.io']
+ALLOWED_HOSTS = ['kenrumer.pythonanywhere.com', 'scorekeeper-kenrumer.c9users.io', 'scorekeeper3-kenrumer.c9users.io']
 
 
 # Application definition

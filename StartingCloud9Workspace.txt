@@ -1,0 +1,59 @@
+Start from repository 'scorekeeper'
+In settings change to python3
+sudo apt-get update
+sudo rm python
+sudo rm python3
+sudo ln -s python3.5 python
+sudo ln -s python3.5 python3
+sudo pip install django
+sudo pip install django-mathfilters
+sudo pip install --upgrade Pillow
+sudo pip install weasyprint
+sudo pip install --upgrade six
+sudo pip install bs4
+cd
+cd workspace
+in scorekeeper/scorekeeper/
+vi settings.py
+Add the new workspace to Allowed Hosts = ['scorekeeper-kenrumer.c9users.io']
+Click 'Run Project' this will fail, but want the tab to add a 'Runner'
+Click the 'Runner: Django' go to -> 'New Runner'
+
+paste this:
+
+
+// This file overrides the built-in Django runner
+// For more information see http://docs.c9.io:8080/#!/api/run-method-run
+{
+  "script": [
+    "if [ \"$debug\" == true ]; then ",
+    "    $python manage.py migrate &&\\",
+    "        $python -m ikpdb --ikpdb-port=15471 --ikpdb-working-directory=\"$project_path\" manage.py runserver $ip:$port --noreload",
+    "else",
+    "    $python manage.py migrate && $python manage.py runserver $ip:$port",
+    "fi",
+    "checkExitCode() {",
+    "    if [ $1 ] && [ \"$debug\" == true ]; then ",
+    "        python -m ikpdb 2>&1 | grep -q 'No module' && echo '",
+    "    To use python debugger install ikpdb by running: ",
+    "        sudo apt-get update;",
+    "        sudo apt-get install python-dev;",
+    "        sudo pip install ikpdb;",
+    "        '",
+    "    fi",
+    "   return $1",
+    "}",
+    "checkExitCode $?"
+  ],
+  "debugport": 15471,
+  "$debugDefaultState": false,
+  "debugger": "pythondebug",
+  "working_dir": "$project_path",
+  "info": "Your codes is running at \\033[01;34m$url\\033[00m.\n\\033[01;31m",
+  "env": {
+    "PYTHONPATH": "/usr/local/lib/python3.5/dist-packages"
+  }
+}
+
+
+Click 'Run' on left

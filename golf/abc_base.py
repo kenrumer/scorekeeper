@@ -63,7 +63,7 @@ class PlayerBase(object):
                 p.last_updated=datetime.now()
                 p.save()
             else:
-                p = Player(club_member_number=player['club_member_number'], name=player['name'], handicap_index=player['handicap_index'], player_type_id=pt.id, data=player['data'], high_handicap_index=player['high_handicap_index'], low_handicap_index=player['low_handicap_index'], last_updated=datetime.datetime.now())
+                p = Player(club_member_number=player['club_member_number'], name=player['name'], handicap_index=player['handicap_index'], player_type_id=pt.id, data=player['data'], high_handicap_index=player['high_handicap_index'], low_handicap_index=player['low_handicap_index'], last_updated=datetime.now())
                 p.save()
 
 class FormatBase(object):

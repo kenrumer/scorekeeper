@@ -156,7 +156,7 @@ class Tee(models.Model):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.course_tee.name + " - " + str(self.hole__number)
+        return self.course_tee.name
 
 class Hole(models.Model):
     """

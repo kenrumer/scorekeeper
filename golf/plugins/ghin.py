@@ -15,6 +15,7 @@ class GHINPlayers(PlayerBase):
 
     def loadPlayers(self, data):
         import requests
+        print(data)
         jsondata = json.loads(data)
         print (jsondata)
 
