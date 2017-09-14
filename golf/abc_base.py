@@ -70,10 +70,10 @@ class FormatBase(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def calculateScore(self, input):
+    def calculateScores(self, input):
         """
-            Based on all scores from each player (on save from scorecard, what is the 'value' (raw vs net) of this hole for an individual player
-            Retrieve data from the input source and return an object.
+            Based on all scores from each player (on save from scorecard, what is the 'value' (store raw vs net)
+            Retrieve data from the input (this saved scorecard) source and return an object.
             [{
                 clubMemberNumber:"701505",
                 courseHCP:14,
