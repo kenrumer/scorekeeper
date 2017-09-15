@@ -187,8 +187,9 @@
     $('#editTournamentSearchStartDateDateTimePicker').datetimepicker({format: 'MM/DD/YYYY'});
     $('#editTournamentSearchEndDateDateTimePicker').datetimepicker({format: 'MM/DD/YYYY'});
     $('#newTournamentCourses').multiSelect( {
-      selectableHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the courses played">',
-      selectionHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the courses played">',
+      selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',
+      selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',
+      keepOrder: true,
       afterInit: function(ms){
         var that = this,
         $selectableSearch = that.$selectableUl.prev(),
@@ -222,8 +223,10 @@
       }
     });
     $('#newTournamentTees').multiSelect( {
-      selectableHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the tees played">',
-      selectionHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the tees played">',
+      selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
+      selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
+      keepOrder: true,
+      keepOrder: true,
       afterInit: function(ms){
         var that = this,
           $selectableSearch = that.$selectableUl.prev(),
@@ -257,8 +260,9 @@
       }
     });
     $('#settingsClubCourses').multiSelect( {
-      selectableHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the default club courses">',
-      selectionHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the default club courses">',
+      selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the default club courses">',
+      selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the default club courses">',
+      keepOrder: true,
       afterInit: function(ms) {
         var that = this,
           $selectableSearch = that.$selectableUl.prev(),
@@ -292,8 +296,9 @@
       }
     });
     $('#settingsClubTees').multiSelect( {
-      selectableHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the default club tees">',
-      selectionHeader: '<input type="text" class="search-input" autocomplete="off" placeholder="Select the default club tees">',
+      selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the default club tees">',
+      selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the default club tees">',
+      keepOrder: true,
       afterInit: function(ms) {
         var that = this,
           $selectableSearch = that.$selectableUl.prev(),
