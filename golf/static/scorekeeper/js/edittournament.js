@@ -55,7 +55,7 @@
       playerList += '<option value='+players[i].fields.club_member_number+'|'+players[i].fields.handicap_index+'>'+players[i].fields.name+'</option>';
     }
     if (courseTees.length == 1) {
-      teeList = '<div id="playerTee'+addRowId+'" data-slope="'+courseTees[0].slope+'" data-color="'+courseTees[0].color_text+'" style="background-color:'+courseTees[0].color_text+'">&nbsp;</div>';
+      teeList = '<div id="playerTee'+addRowId+'" data-slope="'+courseTees[0].slope+'" data-color="'+courseTees[0].color_text+'" data-id="'+courseTees[0].id+'" style="background-color:'+courseTees[0].color_text+'">&nbsp;</div>';
     } else {
       teeList = '<div id="playerTee'+addRowId+'" data-slope="'+courseTees[0].slope+'" data-color="'+courseTees[0].color_text+'" data-id="'+courseTees[0].id+'" class="dropdown"> \
           <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+courseTees[0].color_text+'" type="button" data-toggle="dropdown" aria-expanded="true"> \
