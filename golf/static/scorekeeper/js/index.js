@@ -1,7 +1,8 @@
-/* global $ */
+/* global $, newTournamentCourseList, newTournamentCourseTeeList, settingsCourseList, settingsCourseTeeList */
   $(document).ready(function() {
 
     //Menu buttons
+    //New Tournament
     $('#newTournamentButton').click(function(event) {
       $('#newTournament').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
@@ -11,34 +12,35 @@
         dateStart: $('#newTournamentDateStart').val(),
         format: $('#newTournamentFormat').val(),
         numRounds: $('#newTournamentNumRounds').val(),
-        courses: $('#newTournamentCourses').val(),
-        tees: $('#newTournamentTees').val()
+        courses: newTournamentCourseList,
+        tees: newTournamentCourseTeeList
       };
-      console.log(context);
       $.redirect('/golf/newtournament/', context, 'POST', '', true);
     });
 
+    //Edit Tournament
     $('#editTournamentButton').click(function(event) {
       $('#editTournament').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#editTournamentSearchInput').keyup(function(event){
     	var current_query = $('#editTournamentSearchInput').val().toUpperCase();
     	if (current_query !== '') {
-      	$('.editTournamentList li').hide();
-      	$('.editTournamentList li').each(function(){
+      	$('.editTournamentList #editTournamentListItem').hide();
+      	$('.editTournamentList #editTournamentListItem').each(function(){
         	var current_keyword = $(this).text().toUpperCase();
         	if (current_keyword.indexOf(current_query) >=0) {
         		$(this).show();
         	}
       	});
     	} else {
-    		$('.editTournamentList li').show();
+    		$('.editTournamentList #editTournamentListItem').show();
     	}
   	});
     $('#loadTournamentButton').click(function(event){
       window.location.href = '/golf/edittournament/0';
     });
 
+    //Load Players
     $('#loadPlayersButton').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       $.post('/golf/loadplayers/', {}).done(function(data) {
@@ -54,7 +56,8 @@
         console.log(error);
       });
     });
-    
+
+    //Edit Players
     $('#editPlayersButton').click(function(event) {
       $('#editPlayers').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
@@ -76,6 +79,7 @@
       $('#enterNewPlayer').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
 
+    //Edit Courses
     $('#editCoursesButton').click(function(event) {
       $('#editCourses').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
@@ -97,18 +101,22 @@
       $('#enterNewCourseName').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
 
+    //Print Indexes
     $('#printIndexesButton').click(function(event) {
       window.open('/golf/printplayers/');
     });
 
+    //Print Signup Sheets
     $('#signupSheetsButton').click(function(event) {
       window.open('/golf/printsignupsheets/');
     });
 
+    //Recent Activity
     $('#recentActivityButton').click(function(event) {
       $('#recentActivity').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
 
+    //Import/Export/Backup
     $('#importExportBackupButton').click(function(event) {
       $('#importExportBackup').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
@@ -161,6 +169,7 @@
       });
     });
 
+    //Settings
     $('#settingsButton').click(function(event) {
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
@@ -213,19 +222,22 @@
           }
         });
       },
-      afterSelect: function() {
+      afterSelect: function(value) {
         this.qs1.cache();
         this.qs2.cache();
+        newTournamentCourseList.push(parseInt(value[0], 10));
+        console.log(newTournamentCourseList);
       },
-      afterDeselect: function() {
+      afterDeselect: function(value) {
         this.qs1.cache();
         this.qs2.cache();
+        newTournamentCourseList = newTournamentCourseList.filter(function(element) { return element !== parseInt(value[0], 10) });
+        console.log(newTournamentCourseList);
       }
     });
     $('#newTournamentTees').multiSelect( {
       selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
       selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
-      keepOrder: true,
       keepOrder: true,
       afterInit: function(ms){
         var that = this,
@@ -250,13 +262,17 @@
           }
         });
       },
-      afterSelect: function(){
+      afterSelect: function(value){
         this.qs1.cache();
         this.qs2.cache();
+        newTournamentCourseTeeList.push(parseInt(value[0], 10));
+        console.log(newTournamentCourseTeeList);
       },
-      afterDeselect: function(){
+      afterDeselect: function(value){
         this.qs1.cache();
         this.qs2.cache();
+        newTournamentCourseTeeList = newTournamentCourseTeeList.filter(function(element) { return element !== parseInt(value[0], 10) });
+        console.log(newTournamentCourseTeeList);
       }
     });
     $('#settingsClubCourses').multiSelect( {
@@ -286,13 +302,17 @@
           }
         });
       },
-      afterSelect: function() {
+      afterSelect: function(value) {
         this.qs1.cache();
         this.qs2.cache();
+        settingsCourseList.push(parseInt(value[0], 10));
+        console.log(settingsCourseList);
       },
-      afterDeselect: function() {
+      afterDeselect: function(value) {
         this.qs1.cache();
         this.qs2.cache();
+        settingsCourseList = settingsCourseList.filter(function(element) { return element !== parseInt(value[0], 10) });
+        console.log(settingsCourseList);
       }
     });
     $('#settingsClubTees').multiSelect( {
@@ -322,13 +342,17 @@
           }
         });
       },
-      afterSelect: function() {
+      afterSelect: function(value) {
         this.qs1.cache();
         this.qs2.cache();
+        settingsCourseTeeList.push(parseInt(value[0], 10));
+        console.log(settingsCourseTeeList);
       },
-      afterDeselect: function() {
+      afterDeselect: function(value) {
         this.qs1.cache();
         this.qs2.cache();
+        settingsCourseTeeList = settingsCourseTeeList.filter(function(element) { return element !== parseInt(value[0], 10) });
+        console.log(settingsCourseTeeList);
       }
     });
   });

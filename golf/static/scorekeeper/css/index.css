@@ -1,6 +1,6 @@
 
 /*Main menu*/
-body .modal-dialog {
+body .modal-lg {
   width: 1160px;
 }
 .buttonHeading {
@@ -126,27 +126,6 @@ body .modal-dialog {
   border-radius: 6px;
   background-color: #fff;
 }
-#editTournamentSearch input{
-  border: 0;
-  box-shadow: none;
-}
-#editTournamentSearch button{
-  margin: 2px 0 0 0;
-  background: none;
-  box-shadow: none;
-  border: 0;
-  color: #666666;
-  padding: 0 8px 0 10px;
-  border-left: solid 1px #ccc;
-}
-#editTournamentSearch button:hover{
-  border: 0;
-  box-shadow: none;
-  border-left: solid 1px #ccc;
-}
-#editTournamentSearch .glyphicon-search{
-  font-size: 23px;
-}
 .editTournamentList {
   height: 186px;
   width: 100%;
@@ -157,8 +136,14 @@ body .modal-dialog {
 }
 
 /*Edit Players*/
+#editPlayersSearch {
+  padding: 3px;
+  border: solid 1px #E4E4E4;
+  border-radius: 6px;
+  background-color: #fff;
+}
 .editPlayersList {
-  height: 279px;
+  height: 246px;
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -167,8 +152,14 @@ body .modal-dialog {
 }
 
 /*Edit Courses*/
+#editCoursesSearch {
+  padding: 3px;
+  border: solid 1px #E4E4E4;
+  border-radius: 6px;
+  background-color: #fff;
+}
 .editCoursesList {
-  height: 279px;
+  height: 246px;
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -177,6 +168,12 @@ body .modal-dialog {
 }
 
 /*Recent Activity*/
+#recentActivitySearch {
+  padding: 3px;
+  border: solid 1px #E4E4E4;
+  border-radius: 6px;
+  background-color: #fff;
+}
 .recentActivityList {
   height: 279px;
   width: 100%;
