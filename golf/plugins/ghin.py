@@ -7,6 +7,7 @@ import json
     You can use it or call super().mergePlayers(new_player_list)
         the new_player_list param in mergePlayers is {club_member_number, name=name, handicap_index=handicap_index, data=data}
     You also need to call super().storePlayers() in order to update the database
+    TODO: Activate, Inactivate, Delete
 """
 class GHINPlayers(PlayerBase):
 

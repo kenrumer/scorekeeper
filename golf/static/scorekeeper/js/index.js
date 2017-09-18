@@ -6,6 +6,10 @@
     $('#newTournamentButton').click(function(event) {
       $('#newTournament').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
+    $('#newTournamentSetCoursesButton').click(function(event) {
+      $('#newTournament').modal('hide');
+      $('#newTournament2').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    })
     $('#startTournamentButton').click(function(event) {
       var context = {
         name: $('#newTournamentName').val(),
@@ -28,7 +32,7 @@
       	$('.editTournamentList #editTournamentListItem').hide();
       	$('.editTournamentList #editTournamentListItem').each(function(){
         	var current_keyword = $(this).text().toUpperCase();
-        	if (current_keyword.indexOf(current_query) >=0) {
+        	if (current_keyword.indexOf(current_query) >= 0) {
         		$(this).show();
         	}
       	});
@@ -36,7 +40,7 @@
     		$('.editTournamentList #editTournamentListItem').show();
     	}
   	});
-    $('#loadTournamentButton').click(function(event){
+    $('#saveTournamentsButton').click(function(event){
       window.location.href = '/golf/edittournament/0';
     });
 
@@ -64,19 +68,30 @@
     $('#editPlayersSearchInput').keyup(function(event){
     	var current_query = $('#editPlayersSearchInput').val().toUpperCase();
     	if (current_query !== '') {
-      	$('.editPlayersList #editPlayersListItem').hide();
-      	$('.editPlayersList #editPlayersListItem').each(function() {
+      	$('#editPlayersListItem').hide();
+      	$('#editPlayersListItem').each(function() {
         	var current_keyword = $(this).data('name').toUpperCase();
-        	if (current_keyword.indexOf(current_query) >=0) {
+        	if (current_keyword.indexOf(current_query) >= 0) {
         		$(this).show();
         	}
       	});
     	} else {
-    		$('.editPlayersList #editPlayersListItem').show();
+    		$('#editPlayersListItem').show();
     	}
   	});
     $('#newPlayerButton').click(function(event) {
-      $('#enterNewPlayer').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $.post('/golf/newplayer/', context).done(function(data) {
+        $('#loadingDialog').modal('hide');
+        
+      }).fail(function(xhr, textStatus, error) {
+        $('#loadingDialog').modal('hide');
+        alert('failed to add a new player');
+        console.log('failed to store settings!');
+        console.log(xhr.responseText);
+        console.log(textStatus);
+        console.log(error);
+      });
     });
 
     //Edit Courses
@@ -86,19 +101,19 @@
     $('#editCoursesSearchInput').keyup(function(event){
     	var current_query = $('#editCoursesSearchInput').val().toUpperCase();
     	if (current_query !== '') {
-      	$('.editCoursesList #editCoursesListItem').hide();
-      	$('.editCoursesList #editCoursesListItem').each(function() {
+      	$('#editCoursesListItem').hide();
+      	$('#editCoursesListItem').each(function() {
         	var current_keyword = $(this).data('name').toUpperCase();
-        	if (current_keyword.indexOf(current_query) >=0) {
+        	if (current_keyword.indexOf(current_query) >= 0) {
         		$(this).show();
         	}
       	});
     	} else {
-    		$('.editCoursesList #editCoursesListItem').show();
+    		$('#editCoursesListItem').show();
     	}
   	});
     $('#newCourseButton').click(function(event) {
-      $('#enterNewCourseName').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      
     });
 
     //Print Indexes
@@ -195,7 +210,7 @@
     $('#newTournamentDateStartDatePicker').datetimepicker({format: 'MM/DD/YYYY'});
     $('#editTournamentSearchStartDateDateTimePicker').datetimepicker({format: 'MM/DD/YYYY'});
     $('#editTournamentSearchEndDateDateTimePicker').datetimepicker({format: 'MM/DD/YYYY'});
-    $('#newTournamentCourses').multiSelect( {
+    $('#newTournament2Courses').multiSelect( {
       selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',
       selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',
       keepOrder: true,
@@ -226,16 +241,14 @@
         this.qs1.cache();
         this.qs2.cache();
         newTournamentCourseList.push(parseInt(value[0], 10));
-        console.log(newTournamentCourseList);
       },
       afterDeselect: function(value) {
         this.qs1.cache();
         this.qs2.cache();
         newTournamentCourseList = newTournamentCourseList.filter(function(element) { return element !== parseInt(value[0], 10) });
-        console.log(newTournamentCourseList);
       }
     });
-    $('#newTournamentTees').multiSelect( {
+    $('#newTournament2CourseTees').multiSelect( {
       selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
       selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
       keepOrder: true,
@@ -266,13 +279,11 @@
         this.qs1.cache();
         this.qs2.cache();
         newTournamentCourseTeeList.push(parseInt(value[0], 10));
-        console.log(newTournamentCourseTeeList);
       },
       afterDeselect: function(value){
         this.qs1.cache();
         this.qs2.cache();
         newTournamentCourseTeeList = newTournamentCourseTeeList.filter(function(element) { return element !== parseInt(value[0], 10) });
-        console.log(newTournamentCourseTeeList);
       }
     });
     $('#settingsClubCourses').multiSelect( {

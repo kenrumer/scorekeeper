@@ -9,7 +9,7 @@ class Tournament(models.Model):
     Model representing a Tournament
     """
     name = models.CharField(max_length=200, verbose_name='Name', help_text='Enter the name of the tournament (e.g. John Doe Memorial)')
-    format = models.ForeignKey('Format', verbose_name='Format', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament format')
+    format_plugin = models.ForeignKey('FormatPlugin', verbose_name='Format', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament format')
     courses = models.ManyToManyField('Course', verbose_name='Courses', blank=True, help_text='Select the courses players are playing and set the default for the card')
     course_tees = models.ManyToManyField('CourseTee', verbose_name='Course and tee', blank=True, help_text='Select the courses and tees players are playing')
     def __str__(self):
@@ -30,7 +30,7 @@ class TournamentDate(models.Model):
         """
         return self.tournament.name
 
-class Format(models.Model):
+class FormatPlugin(models.Model):
     """
     Model representing a Tournament Format
     """
@@ -80,6 +80,7 @@ class Round(models.Model):
     player = models.ForeignKey('Player', verbose_name='Player Id')
     tournament = models.ForeignKey('Tournament', verbose_name='Tournament Id', on_delete=models.SET_NULL, null=True, blank=True)
     scorecard = models.ForeignKey('Scorecard', verbose_name='Scorecard')
+    course_tee = models.ForeignKey('CourseTee', null=True, blank=True, verbose_name='Course and Tee This Round was Played on')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
@@ -109,6 +110,7 @@ class Score(models.Model):
     score_net_style = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     hole_played = models.IntegerField(verbose_name='Hole Played', null=True, blank=True, help_text='Enter the hole number played (e.g. in shotgun start if this is hole 16, but the second hole played enter 2)')
     tee = models.ForeignKey('Tee', verbose_name='Hole and Tee Id')
+    round = models.ForeignKey('Round', null=True, blank=True, verbose_name='Round for this score')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
@@ -223,19 +225,7 @@ class Player(models.Model):
     last_updated = models.DateTimeField(verbose_name='Last Updated', null=True, blank=True, help_text='Last time the player plugin was used to get this player')
     data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as address, phone number, age')
     priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
-    player_type = models.ForeignKey('PlayerType', blank=True, verbose_name='Player Type');
     club = models.ForeignKey('Club', null=True, blank=True, verbose_name='Club')
-    def __str__(self):
-        """
-        String for representing the Model object (in Admin site etc.)
-        """
-        return self.name
-
-class PlayerType(models.Model):
-    """
-    Model representing a Player or group of players type
-    """
-    name = models.CharField(max_length=140, help_text='The type of player is likely person, 2-man, 4-man')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)

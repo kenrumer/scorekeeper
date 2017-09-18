@@ -112,9 +112,6 @@ body .modal-lg {
 .newTournamentName {
   width:450px;
 }
-.newTournamentFormat {
-  width:450px;
-}
 .newTournamentNumRounds {
   width: 74px;
 }
@@ -127,7 +124,7 @@ body .modal-lg {
   background-color: #fff;
 }
 .editTournamentList {
-  height: 186px;
+  height: 246px;
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -175,7 +172,7 @@ body .modal-lg {
   background-color: #fff;
 }
 .recentActivityList {
-  height: 279px;
+  height: 288px;
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
