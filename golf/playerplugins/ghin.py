@@ -1,5 +1,7 @@
 from ..abc_base import PlayerBase
 import json
+import requests
+from lxml.html.soupparser import fromstring
 
 """
     Class for loading players from ghin.
@@ -12,13 +14,10 @@ import json
 class GHINPlayers(PlayerBase):
 
     def __init__(self):
-        print ("in init")
+        pass
 
     def loadPlayers(self, data):
-        import requests
-        print(data)
         jsondata = json.loads(data)
-        print (jsondata)
 
         url = "http://ghp.ghin.com/GHPOnline/Club/LogonClub.aspx"
 
@@ -56,10 +55,6 @@ class GHINPlayers(PlayerBase):
 
         response = requests.request("POST", url, data=payload, headers=headers)
         
-        print(response.headers)
-
-        print(response.headers['Set-Cookie'].split(" ")[0])
-        print(response.headers['Set-Cookie'].split(" ")[3])
         url = "http://ghp.ghin.com/GHPOnline/Club/GolferSearch.aspx"
 
         querystring = {"Assoc":jsondata['assn_number'],"Club":jsondata['club_number'],"Svc":"1","Status":"1"}
@@ -86,11 +81,9 @@ class GHINPlayers(PlayerBase):
 
         response = requests.request("GET", url, headers=headers, params=querystring)
 
-        from lxml.html.soupparser import fromstring
         tree = fromstring(response.text)
         new_player_list = []
         for tr in tree.xpath('//*[@id="cph_gvGolfer"]/tbody/tr'):
-            found = False
             name = tr.xpath('td[3]/a')[0].text
             ghin_number = tr.xpath('td[2]')[0].text
             handicap_index = ''.join(i for i in tr.xpath('td[4]')[0].text if i in '0123456789.')

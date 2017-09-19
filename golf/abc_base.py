@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from .models import Player, Club
-from datetime import datetime
+from django.utils import timezone
 
 """
     Base class for loading players from a plugin.  The plugin class name and filename are in the Club table
@@ -15,7 +15,7 @@ class PlayerBase(object):
     club = list(Club.objects.values('id'))[0]
 
     def __init__(self):
-        print ("in init")
+        pass
 
     @abstractmethod
     def loadPlayers(self, data):
@@ -46,9 +46,8 @@ class PlayerBase(object):
 
     def storePlayers(self):
         pl = self.player_list
-        print (self.club)
         c = Club.objects.get(id=self.club['id'])
-        c.players_last_updated = datetime.now()
+        c.players_last_updated = timezone.now()
         c.save()
         for player in pl:
             if (player['id'] != -1):
@@ -59,10 +58,10 @@ class PlayerBase(object):
                 p.data=player['data']
                 p.high_handicap_index=player['high_handicap_index']
                 p.low_handicap_index=player['low_handicap_index']
-                p.last_updated=datetime.now()
+                p.last_updated=timezone.now()
                 p.save()
             else:
-                p = Player(club_member_number=player['club_member_number'], name=player['name'], handicap_index=player['handicap_index'], data=player['data'], high_handicap_index=player['high_handicap_index'], low_handicap_index=player['low_handicap_index'], last_updated=datetime.now())
+                p = Player(club_member_number=player['club_member_number'], name=player['name'], handicap_index=player['handicap_index'], data=player['data'], high_handicap_index=player['high_handicap_index'], low_handicap_index=player['low_handicap_index'], last_updated=timezone.now())
                 p.save()
 
 class FormatBase(object):
@@ -70,58 +69,12 @@ class FormatBase(object):
 
     @abstractmethod
     def calculateScores(self, input):
-        """
-            Based on all scores from each player (on save from scorecard), what is the 'value' (store raw && net && cell style in the score table, assign score to player, round and scorecard)
-            Retrieve data from the input (this saved scorecard) source and return an object.
-            [{
-                clubMemberNumber:"701505",
-                courseHCP:14,
-                hcpIndex:"18.9",
-                hole1:4,
-                hole2:3,
-                hole3:3,
-                hole4:3,
-                hole5:4,
-                hole6:4,
-                hole7:3,
-                hole8:3,
-                hole9:3,
-                hole10:3,
-                hole11:3,
-                hole12:3,
-                hole13:4,
-                hole14:4,
-                hole15:3,
-                hole16:4,
-                hole17:3,
-                hole18:3,
-                holein1:3,
-                holein2:3,
-                holein3:3,
-                holein4:4,
-                holein5:4,
-                holein6:3,
-                holein7:4,
-                holein8:3,
-                holein9:3,
-                holeout1:4,
-                holeout2:3,
-                holeout3:3,
-                holeout4:3,
-                holeout5:4,
-                holeout6:4,
-                holeout7:3,
-                holeout8:3,
-                holeout9:3,
-                playerName:"GREELEY, STEVE",
-                slope:84,
-                teeColor:"Red",
-                total:60,
-                totalin:30,
-                totalnet:46,
-                totalout:30
-            }]
-        """
+        return
+
+    def mergePlayerResults(self, new_player_results_list):
+        return
+
+    def updateTournament(self, current_tournament_results):
         return
 
     def calculatePayout(self, output, data):

@@ -14,11 +14,12 @@
       var context = {
         name: $('#newTournamentName').val(),
         dateStart: $('#newTournamentDateStart').val(),
-        format: $('#newTournamentFormat').val(),
+        formatId: $('#newTournamentFormat').val(),
         numRounds: $('#newTournamentNumRounds').val(),
         courses: newTournamentCourseList,
         tees: newTournamentCourseTeeList
       };
+      console.log(context);
       $.redirect('/golf/newtournament/', context, 'POST', '', true);
     });
 

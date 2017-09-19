@@ -22,10 +22,18 @@
     var formats = escapeDjango('{{ formats|escapejs }}');
     var tournaments = escapeDjango('{{ tournaments|escapejs }}');
     var players = escapeDjango('{{ players|escapejs }}');
-    var courseList = [];{% for course in courses %}{% if course.default == 1 %}
-    courseList.push({{course.id}});{% endif %}{% endfor %}
-    var courseTeeList = [];{% for courseTee in courseTees %}{% if courseTee.default == 1 %}
-    courseTeeList.push({{courseTee.id}});{% endif %}{% endfor %}
+    var courseList = [];
+    {% for course in courses %}
+      {% if course.default == 1 %}
+    courseList.push({{course.id}});
+      {% endif %}
+    {% endfor %}
+    var courseTeeList = [];
+    {% for courseTee in courseTees %}
+      {% if courseTee.default == 1 %}
+    courseTeeList.push({{courseTee.id}});
+      {% endif %}
+    {% endfor %}
     var newTournamentCourseList = courseList;
     var newTournamentCourseTeeList = courseTeeList;
     var settingsCourseList = courseList;
@@ -261,7 +269,7 @@
                 <label for="newTournamentDateStart">Date started</label>
               </div>
               <div class="col-sm-1"></div>
-              <div class="col-sm-4">
+              <div class="col-sm-5">
                 <div class="input-group date" id="newTournamentDateStartDatePicker">
                   <input type="text" class="form-control" id="newTournamentDateStart" value="{% now 'SHORT_DATE_FORMAT' %}" />
                   <span class="input-group-addon">
@@ -269,7 +277,7 @@
                   </span>
                 </div>
               </div>
-              <div class="col-sm-4"></div>
+              <div class="col-sm-3"></div>
             </div>
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
@@ -526,14 +534,12 @@
               <div class="col-sm-2">
                 <label for="newPlayerName">Name</label>
               </div>
-              <div class="col-sm-2"><input class="form-control input-sm" id="newPlayerName" type="text" /></div>
-              <div class="col-sm-1"></div>
+              <div class="col-sm-3"><input class="form-control input-sm" id="newPlayerName" type="text" /></div>
               <div class="col-sm-2">
                 <label for="newPlayerHandicapIndex">Handicap Index</label>
               </div>
               <div class="col-sm-1"><input class="form-control input-sm" id="newPlayerHandicapIndex" type="text" /></div>
-              <div class="col-sm-1"></div>
-              <div class="col-sm-1"><button type="button" class="btn btn-primary" id="newPlayerButton">New Player</button></div>
+              <div class="col-sm-2"><button type="button" class="btn btn-primary" id="newPlayerButton">New Player</button></div>
               <div class="col-sm-1"></div>
             </div>
           </div>
@@ -598,9 +604,11 @@
             </div>
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
-              <div class="col-sm-8"><input class="form-control input-sm" id="newCourseName" type="text" /></div>
-              <div class="col-sm-1"></div>
-              <div class="col-sm-1"><button type="button" class="btn btn-primary" id="newCourseButton">New Course</button></div>
+              <div class="col-sm-2">
+                <label for="newCourseName">Name</label>
+              </div>
+              <div class="col-sm-6"><input class="form-control input-sm" id="newCourseName" type="text" /></div>
+              <div class="col-sm-2"><button type="button" class="btn btn-primary" id="newCourseButton">New Course</button></div>
               <div class="col-sm-1"></div>
             </div>
           </div>
@@ -718,11 +726,11 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-3">
-                <label for="importExportClubScore">Club Scoring Plugins</label>
+                <label for="importExportClubScore">Load Players Plugins</label>
               </div>
               <div class="col-sm-4">
-                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
-                  <datalist id="importExportClubScores">
+                <input class="form-control" list="importExportLoadPlayers" id="importExportLoadPlayers">
+                  <datalist id="importExportLoadPlayers">
                     <option value="GHIN"></option>
                   </datalist>
                 </input>
@@ -807,10 +815,10 @@
           <div class="modal-body">
             <div class="row bottomSpaced">
               <div class="col-sm-2">
-                <label for="settingsClubName">Club Name Edit</label>
+                <label for="settingsClubName">Club Name</label>
               </div>
               <div class="col-sm-3">
-                <input type="text" id="settingsClubName" value="{{ clubs.0.name }}">
+                <input class="form-control" type="text" id="settingsClubName" value="{{ clubs.0.name }}">
               </div>
               <div class="col-sm-2">
               </div>
@@ -818,7 +826,7 @@
                 <label for="settingsDefaultTournamentName">Tournament Name</label>
               </div>
               <div class="col-sm-3">
-                <input type="text" id="settingsDefaultTournamentName" value="{{ clubs.0.default_tournament_name }}">
+                <input class="form-control" type="text" id="settingsDefaultTournamentName" value="{{ clubs.0.default_tournament_name }}">
               </div>
             </div>
             <div class="row bottomSpaced">
@@ -826,7 +834,7 @@
                 <label for="settingsLogo">Logo</label>
               </div>
               <div class="col-sm-3">
-                <input type="file" id="settingsLogo" value="{{ clubs.0.logo }}" />
+                <input class="form-control" type="file" id="settingsLogo" value="{{ clubs.0.logo }}" />
               </div>
               <div class="col-sm-2">
               </div>
@@ -834,7 +842,7 @@
                 <label for="settingsClubScoringType">Club Scoring Type</label>
               </div>
               <div class="col-sm-3">
-                <input list="clubTypes" id="settingsClubType" value="{{ clubs.0.player_plugin__name }}">
+                <input class="form-control" list="clubTypes" id="settingsClubType" value="{{ clubs.0.player_plugin__name }}">
                   <datalist id="clubTypes">
                   {% for playerplugin in playerplugins %}
                     <option value="{{ playerplugin.name }}"></option>
@@ -850,7 +858,7 @@
               <div class="col-sm-2">
               </div>
               <div class="col-sm-8">
-                <input type="text" class="settingsClubData" id="settingsClubData" placeholder="{assn-number:<number>, club-number:<number>, password:<string>}" value="{{ clubs.0.data }}"/>
+                <input class="form-control" type="text" class="settingsClubData" id="settingsClubData" placeholder="{assn-number:<number>, club-number:<number>, password:<string>}" value="{{ clubs.0.data }}"/>
               </div>
             </div>
             <div class="row bottomSpaced">
