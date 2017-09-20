@@ -1,8 +1,9 @@
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, JsonResponse
-from ..models import Tournament, TournamentDate, FormatPlugin, Course, CourseTee, Player, Tee
+from ..models import Tournament, TournamentDate, FormatPlugin, Course, CourseTee, Player, Tee, Round
 from django.forms.models import model_to_dict
 import importlib
+import json
 
 def editFormats(request):
     """
@@ -88,13 +89,15 @@ def calculateScores(request):
     Save the data
     Return the rankings grosses and nets and colors per cell
     """
-    tournament = model_to_dict(Tournament.objects.get(id=request.POST.get('tournamentId')))
-    print(tournament)
-    classModule = importlib.import_module('golf.formatplugins.'+tournament['format_plugin__class_package'])
-    classAccess = getattr(classModule, tournament['format_plugin__class_name'])
+    tournament = model_to_dict(Tournament.objects.get(id=request.POST['tournamentId']))
+    formatPlugin = model_to_dict(FormatPlugin.objects.get(id=tournament['format_plugin']))
+    classModule = importlib.import_module('golf.formatplugins.'+formatPlugin['class_package'])
+    classAccess = getattr(classModule, formatPlugin['class_name'])
     classInst = classAccess()
     classInst.calculateScores(request.POST)
-    resultList = list(Player.objects.values('id', 'club_member_number', 'name', 'handicap_index', 'high_handicap_index', 'low_handicap_index', 'last_updated', 'data', 'priority'))
+
+    resultList = list(Round.objects.get(tournament_id=request.POST['tournamentId']).all())
+    print(resultList)
     return JsonResponse(resultList)
 
 def editTournament(request, tournamentId):

@@ -36,7 +36,7 @@ class FormatPlugin(models.Model):
     """
     name = models.CharField(max_length=200, help_text='Enter the name of the format')
     priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
-    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename with the .py) containing the class of your plugin')
+    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
     def __str__(self):
         """
@@ -237,7 +237,7 @@ class PlayerPlugin(models.Model):
     Model representing the plugins that can communicate with external player stores
     """
     name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the plugin')
-    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename with the .py) containing the class of your plugin')
+    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
     def __str__(self):
         """

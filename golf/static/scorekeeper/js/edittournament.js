@@ -196,8 +196,8 @@
       var scores = [];
       $('#scorecard #playerNamesSelect').each(function() {
         var score = {};
-        var clubMemberNumber = $(this).val().split('|')[0];
         var playerName = $('option:selected',this).text();
+        var clubMemberNumber = $(this).val().split('|')[0];
         var hcpIndex = $(this).val().split('|')[1];
         var rowId = $(this).attr('data-rowId');
         var slope = parseInt($('#playerTee'+rowId).attr('data-slope'), 10);
@@ -207,8 +207,6 @@
         score.clubMemberNumber = clubMemberNumber;
         score.playerName = playerName;
         score.hcpIndex = hcpIndex;
-        score.slope = slope;
-        score.teeColor = teeColor;
         score.teeId = teeId;
         score.courseHCP = courseHCP;
         
@@ -237,17 +235,9 @@
         console.log(score);
         scores.push(score);
       });
-      var tournamentData;
-      if (!newTournamentTable.data().count()) {
-        tournamentData = [];
-      } else {
-        tournamentData = newTournamentTable.rows().data();
-      }
       var context = {
         tournamentId: tournamentId,
-        tournamentData: tournamentData,
-        courseTees: courseTees,
-        scores: scores
+        scores: JSON.stringify(scores)
       };
       console.log(context);
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();

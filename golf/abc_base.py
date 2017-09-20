@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from .models import Player, Club
+from .models import Player, Club, Tee, Round, Score
 from django.utils import timezone
 
 """
@@ -71,11 +71,31 @@ class FormatBase(object):
     def calculateScores(self, input):
         return
 
-    def mergePlayerResults(self, new_player_results_list):
+    def mergePlayerResults(self, tournament_id, new_player_results_list):
+        try:
+            resultList = list(Score.objects.filter(round__tournament__id=tournament_id).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number'))
+        except (Round.DoesNotExist):
+            resultList = []
+        for result in new_player_results_list:
+            resultList.append(result)
+        return resultList
+
+    def updateTournament(self, tournament_id, current_tournament_results):
+        for player in current_tournament_results:
+            try:
+                r = Round.objects.get(tournament__id=tournament_id, player__club_member_number=player['clubMemberNumber'])
+            except (Round.DoesNotExist):
+                r = Round(tournament__id=tournament_id, player__club_member_number=player['clubMemberNumber'], handicap_index=player['hcpIndex'], course_handicap=player['courseHCP'], total_out=player['totalout'], total_out_style=player['clubMemberNumber'], total_out_net=player['clubMemberNumber'], total_out_net_style=player['clubMemberNumber'], total_in=player['totalin'], total_in_style=player['clubMemberNumber'], total_in_net=player['clubMemberNumber'], total_in_net_style=player['clubMemberNumber'], total=player['total'], total_style=player['clubMemberNumber'], net=player['clubMemberNumber'], net_style=player['clubMemberNumber'])
+            try:
+                scores = list(Score.objects.filter(round__tournament__id=tournament_id, round__player__club_member_number=player['clubMemberNumber']).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number'))
+            except (Score.DoesNotExist):
+                for i in range(0,17):
+                    s = Score(round__tournament__id=tournament_id, round__player__club_member_number=player['current_tournament_results'], score=player['gross_scores'][i], score_style, score_net, score_net_style)
         return
 
-    def updateTournament(self, current_tournament_results):
-        return
+    def getCourseTeeById(self, tee_id):
+        resultList = list(Tee.objects.filter(course_tee__id=tee_id).values('id', 'yardage', 'par', 'handicap', 'hole__id', 'hole__number'))
+        return resultList
 
     def calculatePayout(self, output, data):
         """
