@@ -3,26 +3,25 @@
   var newTournamentTable;
   var addRowId = 0;
 
-  function updateScorecardRow(data) {
+  function updateScorecardRound(data) {
     var rowId = $(data).attr('data-rowId');
     var playerHCP = $('#hcp'+rowId).val();
-    var holes = $('[name="holeout'+rowId+'"]');
-    var totalout = 0;
-    holes.each(function(i, item) {
-      totalout += parseInt($(item).val(), 10);
+    var holesOut = $('[data-holeOut="'+rowId+'"]');
+    var totalOut = 0;
+    holesOut.each(function(i, item) {
+      totalOut += parseInt($(item).val(), 10);
     });
-    $('#totalout'+rowId).val(totalout);
-    holes = $('[name="holein'+rowId+'"]');
-    var totalin = 0;
-    holes.each(function(i, item) {
-      totalin += parseInt($(item).val(), 10);
+    var holesIn = $('[data-holeIn="'+rowId+'"]');
+    var totalIn = 0;
+    holesIn.each(function(i, item) {
+      totalIn += parseInt($(item).val(), 10);
     });
-    $('#totalin'+rowId).val(totalin);
-    $('#total'+rowId).val(totalin+totalout);
-    $('#totalnet'+rowId).val(totalin+totalout-playerHCP);
+    $('#totalIn'+rowId).val(totalIn);
+    $('#total'+rowId).val(totalIn+totalOut);
+    $('#totalNet'+rowId).val(totalIn+totalOut-playerHCP);
   }
 
-  function editScorecard(scorecard_id) {
+  function editScorecard(scorecardId) {
     console.log("test3");
     /*addRowId = 0;
     $('#addRowToScorecard').css('display', 'block');
@@ -35,7 +34,7 @@
     }*/
   }
 
-  function editScorecardRow(player_id) {
+  function editScorecardRow(playerId) {
     console.log("test4");
     /*addRowId = 0;
     if (!courses.length > 1) {
@@ -47,104 +46,54 @@
       $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
     }*/
   }
-
-  function addRowToScorecard() {
-    var teeList = "";
+  
+  function playerList() {
     var playerList = "";
+    if (players.length == 0) {
+      return "";
+    }
     for (var i = 0; i < players.length; i++) {
-      playerList += '<option value='+players[i].fields.club_member_number+'|'+players[i].fields.handicap_index+'>'+players[i].fields.name+'</option>';
+      playerList += '<option class="form-control" value='+players[i].club_member_number+'|'+players[i].handicap_index+' data-handicapIndex='+players[i].handicap_index+' data-clubMemberNumber='+players[i].club_member_number+'>'+players[i].name+'</option>';
+    }
+    return playerList;
+  }
+  
+  function teeList() {
+    var teeList = "";
+    if (courseTees.length == 0) {
+      return "";
     }
     if (courseTees.length == 1) {
-      teeList = '<div id="playerTee'+addRowId+'" data-slope="'+courseTees[0].slope+'" data-color="'+courseTees[0].color_text+'" data-id="'+courseTees[0].id+'" style="background-color:'+courseTees[0].color_text+'">&nbsp;</div>';
+      teeList = '<div id="playerTee'+addRowId+'" data-courseTeeSlope="'+courseTees[0].slope+'" data-courseTeeColor="'+courseTees[0].color+'" data-courseTeeId="'+courseTees[0].id+'" style="background-color:'+courseTees[0].color+'">'+courseTees[0].color+'</div>';
     } else {
-      teeList = '<div id="playerTee'+addRowId+'" data-slope="'+courseTees[0].slope+'" data-color="'+courseTees[0].color_text+'" data-id="'+courseTees[0].id+'" class="dropdown"> \
-          <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+courseTees[0].color_text+'" type="button" data-toggle="dropdown" aria-expanded="true"> \
-            <span class="caret"></span></button> \
-          <ul id="courseTees'+addRowId+'" class="dropdown-menu" aria-labelledby="teeSelectButton'+addRowId+'">';
+      teeList = '<div id="playerTee'+addRowId+'" data-courseTeeSlope="'+courseTees[0].slope+'" data-courseTeeColor="'+courseTees[0].color+'" data-courseTeeId="'+courseTees[0].id+'" class="dropdown">';
+      teeList += '  <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+courseTees[0].color+'" type="button" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>';
+      teeList += '  <ul id="courseTees'+addRowId+'" class="dropdown-menu" aria-labelledby="teeSelectButton'+addRowId+'">';
       $.each(courseTees, function(i, item) {
-        teeList += '<li style="background-color:'+item.color_text+'"><a href="#" id="teeChangeButton" data-rowId="'+addRowId+'" data-slope="'+item.slope+'" data-color="'+item.color_text+'" data-id="'+item.id+'">'+item.color_text+'</a></li>';
+        teeList += '    <li style="background-color:'+item.color+'"><a href="#" id="courseTeeChangeButton" data-rowId="'+addRowId+'" data-courseTeeSlope="'+item.slope+'" data-courseTeeColor="'+item.color+'" data-courseTeeId="'+item.id+'">'+item.color+'</a></li>';
       });
-      teeList += '</ul></div>';
+      teeList += '  </ul></div>';
     }
-    $('#scorecard >tbody').append(' \
-      <tr id="scorecardRow'+addRowId+'" data-rowId="'+addRowId+'" data-currentSlope='+courseTees[0].slope+'> \
-        <td> \
-          <button class="plusMinusButton" id="removeRowFromScorecard" data-rowId="'+addRowId+'">-</button> \
-        </td> \
-        <td> \
-          <select id="playerNamesSelect" style="width: 140px" data-rowId="'+addRowId+'"> \
-            <option>----------------------------</option>'+playerList+'</select> \
-        </td><td>'+teeList+'</td><td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[0].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[1].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[2].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[3].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[4].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[5].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[6].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[7].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holeout'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[8].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" id="totalout'+addRowId+'" value="'+courseTees[0].parOut+'" disabled> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[9].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[10].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[11].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[12].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[13].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[14].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[15].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[16].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" name="holein'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[17].par+'> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" id="totalin'+addRowId+'" value="'+courseTees[0].parIn+'" disabled> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" id="total'+addRowId+'" value="'+courseTees[0].parTotal+'" disabled> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" id="hcp'+addRowId+'" value=0 disabled> \
-        </td> \
-        <td> \
-          <input class="scorecardCell" data-rowId="'+addRowId+'" id="totalnet'+addRowId+'" value="'+courseTees[0].parTotal+'" disabled> \
-        </td> \
-      </tr>');
-    $('#scorecardRow'+addRowId+' #playerNamesSelect').focus();
+    return teeList;
+  }
+
+  function addRowToScorecard() {
+    var appendText = '<tr id="scorecardRow'+addRowId+'" data-rowId="'+addRowId+'" data-slope='+courseTees[0].slope+'>';
+    appendText += '<td><button class="plusMinusButton" id="removeRowFromScorecard" data-rowId="'+addRowId+'">-</button></td>';
+    appendText += '<td><select id="playerNamesSelect" style="width: 140px" data-rowId="'+addRowId+'"><option>----------------------------</option>'+playerList()+'</select></td><td>'+teeList()+'</td>';
+    for (var i = 1; i < 10; i++) {
+      appendText += '<td><input class="scorecardCell" data-rowId="'+addRowId+'" data-holeOut="'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[i-1].par+'></td>';
+    }
+    appendText += '<td><input class="scorecardCell" data-rowId="'+addRowId+'" id="totalOut'+addRowId+'" value="'+courseTees[0].parOut+'" disabled></td>';
+    for (var i = 9; i < 18; i++) {
+      appendText += '<td><input class="scorecardCell" data-rowId="'+addRowId+'" data-holeIn="'+addRowId+'" type=number min=1 max=99 value='+courseTees[0].tees[i-1].par+'></td>';
+    }
+    appendText += '<td><input class="scorecardCell" data-rowId="'+addRowId+'" id="totalIn'+addRowId+'" value="'+courseTees[0].parIn+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-rowId="'+addRowId+'" id="total'+addRowId+'" value="'+courseTees[0].parTotal+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-rowId="'+addRowId+'" id="hcp'+addRowId+'" value="0" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-rowId="'+addRowId+'" id="totalNet'+addRowId+'" value="'+courseTees[0].parTotal+'" disabled></td></tr>';
+    $('#scorecard >tbody').append(appendText);
+    $('#scorecard #scorecardRow'+addRowId+' #playerNamesSelect').focus();
     addRowId++;
   }
 
@@ -160,7 +109,7 @@
 
     //Scorecard actions
     $('#scorecard').on('input', '#scorecardCell', function(event) {
-      updateScorecardRow(this);
+      updateScorecardRound(this);
     });
     $('#scorecard').on('click', '#removeRowFromScorecard', function() {
       var rowId = $(this).attr('data-rowId');
@@ -173,41 +122,47 @@
       var rowId = $(this).attr('data-rowId');
       var hcp = $(this).val().split('|')[1];
       if (hcp) {
-        $('#hcp'+rowId).val(Math.round(hcp * parseInt($('#scorecardRow'+rowId).attr('data-currentSlope'), 10) / 113));
+        $('#hcp'+rowId).val(Math.round(hcp * parseInt($('#scorecardRow'+rowId).attr('data-slope'), 10) / 113));
       } else {
         $('#hcp'+rowId).val(0);
       }
-      updateScorecardRow(this);
+      updateScorecardRound(this);
     });
-    $('#scorecard').on('click', '#teeChangeButton', function(event) {
+    $('#scorecard').on('click', '#courseTeeChangeButton', function(event) {
       var rowId = $(this).attr('data-rowId');
       var newSlope = $(this).attr('data-slope');
       var color = $(this).attr('data-color');
-      $('#scorecardRow'+rowId).attr('data-currentSlope', newSlope);
+      $('#scorecardRow'+rowId).attr('data-slope', newSlope);
       $('#hcp'+rowId).val(Math.round($('#scorecardRow'+rowId+' #playerNamesSelect').val().split('|')[1] * newSlope / 113));
       $('#teeSelectButton'+rowId).css('background-color', color);
       $('#playerTee'+rowId).attr('data-slope', newSlope);
       $('#playerTee'+rowId).attr('data-color', color);
-      $('#playerTee'+rowId).attr('data-id', $(this).attr('data-id'));
-      updateScorecardRow(this);
+      $('#playerTee'+rowId).attr('data-courseTeeId', $(this).attr('dataCourseTeeId'));
+      updateScorecardRound(this);
     });
-    //This is when we store data in the db
+    //This is when we store data in the db.
+    //Creates a scorecard, first, then throws the rest to the plugin.
+    //Doing all of this in 1 post to save time/effort
     $('#enterScorecardButton').click(function(event) {
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       var scores = [];
       $('#scorecard #playerNamesSelect').each(function() {
         var score = {};
         var playerName = $('option:selected',this).text();
-        var clubMemberNumber = $(this).val().split('|')[0];
-        var hcpIndex = $(this).val().split('|')[1];
+        var clubMemberNumber = $('option:selected',this).attr('data-clubMemberNumber');
+        var handicapIndex = $('option:selected',this).attr('data-handicapIndex');
+        var selectValue = $('option:selected',this).val();
+        console.log(playerName);
+        console.log(clubMemberNumber);
+        console.log(handicapIndex);
+        console.log(selectValue);
         var rowId = $(this).attr('data-rowId');
-        var slope = parseInt($('#playerTee'+rowId).attr('data-slope'), 10);
-        var teeColor = $('#playerTee'+rowId).attr('data-color');
-        var teeId = parseInt($('#playerTee'+rowId).attr('data-id'), 10);
+        var courseTeeId = parseInt($('#playerTee'+rowId).attr('data-courseTeeId'), 10);
         var courseHCP = parseInt($('#hcp'+rowId).val(), 10);
         score.clubMemberNumber = clubMemberNumber;
         score.playerName = playerName;
-        score.hcpIndex = hcpIndex;
-        score.teeId = teeId;
+        score.handicapIndex = handicapIndex;
+        score.courseTeeId = courseTeeId;
         score.courseHCP = courseHCP;
         
         var holes = $('[name="holeout'+rowId+'"]');
@@ -236,21 +191,27 @@
         scores.push(score);
       });
       var context = {
+        teeTime: $('#newScorecardStartTime').val(),
+        finishTime: $('#newScorecardEndTime').val(),
+        scorer: $('#newScorecardScorer').val(),
+        attest: $('#newScorecardAttest').val(),
         tournamentId: tournamentId,
         scores: JSON.stringify(scores)
       };
       console.log(context);
-      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       $.post('/golf/calculatescores/', context).done(function(data) {
         $('#loadingDialog').modal('hide');
       }).fail(function(xhr, textStatus, error) {
         $('#loadingDialog').modal('hide');
-        alert('failed to store scorecard: '+xhr.responseText);
+        $('#errorDialog').modal({}).show();
+        $('#errorHeader').text('failed to store scorecard');
+        $('#errorText').text(xhr.responseText);
         console.log('failed to load players!');
         console.log(xhr.responseText);
         console.log(textStatus);
         console.log(error);
       });
+      $('#loadingDialog').modal('hide');
     });
 
     //New tournament table
@@ -316,4 +277,8 @@
         'processing': '<p class="bg-warning">Processing...</p>'
       }
     });
+    $('#newScorecardStartTimePicker').datetimepicker({format: 'LT'});
+    $('#newScorecardFinishTimePicker').datetimepicker({format: 'LT', "defaultDate":new Date()});
+    $('#editTournamentTimeStartDatePicker').datetimepicker({format: 'LT'});
+    $('#editTournamentTimeEndDatePicker').datetimepicker({format: 'LT'});
   });

@@ -1,19 +1,24 @@
 
-/*Bootstrap overrides*/
-.btn-primary {
-  width: 164px;
+.bottomSpaced {
+  margin-bottom:8px;
 }
-.btn-default {
+
+/*Bootstrap overrides*/
+.fixed-width-btn {
   width: 164px;
 }
 body .modal-dialog {
-    width: 1160px;
+  width: 1300px;
 }
 
 /*scorecard modal*/
 .plusMinusButton {
-    width: 24px;
+  width: 24px;
 }
 .scorecardCell {
-    width: 37px;
+  width: 37px;
+}
+.scorecardBody {
+  height:158px;
+  overflow-y: scroll
 }

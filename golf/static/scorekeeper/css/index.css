@@ -1,7 +1,7 @@
 
 /*Main menu*/
 body .modal-lg {
-  width: 1160px;
+  width: 1220px;
 }
 .buttonHeading {
   font-weight: bold;
@@ -98,10 +98,7 @@ body .modal-lg {
 }
 
 /*Bootstrap overrides*/
-.btn-primary {
-  width: 164px;
-}
-.btn-default {
+.fixed-width-btn {
   width: 164px;
 }
 .search-input {

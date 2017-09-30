@@ -138,18 +138,8 @@ class CourseTee(models.Model):
     priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
     default = models.BooleanField(verbose_name='Default', default=False, help_text='Set a default for faster starts to putting scores in')
     slope = models.IntegerField(verbose_name='Slope', help_text='Enter the slope for this course and tee')
+    color = models.CharField(max_length=200, verbose_name='Tee Color', help_text='Enter the number associated with the tee color')
     course = models.ForeignKey('Course', default=113, verbose_name='Course Id')
-    COLOR_CHOICES = (
-        (0, 'None'),
-        (1, 'Yellow'),
-        (2, 'Green'),
-        (3, 'Red'),
-        (4, 'White'),
-        (5, 'Blue'),
-        (6, 'Black'),
-        (7, 'Gold'),
-    )
-    color = models.IntegerField(choices=COLOR_CHOICES, verbose_name='Tee Color', help_text='Enter the number associated with the tee color (0:None,1:Yellow,2:Green,3:Red,4:White,5:Blue,6:Black,7:Gold)')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
