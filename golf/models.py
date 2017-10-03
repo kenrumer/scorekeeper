@@ -194,6 +194,7 @@ class Club(models.Model):
     name = models.CharField(max_length=200, help_text='Enter the name of the club')
     logo = models.ImageField(max_length=200, null=True, blank=True, help_text='logo')
     default_tournament_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter default prefix for a tournament name')
+    web_site = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the web site for the club')
     data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
     players_last_updated = models.DateTimeField(null=True, blank=True, help_text='Enter the date the players handicaps were last updated')
     player_plugin = models.ForeignKey('PlayerPlugin', null=True, blank=True, verbose_name='Player Plugin Id')
@@ -202,6 +203,11 @@ class Club(models.Model):
         String for representing the Model object (in Admin site etc.)
         """
         return self.name
+
+class Email(models.Model):
+    """
+    Model representing player or club email addresses
+    """
 
 class Player(models.Model):
     """

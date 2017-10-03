@@ -8,7 +8,7 @@
     });
     $('#newTournamentSetCoursesButton').click(function(event) {
       $('#newTournament').modal('hide');
-      $('#newTournament2').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $('#newTournamentPage2').modal({backdrop: 'static', keyboard: false}, event.target).show();
     })
     $('#startTournamentButton').click(function(event) {
       var context = {
@@ -16,10 +16,10 @@
         dateStart: $('#newTournamentDateStart').val(),
         formatId: $('#newTournamentFormat').val(),
         numRounds: $('#newTournamentNumRounds').val(),
-        courses: newTournamentCourseList,
-        tees: newTournamentCourseTeeList
+        courseIds: newTournamentCourseList,
+        courseTeeIds: newTournamentCourseTeeList
       };
-      console.log(context);
+      //console.log(context);
       $.redirect('/golf/newtournament/', context, 'POST', '', true);
     });
 
@@ -49,12 +49,14 @@
     $('#loadPlayersButton').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       $.post('/golf/loadplayers/', {}).done(function(data) {
-        var d = new Date();
         $('#loadingDialog').modal('hide');
+        var d = new Date();
         $('#playerLoadDate').html(d.toDateString());
       }).fail(function(xhr, textStatus, error) {
         $('#loadingDialog').modal('hide');
-        alert('failed to load players: '+xhr.responseText);
+        $('#errorDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+        $('#errorHeader').text('failed to load players!');
+        $('#errorText').text(xhr.responseText);
         console.log('failed to load players!');
         console.log(xhr.responseText);
         console.log(textStatus);
@@ -84,10 +86,11 @@
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       $.post('/golf/newplayer/', context).done(function(data) {
         $('#loadingDialog').modal('hide');
-        
       }).fail(function(xhr, textStatus, error) {
         $('#loadingDialog').modal('hide');
-        alert('failed to add a new player');
+        $('#errorDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+        $('#errorHeader').text('failed to add a new player!');
+        $('#errorText').text(xhr.responseText);
         console.log('failed to store settings!');
         console.log(xhr.responseText);
         console.log(textStatus);
@@ -136,70 +139,24 @@
     $('#importExportBackupButton').click(function(event) {
       $('#importExportBackup').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
-    $("#importCourses").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Course(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
-    $("#importClubScores").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Club Score(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
-    $("#importClubTypes").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Club Type(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
-    $("#importFormats").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Format(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
 
     //Settings
     $('#settingsButton').click(function(event) {
       $('#settings').modal({backdrop: 'static', keyboard: false}, event.target).show();
     });
     $('#storeSettingsButton').click(function(event) {
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       $.post('/golf/storesettings/', {}).done(function(data) {
         $('#loadingDialog').modal('hide');
         $('#settings').modal('hide');
         var d = new Date();
         $('#settingsLoadDate').html(d.toDateString());
-        $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       }).fail(function(xhr, textStatus, error) {
         $('#loadingDialog').modal('hide');
         $('#settings').modal('hide');
-        alert('failed to store settings: '+xhr.responseText);
+        $('#errorDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+        $('#errorHeader').text('failed to store settings!');
+        $('#errorText').text(xhr.responseText);
         console.log('failed to store settings!');
         console.log(xhr.responseText);
         console.log(textStatus);
@@ -211,7 +168,7 @@
     $('#newTournamentDateStartDatePicker').datetimepicker({format: 'MM/DD/YYYY'});
     $('#editTournamentSearchStartDateDateTimePicker').datetimepicker({format: 'MM/DD/YYYY'});
     $('#editTournamentSearchEndDateDateTimePicker').datetimepicker({format: 'MM/DD/YYYY'});
-    $('#newTournament2Courses').multiSelect( {
+    $('#newTournamentPage2Courses').multiSelect( {
       selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',
       selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',
       keepOrder: true,
@@ -249,7 +206,7 @@
         newTournamentCourseList = newTournamentCourseList.filter(function(element) { return element !== parseInt(value[0], 10) });
       }
     });
-    $('#newTournament2CourseTees').multiSelect( {
+    $('#newTournamentPage2CourseTees').multiSelect( {
       selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
       selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the tees played">',
       keepOrder: true,
@@ -366,5 +323,53 @@
         settingsCourseTeeList = settingsCourseTeeList.filter(function(element) { return element !== parseInt(value[0], 10) });
         console.log(settingsCourseTeeList);
       }
+    });
+    $("#importCourses").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Course(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importClubScores").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Club Score(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importClubTypes").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Club Type(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importFormats").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Format(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
     });
   });

@@ -13,15 +13,16 @@
   <script src="{% static "scorekeeper/js/jquery.multi-select.js" %}" type="text/javascript"></script>
   <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
   <script>
-    /* global escapeDjango */
-    var clubs = escapeDjango('{{ clubs|escapejs }}');
-    var playerPlugins = escapeDjango('{{ playerPlugins|escapejs }}');
-    var courses = escapeDjango('{{ courses|escapejs }}');
-    var courseTees = escapeDjango('{{ courseTees|escapejs }}');
-    var tournamentDates = escapeDjango('{{ tournamentDates|escapejs }}');
-    var formats = escapeDjango('{{ formats|escapejs }}');
-    var tournaments = escapeDjango('{{ tournaments|escapejs }}');
-    var players = escapeDjango('{{ players|escapejs }}');
+    var clubsJSON = JSON.parse(unescape('{{ clubsJSON|safe|escapejs }}'));
+    {% if playerPluginsJSON %})
+    var playerPluginsJSON = JSON.parse(unescape('{{ playerPluginsJSON|safe|escapejs }}'));
+    {% endif %}
+    var coursesJSON = JSON.parse('{{ coursesJSON|safe }}');
+    var courseTeesJSON = JSON.parse('{{ courseTeesJSON|safe }}');
+    var tournamentDatesJSON = JSON.parse('{{ tournamentDatesJSON|safe }}');
+    var formatsJSON = JSON.parse('{{ formatsJSON|safe }}');
+    var tournamentsJSON = JSON.parse('{{ tournamentsJSON|safe }}');
+    var playersJSON = JSON.parse('{{ playersJSON|safe }}');
     var courseList = [];
     {% for course in courses %}
       {% if course.default == 1 %}
@@ -333,19 +334,19 @@
     </div>
 
     <!-- New tournament page 2 -->
-    <div class="modal fade" id="newTournament2" tabindex="-1" role="dialog" aria-labelledby="newTournament2Label">
-      <div class="modal-dialog modalNewTournament2 modal-lg" role="document">
+    <div class="modal fade" id="newTournamentPage2" tabindex="-1" role="dialog" aria-labelledby="newTournamentPage2Label">
+      <div class="modal-dialog modalNewTournamentPage2 modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="newTournament2Label">Enter New Tournament - Set Courses</h4>
+            <h4 class="modal-title" id="newTournamentPage2Label">Enter New Tournament - Set Courses</h4>
           </div>
           <div class="modal-body">
             <div class="row bottomSpaced">
               <div class="col-sm-1">
               </div>
               <div class="col-sm-10">
-                <select id="newTournament2Courses" multiple="multiple" name="newTournament2Courses[]">
+                <select id="newTournamentPage2Courses" multiple="multiple" name="newTournamentPage2Courses[]">
                 {% for course in courses %}
                   {% if course.default == 0 %}
                   <option value="{{ course.id }}">{{ course.name }}</option>
@@ -365,7 +366,7 @@
               <div class="col-sm-1">
               </div>
               <div class="col-sm-10">
-                <select id="newTournament2CourseTees" multiple="multiple" name="newTournament2CourseTees[]">
+                <select id="newTournamentPage2CourseTees" multiple="multiple" name="newTournamentPage2CourseTees[]">
                 {% for courseTee in courseTees %}
                   {% if courseTee.default == 0 %}
                   <option value="{{ courseTee.id }}">{{ courseTee.course__name }} - {{ courseTee.name }}</option>
@@ -920,6 +921,34 @@
 		      <div class="modal-header"><h3 style="margin:0;">Loading...</h3></div>
 		      <div class="modal-body">
 		        <div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+    <!-- Error modal -->
+    <div class="modal fade" id="errorDialog" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+		  <div class="modal-dialog modal-m">
+		    <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="errorDialogLable">Error!</h4>
+          </div>
+		      <div class="modal-body">
+		        <div class="row">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+		            <div class="" id="errorHeader"></div>
+		          </div>
+		        </div>
+		        <div class="row">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+		            <div class="" id="errorText"></div>
+		          </div>
+              <div class="col-sm-1"></div>
+		        </div>
 		      </div>
 		    </div>
 		  </div>

@@ -5,6 +5,7 @@ from django.forms.models import model_to_dict
 import importlib
 from datetime import datetime
 import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 def editFormats(request):
     """
@@ -23,9 +24,10 @@ def newTournament(request):
     from django.core import serializers
     courses = []
     courseTees = []
-    courseIds = request.POST.getlist('courses')
-    courseTeeIds = request.POST.getlist('tees')
+    courseIds = request.POST.getlist('courseIds')
+    courseTeeIds = request.POST.getlist('courseTeeIds')
     tournamentDuplicate = False
+    tournamentDateDuplicate = False
     
     """
     Get tournament information.  This may have changed because of user error
@@ -43,18 +45,17 @@ def newTournament(request):
         t = Tournament(name=request.POST.get('name'))
     t.format_plugin = FormatPlugin.objects.get(id=request.POST.get('formatId'))
     t.save()
-    import json
-    from django.core.serializers.json import DjangoJSONEncoder
     
     """
     Get courses
     """
     for courseId in courseIds:
         c = Course.objects.get(id=courseId)
-        courses.append(list(Course.objects.filter(id=courseId).values('name', 'priority', 'default'))[0])
         t.courses.add(c)
+        courses.append(list(Course.objects.filter(id=courseId).values('name', 'priority', 'default'))[0])
     coursesJSON = json.dumps(courses, cls=DjangoJSONEncoder)
-    
+    t.save()
+
     """
     Get tees
     """
@@ -92,19 +93,30 @@ def newTournament(request):
     """
     Get all players
     """
-    players = Player.objects.all().values('id', 'name', 'club_member_number', 'handicap_index')
-    playersJSON = json.dumps(list(Player.objects.all().values('id', 'name', 'club_member_number', 'handicap_index')), cls=DjangoJSONEncoder)
+    players = list(Player.objects.values('id', 'name', 'club_member_number', 'handicap_index'))
+    playersJSON = json.dumps(players, cls=DjangoJSONEncoder)
 
     """
     Set tournament first round/only round date
     """
     d = datetime.strptime(request.POST.get('dateStart'), '%m/%d/%Y')
-    td = TournamentDate(date=d, tournament=t)
-    td.save()
+    try:
+        td = TournamentDate.objects.get(date=d)
+        tournamentDateDuplicate = True
+    except TournamentDate.DoesNotExist:
+        td = TournamentDate(date=d, tournament=t)
+        td.save()
+
+    """
+    Render the page
+    """
     context = {
-        "tournamentId": t.id,
-        "tournamentDuplicate": tournamentDuplicate,
+        "id": t.id,
         "name": request.POST.get('name'),
+        "duplicate": tournamentDuplicate,
+        "dateId": td.id,
+        "date": request.POST.get('dateStart'),
+        "dateDuplicate": tournamentDateDuplicate,
         "numRounds": request.POST.get('numRounds'),
         "courses": courses,
         "coursesJSON": coursesJSON,
@@ -113,6 +125,7 @@ def newTournament(request):
         "players": players,
         "playersJSON": playersJSON
     }
+    print (context)
     return render(request, 'golf/newtournament.html', context=context)
 
 def calculateScores(request):
