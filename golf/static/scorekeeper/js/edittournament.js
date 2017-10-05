@@ -49,12 +49,9 @@
   
   function playerList() {
     var playerList = "";
-    if (playersJSON.length == 0) {
-      return "";
-    }
-    for (var i = 0; i < playersJSON.length; i++) {
-      playerList += '<option value='+playersJSON[i].club_member_number+' data-handicapIndex='+playersJSON[i].handicap_index+' data-clubMemberNumber='+playersJSON[i].club_member_number+'>'+playersJSON[i].name+'</option>';
-    }
+    $.each(playersJSON, function(i, item) {
+      playerList += '<option value='+item.club_member_number+' data-handicapIndex='+item.handicap_index+' data-clubMemberNumber='+item.club_member_number+'>'+item.name+'</option>';
+    });
     return playerList;
   }
   
@@ -98,6 +95,54 @@
   }
 
   $(document).ready(function() {
+
+    //Load the courses list for select course modal
+    $.each(coursesJSON, function (i, item) {
+      var option = '<option value="'+item.id+'">'+item.name+'</option>';
+      $('#enterScorecardCourse').append(option);
+    });
+    //Load the courseTees for the score card
+    $.each(courseTeesJSON, function(i, item) {
+      var row = '<tr style="background-color:'+item.color+'">';
+      row += '  <th></th>';
+      row += '  <th></th>';
+      row += '  <th>'+item.color+'</th>';
+      for (var i = 0; i < 9; i++) {
+        row += '  <th><input class="scorecardCell" value="'+item.tees.i.yardage+'" disabled></th>';
+      }
+      row += '  <th><input class="scorecardCell" value="'+item.yardageIn+'" disabled></th>';
+      for (var i = 10; i < 18; i++) {
+        row += '  <th><input class="scorecardCell" value="'+item.tees.i.yardage+'" disabled></th>';
+      }
+      row += '  <th><input class="scorecardCell" value="'+item.yardageOut+'" disabled></th>';
+      row += '  <th><input class="scorecardCell" value="'+item.yardageTotal+'" disabled></th>';
+      row += '  <th></th>';
+      row += '  <th></th>';
+      row += '</tr>';
+      row += '<tr style="background-color:'+item.color+'">';
+      row += '  <th></th>';
+      row += '  <th></th>';
+      row += '  <th>Par</th>';
+      for (var i = 0; i < 9; i++) {
+        row += '  <th><input class="scorecardCell" value="'+item.tees.i.par+'" disabled></th>';
+      }
+      row += '  <th><input class="scorecardCell" value="'+item.parIn+'" disabled></th>';
+      for (var i = 10; i < 18; i++) {
+        row += '  <th><input class="scorecardCell" value="'+item.tees.i.par+'" disabled></th>';
+      }
+      row += '  <th><input class="scorecardCell" value="'+item.parOut+'" disabled></th>';
+      row += '  <th><input class="scorecardCell" value="'+item.parTotal+'" disabled></th>';
+      row += '  <th></th>';
+      row += '  <th></th>';
+      row += '</tr>';
+      $("#scorecard thead").append(row);
+    });
+    //Load the players for the score card scorer, attest
+    $.each(playersJSON, function(i, item) {
+      var option = '<option data-value="'+item.club_member_number+'">'+item.name+'</option>';
+      $('#scorecardScorer').append(option);
+      $('#scorecardAttest').append(option);
+    });
 
     //Select course actions
     $('#enterScorecardCourseButton').click(function(event) {

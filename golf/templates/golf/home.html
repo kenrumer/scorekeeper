@@ -1,0 +1,974 @@
+{% extends "golf/base.html" %}
+
+{% load static %}
+
+{% block title %} Scorekeeper {% endblock %}
+
+{% block head_extra %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="{% static "scorekeeper/js/jquery.redirect.js" %}" type="text/javascript"></script>
+  <link href="{% static "scorekeeper/css/multi-select.css" %}" media="screen" rel="stylesheet" type="text/css">
+  <script src="{% static "scorekeeper/js/jquery.multi-select.js" %}" type="text/javascript"></script>
+  <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
+  <script>
+    var clubsJSON = {};
+    {% if clubsJSON %}
+    clubsJSON = JSON.parse(unescape('{{ clubsJSON|safe|escapejs }}'));
+    {% endif %}
+    var playerPluginsJSON = {};
+    {% if playerPluginsJSON %}
+    playerPluginsJSON = JSON.parse(unescape('{{ playerPluginsJSON|safe|escapejs }}'));
+    {% endif %}
+    var coursesJSON = {};
+    {% if coursesJSON %}
+    coursesJSON = JSON.parse('{{ coursesJSON|safe }}');
+    coursesJSON.sort(function (a, b) {
+      return a.priority > b.priority ? 1 : -1;
+    });
+    {% endif %}
+    var courseTeesJSON = {};
+    {% if courseTeesJSON %}
+    courseTeesJSON = JSON.parse('{{ courseTeesJSON|safe }}');
+    courseTeesJSON.sort(function (a, b) {
+      return a.priority > b.priority ? 1 : -1;
+    });
+    {% endif %}
+    var tournamentDatesJSON = {};
+    {% if tournamentDatesJSON %}
+    tournamentDatesJSON = JSON.parse('{{ tournamentDatesJSON|safe }}');
+    {% endif %}
+    var formatsJSON = {};
+    {% if formatsJSON %}
+    formatsJSON = JSON.parse('{{ formatsJSON|safe }}');
+    formatsJSON.sort(function (a, b) {
+      return a.priority < b.priority ? 1 : -1;
+    });
+    {% endif %}
+    var tournamentsJSON = {};
+    {% if tournamentsJSON %}
+    tournamentsJSON = JSON.parse('{{ tournamentsJSON|safe }}');
+    {% endif %}
+    var playersJSON = {};
+    {% if playersJSON %}
+    playersJSON = JSON.parse('{{ playersJSON|safe }}');
+    {% endif %}
+  </script>
+  <link rel="stylesheet" href="{% static "/scorekeeper/css/bootstrap.fd.css" %}">
+  <script src="{% static "scorekeeper/js/bootstrap.fd.js" %}" type="text/javascript"></script>
+  <script src="{% static "scorekeeper/js/home.js" %}" type="text/javascript"></script>
+  <link href="{% static "scorekeeper/css/home.css" %}" media="screen" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <!-- Main menu -->
+    <div class="row">
+      <div class="col-xs-5">
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton newTournament" id="newTournamentButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Enter a golf tournament
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Start entering the scores for a new tournament
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton editTournament"  id="editTournamentButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Edit or view an existing golf tournament
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Load an existing tournament.
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton loadPlayers"  id="loadPlayersButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Load players
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Last loaded: <span id="playerLoadDate">{{ clubs.0.players_last_updated|date:"D M d Y" }}</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                <div class="loadingHidden" id="playersLoading"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>  Loading...</div>
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton editPlayers"  id="editPlayersButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Edit players
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Manually udpate handicaps or add players outside of this club
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton editcourses" id="editCoursesButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Edit Courses
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Edit or add courses
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="col-xs-1">
+      </div>
+      <div class="col-xs-6">
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton printIndexes" id="printIndexesButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Print player handicap indexes
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Print your players, member numbers and handicap indexes.  Will also print course indexes for this clubs default courses
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton signupStarterSheets" id="signupSheetsButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Print signup and starter sheets
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton recentActivity" id="recentActivityButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Recent Activity
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                See recent activities stored in the database
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton importexport" id="importExportBackupButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Import/Export/Backup
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Import or export plugins, scores, formats or the database
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="row bottomSpaced">
+          <button class="rounded shadow optionButton settings" id="settingsButton">
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11 buttonHeading">
+                Settings
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                Set values for this club, add players, formats or courses
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-11">
+                <div class="settingsHidden" id="settingsLoading"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>  Loading...</div>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New tournament wizard -->
+    <!-- New tournament page 1 -->
+    <div class="modal fade" id="newTournamentPage1" tabindex="-1" role="dialog" aria-labelledby="newTournamentPage1Label">
+      <div class="modal-dialog modalNewTournamentPage1 modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="newTournamentPage1Label">Enter New Tournament</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <label for="newTournamentPage1Name">Name</label>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-5">
+                <input type=text class="newTournamentPage1Name form-control" id="newTournamentPage1Name" value="{{ clubs.0.default_tournament_name }} - {% now 'SHORT_DATE_FORMAT' %}" />
+              </div>
+              <div class="col-sm-3"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <label for="newTournamentPage1DateStart">Date started</label>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-5">
+                <div class="input-group date" id="newTournamentPage1DateStartDatePicker">
+                  <input type="text" class="form-control" id="newTournamentPage1DateStart" value="{% now 'SHORT_DATE_FORMAT' %}" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+              <div class="col-sm-3"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <label for="newTournamentPage1Format">Select Format</label>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-5">
+                <select class="newTournamentPage1Format form-control" id="newTournamentPage1Format">
+                  <!-- options added by home.js -->
+                </select>
+              </div>
+              <div class="col-sm-3"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <label for="newTournamentPage1Setup">Setup</label>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-5">
+                <select class="newTournamentPage1Setup form-control" id="newTournamentPage1Setup">
+                  <option value="0">Normal</option>
+                  <option value="1">2-man Team</option>
+                  <option value="2">4-man Team</option>
+                </select>
+              </div>
+              <div class="col-sm-3"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <label for="newTournamentPage1NumRounds">Number of rounds</label>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <input type="number" class="newTournamentPage1NumRounds form-control" id="newTournamentPage1NumRounds" value=1 min=1 max=99 />
+              </div>
+              <div class="col-sm-6"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage1SetCoursesButton">Set Courses</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New tournament page 2 -->
+    <div class="modal fade" id="newTournamentPage2" tabindex="-1" role="dialog" aria-labelledby="newTournamentPage2Label">
+      <div class="modal-dialog modalNewTournamentPage2 modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="newTournamentPage2Label">Enter New Tournament - Set Courses</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+                <select id="newTournamentPage2Courses" multiple="multiple" name="newTournamentPage2Courses[]">
+                  <!-- options added by home.js -->
+                </select>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-6"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage2BackButton">Back</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage2SetCourseTeesButton">Set Course Tees</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New tournament page 3 -->
+    <div class="modal fade" id="newTournamentPage3" tabindex="-1" role="dialog" aria-labelledby="newTournamentPage3Label">
+      <div class="modal-dialog modalNewTournamentPage3 modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="newTournamentPage3Label">Enter New Tournament - Set Course Tees</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+                <select id="newTournamentPage3CourseTees" multiple="multiple" name="newTournamentPage3CourseTees[]">
+                  <!-- options added by home.js -->
+                </select>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-6"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage3BackButton">Back</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage3startTournamentButton">Start Tournament</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End New Tournament Wizard -->
+
+    <!-- Edit tournament -->
+    <div class="modal fade" id="editTournament" tabindex="-1" role="dialog" aria-labelledby="editTournamentLabel">
+      <div class="modal-dialog modalEditTournament modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="editTournamentLabel">Edit or View Tournament</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <label for="editTournamentSearchStartDate">Start date</label>
+              </div>
+              <div class="col-sm-3">
+                <div class="input-group date" id="editTournamentSearchStartDateDateTimePicker">
+                  <input type="text" class="form-control" id="editTournamentSearchStartDate" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <label for="editTournamentSearchEndDate">End date</label>
+              </div>
+              <div class="col-sm-3">
+                <div class="input-group date" id="editTournamentSearchEndDateDateTimePicker">
+                  <input type="text" class="form-control" id="editTournamentSearchEndDate" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+            <div class="row bottomSpaced">
+    	        <div id="editTournamentSearch">
+                <div class="input-group col-sm-12">
+           		    <input id="editTournamentSearchInput" type="text" class="form-control input-sm" placeholder="Search" />
+               	  <span class="input-group-btn">
+                   	<button class="btn btn-info btn-sm" type="button">
+                      <i class="glyphicon glyphicon-search"></i>
+                   	</button>
+               	  </span>
+               	</div>
+               	<div class="list-group editTournamentList">
+                {% for tournament in tournaments %}
+                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editTournamentListItem" tournament-name="{{ tournament.name }}" data-tournamentId="{{ tournament.club_member_number }}">
+                    <div class="row">
+                      <div class="col-sm-1"></div>
+                      <div class="col-sm-10">
+                        <div class="input-group">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                              <li><a href="#">Edit</a></li>
+                              <li><a href="#">Print</a></li>
+                              <li role="separator" class="divider"></li>
+                              <li><a href="#">Delete</a></li>
+                            </ul>
+                          </div>
+                     	    <input id="editTournamentId" type="text" class="form-control input-group-addon" style="text-align:right;background-color:#fff;" value="{{ tournament.id }}" data-original-value="{{ tournament.id }}" />
+                     	    <span class="input-group-btn" style="width:0px;"></span>
+                     	    <input id="editTournamentName" type="text" class="form-control input-group-addon" style="text-align:left;background-color:#fff;" value="{{ tournament.name }}" data-original-value="{{ tournament.name }}" />
+                     	  </div>
+                      </div>
+                      <div class="col-sm-1"></div>
+                    </div>
+                  </div>
+                {% endfor %}
+               	</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" id="saveTournamentButton">Save Tournaments</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit players -->
+    <div class="modal fade" id="editPlayers" tabindex="-1" role="dialog" aria-labelledby="editPlayersLabel">
+      <div class="modal-dialog modalEditPlayers modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="editPlayersLabel">Edit Players</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+    	        <div id="editPlayersSearch">
+                <div class="input-group col-sm-12">
+           		    <input id="editPlayersSearchInput" type="text" class="form-control input-sm" placeholder="Search" />
+               	  <span class="input-group-btn">
+                   	<button class="btn btn-info btn-sm" type="button">
+                      <i class="glyphicon glyphicon-search"></i>
+                   	</button>
+               	  </span>
+               	</div>
+               	<div class="list-group editPlayersList">
+                {% for player in players %}
+                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="{{ player.name }}" data-clubMemberNumber="{{ player.club_member_number }}">
+                    <div class="row">
+                      <div class="col-sm-1"></div>
+                      <div class="col-sm-10">
+                        <div class="input-group">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn fixed-width-btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                              <li><a href="#">Activate</a></li>
+                              <li><a href="#">Inactivate</a></li>
+                              <li><a href="#">View Player Page</a></li>
+                              <li role="separator" class="divider"></li>
+                              <li><a href="#">Delete</a></li>
+                            </ul>
+                          </div>
+                     	    <input id="editPlayersClubMemberNumber" type="text" class="form-control input-group-addon" style="text-align:right;background-color:#fff;" value="{{ player.club_member_number }}" data-original-value="{{ player.club_member_number }}" />
+                     	    <span class="input-group-btn" style="width:0px;"></span>
+                     	    <input id="editPlayersName" type="text" class="form-control input-group-addon" style="text-align:left;background-color:#fff;" value="{{ player.name }}" data-original-value="{{ player.name }}" />
+                     	    <span class="input-group-btn" style="width:0px;"></span>
+                     	    <input id="editPlayersHandicapIndex" type="text" class="form-control input-group-addon" style="text-align:right;background-color:#fff;" value="{{ player.handicap_index }}" data-original-value="{{ player.handicap_index }}" />
+                        </div>
+                      </div>
+                      <div class="col-sm-1"></div>
+                    </div>
+                  </div>
+                {% endfor %}
+               	</div>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <label for="newPlayerName">Name</label>
+              </div>
+              <div class="col-sm-3"><input class="form-control input-sm" id="newPlayerName" type="text" /></div>
+              <div class="col-sm-2">
+                <label for="newPlayerHandicapIndex">Handicap Index</label>
+              </div>
+              <div class="col-sm-1"><input class="form-control input-sm" id="newPlayerHandicapIndex" type="text" /></div>
+              <div class="col-sm-2"><button type="button" class="btn fixed-width-btn btn-primary" id="newPlayerButton">New Player</button></div>
+              <div class="col-sm-1"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" id="savePlayersButton">Save Players</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit courses -->
+    <div class="modal fade" id="editCourses" tabindex="-1" role="dialog" aria-labelledby="editCoursesLabel">
+      <div class="modal-dialog modalEditCourses modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="editCoursesLabel">Edit Course</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+    	      <div id="editCoursesSearch">
+                <div class="input-group col-md-12">
+           		  <input id="editCoursesSearchInput" type="text" class="form-control input-sm" placeholder="Search" />
+               	  <span class="input-group-btn">
+                   	<button class="btn btn-info btn-sm" type="button">
+                      <i class="glyphicon glyphicon-search"></i>
+                   	</button>
+               	  </span>
+               	</div>
+               	<div class="list-group editCoursesList">
+                {% for course in courses %}
+                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editCoursesListItem" data-name="{{ course.name }}">
+                    <div class="row">
+                      <div class="col-sm-1"></div>
+                      <div class="col-sm-10">
+                        <div class="input-group">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn fixed-width-btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                              <li><a href="#">Set as default</a></li>
+                              <li><a href="#">Not default</a></li>
+                              <li><a href="#">Edit course tees</a></li>
+                              <li role="separator" class="divider"></li>
+                              <li><a href="#">Delete</a></li>
+                            </ul>
+                          </div>
+                     	    <input id="editCoursesPriority" type="text" class="form-control input-group-addon" size="1" style="text-align:left;background-color:#fff;" value="{{ course.priority }}" data-original-value="{{ course.priority }}" />
+                     	    <span class="input-group-btn" style="width:0px;"></span>
+                     	    <input id="editCoursesName" type="text" class="form-control input-group-addon" style="text-align:left;background-color:#fff;" value="{{ course.name }}" data-original-value="{{ course.name }}" />
+                        </div>
+                      </div>
+                      <div class="col-sm-1"></div>
+                    </div>
+                  </div>
+                {% endfor %}
+               	</div>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-2">
+                <label for="newCourseName">Name</label>
+              </div>
+              <div class="col-sm-6"><input class="form-control input-sm" id="newCourseName" type="text" /></div>
+              <div class="col-sm-2"><button type="button" class="btn fixed-width-btn btn-primary" id="newCourseButton">New Course</button></div>
+              <div class="col-sm-1"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" id="editCourseButton">Save Courses</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="modal fade" id="recentActivity" tabindex="-1" role="dialog" aria-labelledby="recentActivityLabel">
+      <div class="modal-dialog modalRecentActivity modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="recentActivityLabel">Recent Activity</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+    	      <div id="recentActivitySearch">
+                <div class="input-group col-md-12">
+           		  <input id="recentActivitySearchInput" type="text" class="form-control input-sm" placeholder="Search" />
+               	  <span class="input-group-btn">
+                   	<button class="btn btn-info btn-sm" type="button">
+                      <i class="glyphicon glyphicon-search"></i>
+                   	</button>
+               	  </span>
+               	</div>
+               	<div class="list-group recentActivityList">
+                {% for activity in activities %}
+                  <div class="row" id="recentActivityListItem" data-name="{{ activity.title }}">
+               	    <div class="col-sm-1"></div>
+               	    <input type="text" class="col-sm-1" value="{{ activity.date }}" />
+               	    <input type="text" class="col-sm-9" value="{{ activity.title }}" />
+               	    <div class="col-sm-1"></div>
+                  </div>
+                {% endfor %}
+               	</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Exit</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import export backup -->
+    <div class="modal fade" id="importExportBackup" tabindex="-1" role="dialog" aria-labelledby="importExportBackupLabel">
+      <div class="modal-dialog modal-settings modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="importExportBackupLabel">Import/Export/Backup</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-3">
+                <label for="importExportClubScore">Courses</label>
+              </div>
+              <div class="col-sm-4">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
+                  <datalist id="importExportClubScores">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-1">
+                <button type="button" class="btn fixed-width-btn btn-primary">
+                  Export
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <button class="btn fixed-width-btn btn-primary" id="importCourses">
+                  Import
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-3">
+                <label for="importExportClubScore">Club Scores</label>
+              </div>
+              <div class="col-sm-4">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
+                  <datalist id="importExportClubScores">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-1">
+                <button type="button" class="btn fixed-width-btn btn-primary">
+                  Export
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <button class="btn fixed-width-btn btn-primary" id="importClubScores">
+                  Import
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-3">
+                <label for="importExportClubScore">Load Players Plugins</label>
+              </div>
+              <div class="col-sm-4">
+                <input class="form-control" list="importExportLoadPlayers" id="importExportLoadPlayers">
+                  <datalist id="importExportLoadPlayers">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-1">
+                <button type="button" class="btn fixed-width-btn btn-primary">
+                  Export
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <button class="btn fixed-width-btn btn-primary" id="importClubTypes">
+                  Import
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-3">
+                <label for="importExportClubScore">Tournament Formats</label>
+              </div>
+              <div class="col-sm-4">
+                <input class="form-control" list="importExportClubScores" id="importExportClubScore">
+                  <datalist id="importExportClubScores">
+                    <option value="GHIN"></option>
+                  </datalist>
+                </input>
+              </div>
+              <div class="col-sm-1">
+                <button type="button" class="btn fixed-width-btn btn-primary">
+                  Export
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <button class="btn fixed-width-btn btn-primary" id="importFormats">
+                  Import
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-3">
+                <label for="importExportDatabaseStatus">Database</label>
+              </div>
+              <div class="col-sm-4">
+                <input class="form-control" id="importExportDatabaseStatus" value="3.5Mb" readonly />
+              </div>
+              <div class="col-sm-1">
+                <button type="button" class="btn fixed-width-btn btn-primary">
+                  Export
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1">
+                <button class="btn fixed-width-btn btn-primary" id="backup">
+                  Backup
+                </button>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Done</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel">
+      <div class="modal-dialog modal-settings modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="settingsLabel">Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsClubName">Club Name</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control" type="text" id="settingsClubName" value="{{ clubs.0.name }}">
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="settingsDefaultTournamentName">Tournament Name</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control" type="text" id="settingsDefaultTournamentName" value="{{ clubs.0.default_tournament_name }}">
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsLogo">Logo</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control" type="file" id="settingsLogo" value="{{ clubs.0.logo }}" />
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <label for="settingsClubScoringType">Club Scoring Type</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control" list="clubTypes" id="settingsClubType" value="{{ clubs.0.player_plugin__name }}">
+                  <datalist id="clubTypes">
+                  {% for playerplugin in playerplugins %}
+                    <option data-value="{{ playerplugin.id }}">{{ playerplugin.name }}</option>
+                  {% endfor %}
+                  </datalist>
+                </input>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-2">
+                <label for="settingsClubData">Club Data</label>
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-8">
+                <input class="form-control" type="text" class="settingsClubData" id="settingsClubData" placeholder="{assn-number:<number>, club-number:<number>, password:<string>}" value="{{ clubs.0.data }}"/>
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="settingsClubCourses" multiple="multiple" name="settingsClubCourses[]">
+                {% for course in courses %}
+                  {% if course.default == 0 %}
+                  <option value="{{ course.id }}">{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for course in courses %}
+                  {% if course.default == 1 %}
+                  <option value="{{ course.id }}" selected>{{ course.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+            <div class="row bottomSpaced">
+              <div class="col-sm-1">
+              </div>
+              <div class="col-sm-10">
+                <select id="settingsClubTees" multiple="multiple" name="settingsClubTees[]">
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 0 %}
+                  <option value="{{ courseTee.id }}">{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                {% for courseTee in courseTees %}
+                  {% if courseTee.default == 1 %}
+                  <option value="{{ courseTee.id }}" selected>{{ courseTee.course__name }} - {{ courseTee.name }}</option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-8"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="storeSettingsButton">Save</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading modal -->
+    <div class="modal fade" id="loadingDialog" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+		  <div class="modal-dialog modal-m">
+		    <div class="modal-content">
+		      <div class="modal-header"><h3 style="margin:0;">Loading...</h3></div>
+		      <div class="modal-body">
+		        <div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+    <!-- Error modal -->
+    <div class="modal fade" id="errorDialog" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+		  <div class="modal-dialog modal-m">
+		    <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="errorDialogLable">Error!</h4>
+          </div>
+		      <div class="modal-body">
+		        <div class="row">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+		            <div class="" id="errorHeader"></div>
+		          </div>
+		        </div>
+		        <div class="row">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+		            <div class="" id="errorText"></div>
+		          </div>
+              <div class="col-sm-1"></div>
+		        </div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+{% endblock %}

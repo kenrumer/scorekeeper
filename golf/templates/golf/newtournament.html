@@ -75,9 +75,7 @@
           </div>
           <div class="modal-body">
             <select class="enterScorecardCourse form-control" id="enterScorecardCourse">
-            {% for course in courses %}
-              <option value="{{ course.id }}">{{ course.name|safe }}</option>
-            {% endfor %}
+              <!-- options added by edittournament.js -->
             </select>
           </div>
           <div class="modal-footer">
@@ -129,64 +127,7 @@
                   <th><input class="scorecardCell" value="HCP" disabled></th>
                   <th><input class="scorecardCell" value="NET" disabled></th>
                 </tr>
-                {% for courseTee in courseTees %}
-                <tr style="background-color:{{ courseTee.color }}">
-                  <th></th>
-                  <th></th>
-                  <th>{{ courseTee.color }}</th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.0.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.1.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.2.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.3.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.4.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.5.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.6.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.7.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.8.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.yardageIn }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.9.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.10.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.11.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.12.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.13.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.14.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.15.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.16.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.17.yardage }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.yardageOut }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.yardageTotal }}" disabled></th>
-                  <th></th>
-                  <th></th>
-                </tr>
-                <tr style="background-color:{{ courseTee.color }}">
-                  <th></th>
-                  <th></th>
-                  <th>Par</th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.0.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.1.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.2.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.3.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.4.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.5.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.6.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.7.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.8.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.parIn }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.9.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.10.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.11.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.12.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.13.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.14.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.15.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.16.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.tees.17.par }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.parOut }}" disabled></th>
-                  <th><input class="scorecardCell" value="{{ courseTee.parTotal }}" disabled></th>
-                  <th></th>
-                  <th></th>
-                </tr>
-                {% endfor %}
+                <!-- rows added by edittournament.js -->
               </thead>
               <tbody class="scorecardBody">
               </tbody>
@@ -220,9 +161,7 @@
               <div class="col-sm-2">
                 <input class="form-control input-sm" list="scorecardScorer" id="newScorecardScorer">
                   <datalist id="scorecardScorer">
-                    {% for player in players %}
-                    <option data-value="{{ player.club_member_number }}">{{ player.name }}</option>
-                    {% endfor %}
+                    <!-- rows added by edittournament.js -->
                   </datalist>
                 </input>
               </div>
@@ -230,9 +169,7 @@
               <div class="col-sm-2">
                 <input class="form-control input-sm" list="scorecardAttest" id="newScorecardAttest">
                   <datalist id="scorecardAttest">
-                    {% for player in players %}
-                    <option data-value="{{ player.club_member_number }}">{{ player.name }}</option>
-                    {% endfor %}
+                    <!-- rows added by edittournament.js -->
                   </datalist>
                 </input>
               </div>

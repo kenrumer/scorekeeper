@@ -204,11 +204,6 @@ class Club(models.Model):
         """
         return self.name
 
-class Email(models.Model):
-    """
-    Model representing player or club email addresses
-    """
-
 class Player(models.Model):
     """
     Model representing a Player

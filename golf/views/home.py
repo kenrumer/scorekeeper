@@ -3,7 +3,7 @@ from django.shortcuts import render
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
-def index(request):
+def homeView(request):
     """
     View function for home page
     """
@@ -45,5 +45,4 @@ def index(request):
         'activities': activities,
         'activitiesJSON': activitiesJSON
     }
-    print(context)
-    return render(request, 'golf/index.html', context=context)
+    return render(request, 'golf/home.html', context=context)

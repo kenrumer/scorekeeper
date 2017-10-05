@@ -22,12 +22,22 @@ def newTournament(request):
     Need to ask several questions about course, tee, format, if multi-round - how many... how do you ask from a plugin?
     """
     from django.core import serializers
-    courses = []
-    courseTees = []
-    courseIds = request.POST.getlist('courseIds')
-    courseTeeIds = request.POST.getlist('courseTeeIds')
     tournamentDuplicate = False
     tournamentDateDuplicate = False
+    tournamentName = request.POST.get('tournamentName')
+    dateStart = request.POST.get('dateStart')
+    formatId = request.POST.get('formatId')
+    setupId = request.POST.get('setupId')
+    numRounds = request.POST.get('numRounds')
+    coursesJSON = json.loads(request.POST.get('coursesJSON'))
+    courseTeesJSON = json.loads(request.POST.get('courseTeesJSON'))
+    print (tournamentName)
+    print (dateStart)
+    print (formatId)
+    print (setupId)
+    print (numRounds)
+    print (coursesJSON)
+    print (courseTeesJSON)
     
     """
     Get tournament information.  This may have changed because of user error
@@ -39,55 +49,52 @@ def newTournament(request):
     Will send this data to the newTournament template
     """
     try:
-        t = Tournament.objects.get(name=request.POST.get('name'))
+        t = Tournament.objects.get(name=tournamentName)
         tournamentDuplicate = True
     except Tournament.DoesNotExist:
-        t = Tournament(name=request.POST.get('name'))
-    t.format_plugin = FormatPlugin.objects.get(id=request.POST.get('formatId'))
+        t = Tournament(name=tournamentName)
+    t.format_plugin = FormatPlugin.objects.get(id=formatId)
     t.save()
     
     """
     Get courses
     """
-    for courseId in courseIds:
-        c = Course.objects.get(id=courseId)
-        t.courses.add(c)
-        courses.append(list(Course.objects.filter(id=courseId).values('name', 'priority', 'default'))[0])
-    coursesJSON = json.dumps(courses, cls=DjangoJSONEncoder)
+    for course in coursesJSON:
+        t.courses.add(course['id'])
     t.save()
+    coursesJSON = json.dumps(coursesJSON, cls=DjangoJSONEncoder)
 
     """
     Get tees
     """
-    for i, courseTeeId in enumerate(courseTeeIds):
-        ct = CourseTee.objects.get(id=courseTeeId)
-        t.course_tees.add(ct)
-        courseTees.append(list(CourseTee.objects.filter(id=courseTeeId).values('id', 'name', 'slope', 'course__name', 'color'))[0])
-        courseTees[i]["tees"] = list(Tee.objects.filter(course_tee__id=courseTeeId).values('id', 'yardage', 'par', 'hole__name', 'hole__number'))
-        courseTees[i]["hole_count"] = len(courseTees[i]['tees'])
-        courseTees[i]['yardageOut'] = 0
-        courseTees[i]['parOut'] = 0
-        courseTees[i]['yardageIn'] = 0
-        courseTees[i]['parIn'] = 0
+    for courseTee in courseTeesJSON:
+        t.course_tees.add(courseTee['id'])
+        courseTee["tees"] = list(Tee.objects.filter(course_tee__id=courseTee['id']).values('id', 'yardage', 'par', 'hole__name', 'hole__number').order_by('hole__number'))
+        courseTee["hole_count"] = len(courseTee['tees'])
+        courseTee['yardageOut'] = 0
+        courseTee['parOut'] = 0
+        courseTee['yardageIn'] = 0
+        courseTee['parIn'] = 0
         #Someday should be able to work with 9 hole courses... Not today
-        #if (int(courseTees[i]['hole_count']) == 9):
-        #    for front in range(0, 9):
-        #        courseTees[i]['yardageOut'] += int(courseTees[i]['tees'][front]['yardage'])
-        #        courseTees[i]['parOut'] += int(courseTees[i]['tees'][front]['par'])
-        #    courseTees[i]['yardageOut'] = courseTees[i]['yardageOut']
-        #    courseTees[i]['yardageTotal'] = courseTees[i]['yardageOut']
-        #    courseTees[i]['parOut'] = courseTees[i]['parOut']
-        #    courseTees[i]['parTotal'] = courseTees[i]['parOut']
-        #if (int(courseTees[i]['hole_count']) == 18):
-        for front in range(0, 9):
-            courseTees[i]['yardageOut'] += int(courseTees[i]['tees'][front]['yardage'])
-            courseTees[i]['parOut'] += int(courseTees[i]['tees'][front]['par'])
-        for back in range(9, 18):
-            courseTees[i]['yardageIn'] += int(courseTees[i]['tees'][back]['yardage'])
-            courseTees[i]['parIn'] += int(courseTees[i]['tees'][back]['par'])
-        courseTees[i]['yardageTotal'] = courseTees[i]['yardageOut'] + courseTees[i]['yardageIn']
-        courseTees[i]['parTotal'] = courseTees[i]['parOut'] + courseTees[i]['parIn']
-    courseTeesJSON = json.dumps(courseTees, cls=DjangoJSONEncoder)
+        if (int(courseTee['hole_count']) == 9):
+            for front in range(0, 9):
+                courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
+                courseTee['parOut'] += int(courseTee['tees'][front]['par'])
+            courseTee['yardageOut'] = courseTee['yardageOut']
+            courseTee['yardageTotal'] = courseTee['yardageOut']
+            courseTee['parOut'] = courseTee['parOut']
+            courseTee['parTotal'] = courseTee['parOut']
+        if (int(courseTee['hole_count']) == 18):
+            for front in range(0, 9):
+                courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
+                courseTee['parOut'] += int(courseTee['tees'][front]['par'])
+            for back in range(9, 18):
+                courseTee['yardageIn'] += int(courseTee['tees'][back]['yardage'])
+                courseTee['parIn'] += int(courseTee['tees'][back]['par'])
+            courseTee['yardageTotal'] = courseTee['yardageOut'] + courseTee['yardageIn']
+            courseTee['parTotal'] = courseTee['parOut'] + courseTee['parIn']
+    courseTeesJSON = json.dumps(courseTeesJSON, cls=DjangoJSONEncoder)
+    print (courseTeesJSON)
     t.save()
 
     """
@@ -118,9 +125,7 @@ def newTournament(request):
         "date": request.POST.get('dateStart'),
         "dateDuplicate": tournamentDateDuplicate,
         "numRounds": request.POST.get('numRounds'),
-        "courses": courses,
         "coursesJSON": coursesJSON,
-        "courseTees": courseTees,
         "courseTeesJSON": courseTeesJSON,
         "players": players,
         "playersJSON": playersJSON
