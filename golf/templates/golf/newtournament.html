@@ -14,13 +14,13 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
   <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
   <script type="text/javascript">
-    var id = '{{ id }}';
+    var id = {{ id }};
     var name = '{{ name }}';
     var duplicate = '{{ duplicate|escapejs }}';
-    var dateId = '{{ dateId }}';
+    var dateId = {{ dateId }};
     var date = '{{ date }}';
     var dateDuplicate = '{{ dateDuplicate|escapejs }}';
-    var numRounds = '{{ numRounds }}';
+    var numRounds = {{ numRounds }};
     var coursesJSON = JSON.parse('{{ coursesJSON|safe }}');
     var courseTeesJSON = JSON.parse('{{ courseTeesJSON|safe }}');
     var playersJSON = JSON.parse('{{ playersJSON|safe }}');
@@ -31,15 +31,7 @@
 
 {% block content %}
 
-  {% if numRounds != '1' %}
-    <ul class="nav nav-pills">
-      <li class="active"><a href="#">Round 1</a></li>
-      {% for i in numRounds|my_range %}
-      <li><a href="#">Round {{ i }}</a></li>
-      {% endfor %}
-      <li><a href="#">Total</a></li>
-    </ul>
-  {% endif %}
+    <div id="roundTabPlaceholder"></div>
     <table class="table newTournamentTable cell-border compact stripe" id="newTournamentTable">
       <thead border=true>
         <tr>
@@ -99,37 +91,10 @@
           <div class="modal-body">
             <table id="scorecard" class="display compact" width="100%">
               <thead>
-                <tr>
-                  <td><button id="addRowToScorecard" class="plusMinusButton">+</button></td>
-                  <th>Player</th>
-                  <th>TEE</th>
-                  <th><input class="scorecardCell" value="01" disabled></th>
-                  <th><input class="scorecardCell" value="02" disabled></th>
-                  <th><input class="scorecardCell" value="03" disabled></th>
-                  <th><input class="scorecardCell" value="04" disabled></th>
-                  <th><input class="scorecardCell" value="05" disabled></th>
-                  <th><input class="scorecardCell" value="06" disabled></th>
-                  <th><input class="scorecardCell" value="07" disabled></th>
-                  <th><input class="scorecardCell" value="08" disabled></th>
-                  <th><input class="scorecardCell" value="09" disabled></th>
-                  <th><input class="scorecardCell" value="OUT" disabled></th>
-                  <th><input class="scorecardCell" value="10" disabled></th>
-                  <th><input class="scorecardCell" value="11" disabled></th>
-                  <th><input class="scorecardCell" value="12" disabled></th>
-                  <th><input class="scorecardCell" value="13" disabled></th>
-                  <th><input class="scorecardCell" value="14" disabled></th>
-                  <th><input class="scorecardCell" value="15" disabled></th>
-                  <th><input class="scorecardCell" value="16" disabled></th>
-                  <th><input class="scorecardCell" value="17" disabled></th>
-                  <th><input class="scorecardCell" value="18" disabled></th>
-                  <th><input class="scorecardCell" value="IN" disabled></th>
-                  <th><input class="scorecardCell" value="TOT" disabled></th>
-                  <th><input class="scorecardCell" value="HCP" disabled></th>
-                  <th><input class="scorecardCell" value="NET" disabled></th>
-                </tr>
                 <!-- rows added by edittournament.js -->
               </thead>
               <tbody class="scorecardBody">
+                <!-- rows added by edittournament.js -->
               </tbody>
             </table>
           </div>
@@ -157,17 +122,15 @@
                   </div>
                 </div>
               </div>
-              <div class="col-sm-1">Scorer</div>
-              <div class="col-sm-2">
-                <input class="form-control input-sm" list="scorecardScorer" id="newScorecardScorer">
+              <div class="col-sm-3">
+                <input class="form-control input-sm" list="scorecardScorer" id="newScorecardScorer" placeholder="Scorer">
                   <datalist id="scorecardScorer">
                     <!-- rows added by edittournament.js -->
                   </datalist>
                 </input>
               </div>
-              <div class="col-sm-1">Attest</div>
-              <div class="col-sm-2">
-                <input class="form-control input-sm" list="scorecardAttest" id="newScorecardAttest">
+              <div class="col-sm-3">
+                <input class="form-control input-sm" list="scorecardAttest" id="newScorecardAttest" placeholder="Attest">
                   <datalist id="scorecardAttest">
                     <!-- rows added by edittournament.js -->
                   </datalist>

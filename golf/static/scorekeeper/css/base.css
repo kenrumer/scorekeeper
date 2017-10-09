@@ -2,9 +2,9 @@
     margin-bottom: 10px;
 }
 .navbar-bgcolor {
-  background-image: -webkit-linear-gradient(top, #000044 0%, #000099 100%);
-  background-image: -o-linear-gradient(top, #000044 0%, #000099 100%);
-  background-image: linear-gradient(to bottom, #000044 0%, #000099 100%);
+  background-image: -webkit-linear-gradient(top, #0000CC 0%, #000099 100%);
+  background-image: -o-linear-gradient(top, #0000CC 0%, #000099 100%);
+  background-image: linear-gradient(to bottom, #0000CC 0%, #000099 100%);
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff000044', endColorstr='#ff000099', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0000CC', endColorstr='#ff000099', GradientType=0);
 }

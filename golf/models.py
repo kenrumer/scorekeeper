@@ -92,8 +92,8 @@ class Scorecard(models.Model):
     Model representing a Scorecard is a ForeignKey to rounds
     """
     date = models.DateField(verbose_name='Date', null=True, blank=True, help_text='Enter the date for the scorecard')
-    tee_time = models.DateField(verbose_name='Tee Time', null=True, blank=True, help_text='Enter the tee time for the scorecard')
-    finish_time = models.DateField(verbose_name='Finish Time', null=True, blank=True, help_text='Enter the finish time for the scorecard')
+    tee_time = models.TimeField(verbose_name='Tee Time', null=True, blank=True, help_text='Enter the tee time for the scorecard')
+    finish_time = models.TimeField(verbose_name='Finish Time', null=True, blank=True, help_text='Enter the finish time for the scorecard')
     scorer = models.ForeignKey('Player', related_name='player_scorer', verbose_name='Scorer Player Id', null=True, blank=True, help_text='Enter the player that kept score')
     external_scorer = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the name of the scorer if it is not a player')
     attest = models.ForeignKey('Player', related_name='player_attest', verbose_name='Attest Player Id', null=True, blank=True, help_text='Enter the player that attests with the score')

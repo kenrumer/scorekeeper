@@ -31,13 +31,6 @@ def newTournament(request):
     numRounds = request.POST.get('numRounds')
     coursesJSON = json.loads(request.POST.get('coursesJSON'))
     courseTeesJSON = json.loads(request.POST.get('courseTeesJSON'))
-    print (tournamentName)
-    print (dateStart)
-    print (formatId)
-    print (setupId)
-    print (numRounds)
-    print (coursesJSON)
-    print (courseTeesJSON)
     
     """
     Get tournament information.  This may have changed because of user error
@@ -130,7 +123,6 @@ def newTournament(request):
         "players": players,
         "playersJSON": playersJSON
     }
-    print (context)
     return render(request, 'golf/newtournament.html', context=context)
 
 def calculateScores(request):
@@ -140,7 +132,27 @@ def calculateScores(request):
     Return the rankings grosses and nets and colors per cell
     """
     tournamentId = request.POST['tournamentId']
-    s = Scorecard(date=request.POST['date'], tee_time=request.POST['teeTime'], finish_time=request.POST['finishTime'], scorer=request.POST['scorer'], attest=request.POST['attest'])
+    try:
+        s = Scorecard.objects.get(date=datetime.strptime(request.POST['date'],'%m/%d/%Y').strftime('%Y-%m-%d'))
+    except Scorecard.DoesNotExist:
+        s = Scorecard(date=request.POST['date'])
+    
+    try:
+        scorer = Player.objects.get(id=request.POST['scorerId'])
+        s.scorer = scorer
+    except:
+        s.external_scorer = request.POST['scorer']
+    try:
+        attest = Player.objects.get(id=request.POST['attestId'])
+        s.attest = attest
+    except:
+        s.external_attest = request.POST['attest']
+    
+    if (request.POST['teeTime'] != ''):
+        s.tee_time = request.POST['teeTime']
+    if (request.POST['finishTime'] != ''):
+        s.finish_time = request.POST['finishTime']
+    s.save()
     t = Tournament.objects.get(id=tournamentId)
     formatPlugin = model_to_dict(FormatPlugin.objects.get(id=t.format_plugin__id))
     classModule = importlib.import_module('golf.formatplugins.'+formatPlugin['class_package'])
