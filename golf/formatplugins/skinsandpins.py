@@ -16,20 +16,23 @@ import math
 """
 class SkinsAndPinsFormat(FormatBase):
 
-    def __init__(self):
+    def __init__(self, tournamentId, scorecardId):
+        super().__init__(tournamentId, scorecardId)
         pass
 
-    def calculateScores(self, scores):
+    def calculateScores(self, request):
         """
             Based on all scores from each player (on save from scorecard), what is the 'value' (store raw && net && cell style in the score table, assign score to player, round and scorecard)
             Retrieve players from the input (this saved scorecard) source and return an object.
-            scores = '[{"clubMemberNumber":"12345","playerName":"Doe, John","hcpIndex":"25.7","teeId":7,"courseHCP":20,"hole0":4,"hole1":3,"hole2":3,"hole3":3,"hole4":4,"hole5":4,"hole6":3,"hole7":3,"hole8":3,"totalout":30,"hole9":3,"hole10":3,"hole11":3,"hole12":4,"hole13":4,"hole14":3,"hole15":4,"hole16":3,"hole17":3,"totalin":30,"total":60,"totalnet":40}]'
+            scores = '[{"clubMemberNumber":"12345","playerName":"Doe, John","hcpIndex":"25.7","teeId":7,"courseHCP":20,"hole0":4,"hole1":3,"hole2":3,"hole3":3,"hole4":4,"hole5":4,"hole6":3,"hole7":3,"hole8":3,"totalOut":30,"hole9":3,"hole10":3,"hole11":3,"hole12":4,"hole13":4,"hole14":3,"hole15":4,"hole16":3,"hole17":3,"totalIn":30,"total":60,"totalnet":40}]'
             tournamentId = '55'
         """
         newPlayerResultsList = []
-        scores = json.loads(scores)
+        print (request['scores'])
+        scores = json.loads(request['scores'])
+        print (scores)
         for player in scores:
-            courseTee = super().getCourseTeeById(player['teeId'])
+            courseTee = super().getCourseTeeById(player['courseTeeId'])
             totHcp = math.floor(player['courseHCP']/2)
             player['grossScores'] = []
             player['netScores'] = []
@@ -50,6 +53,7 @@ class SkinsAndPinsFormat(FormatBase):
         lowestTotalOutNetCount = 0
         lowestTotalInCount = 0
         lowestTotalInNetCount = 0
+        print (updatedTournamentStandings)
         for standing in updatedTournamentStandings:
             standing['grossStyles'] = []
             standing['netStyles'] = []
@@ -67,7 +71,7 @@ class SkinsAndPinsFormat(FormatBase):
             if (standing['totalNet'] < lowestTotalNet):
                 lowestTotalNetCount += 1
                 lowestTotalNet = standing['totalNet']
-            if (standing['totalout'] < lowestTotalOut):
+            if (standing['totalOut'] < lowestTotalOut):
                 lowestTotalOutCount += 1
                 lowestTotalOut = standing['totalOut']
             if (standing['totalOutNet'] < lowestTotalOutNet):
@@ -94,10 +98,10 @@ class SkinsAndPinsFormat(FormatBase):
                 if (standing['totalOut'] == lowestTotalOut):
                     standing['totalOutStyle'] = 'background-color:#eee'
                 else:
-                    standing['totalOutstyle'] = ''
+                    standing['totalOutStyle'] = ''
             if (lowestTotalOutNetCount == 1):
                 if (standing['totalOutNet'] == lowestTotalOutNet):
-                    standing['totalOutNetstyle'] = 'background-color:#eee'
+                    standing['totalOutNetStyle'] = 'background-color:#eee'
                 else:
                     standing['totalOutNetStyle'] = ''
             if (lowestTotalInCount == 1):
@@ -109,7 +113,7 @@ class SkinsAndPinsFormat(FormatBase):
                 if (standing['totalInNet'] == lowestTotalGross):
                     standing['totalInNetStyle'] = 'background-color:#eee'
                 else:
-                    standing['totalinnetstyle'] = ''
+                    standing['totalInNetStyle'] = ''
         for i in range(0, 17):
             lowestGross = 100
             lowestNet = 100
@@ -119,7 +123,7 @@ class SkinsAndPinsFormat(FormatBase):
                 if (standing['grossScores'][i] < lowestGross):
                     lowestGrossCount += 1
                     lowestGross = standing['grossScores'][i]
-                if (standing['netXcores'][i] < lowestNet):
+                if (standing['netScores'][i] < lowestNet):
                     lowestNetCount += 1
                     lowestNet = standing['netScores'][i]
             for standing in updatedTournamentStandings:
@@ -135,3 +139,4 @@ class SkinsAndPinsFormat(FormatBase):
                         standing['netStyles'].append('')
         print (updatedTournamentStandings)
         super().updateTournament(updatedTournamentStandings)
+        return updatedTournamentStandings

@@ -84,10 +84,12 @@ class FormatBase(object):
         except (Tournament.DoesNotExist):
             return resultList
         try:
-            roundList = list(Round.objects.filter(tournament=t).values('id'))
+            roundList = list(Round.objects.filter(tournament=t.id).values('id'))
             for round in roundList:
                 try:
-                    resultList.append(list(Score.objects.filter(round__id=round['id']).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number')))
+                    resultList.append(list(Score.objects.filter(round=round['id']).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number')))
+                    print ('resultList')
+                    print (resultList)
                 except (Score.DoesNotExist):
                     pass
         except (Round.DoesNotExist):
@@ -110,19 +112,20 @@ class FormatBase(object):
             except (Tournament.DoesNotExist):
                 return
             try:
-                s = Scorecard.objects.get(id=self.scorecardId)
+                sc = Scorecard.objects.get(id=self.scorecardId)
             except (Scorecard.DoesNotExist):
                 return
             try:
-                r = Round.objects.get(tournament=t, player=p)
+                r = Round.objects.get(tournament=t.id, player=p)
             except (Round.DoesNotExist):
-                r = Round(tournament=t, player=p, scorecard=s, handicap_index=player['hcpIndex'], course_handicap=player['courseHCP'], total_out=player['totalout'], total_out_style=player['clubMemberNumber'], total_out_net=player['clubMemberNumber'], total_out_net_style=player['clubMemberNumber'], total_in=player['totalin'], total_in_style=player['clubMemberNumber'], total_in_net=player['clubMemberNumber'], total_in_net_style=player['clubMemberNumber'], total=player['total'], total_style=player['clubMemberNumber'], net=player['clubMemberNumber'], net_style=player['clubMemberNumber'])
+                r = Round(tournament=t, player=p, scorecard=sc, handicap_index=player['handicapIndex'], course_handicap=player['courseHCP'], total_out=player['totalOut'], total_out_style=player['totalOutStyle'], total_out_net=player['totalOutNet'], total_out_net_style=player['totalOutNetStyle'], total_in=player['totalIn'], total_in_style=player['totalInStyle'], total_in_net=player['totalInNet'], total_in_net_style=player['totalInNetStyle'], total=player['total'], total_style=player['totalStyle'], net=player['totalNet'], net_style=player['totalNetStyle'])
                 r.save()
             try:
-                scores = list(Score.objects.filter(round=r).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number'))
+                s = list(Score.objects.filter(round=r.id).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number'))
             except (Score.DoesNotExist):
                 for i in range(0,17):
                     s = Score(round=r, score=player['gross_scores'][i], score_style=player['gross_styles'][i], score_netscore=player['net_scores'][i], score_net_style=player['net_styles'][i])
+                    s.save()
         return
 
     def getCourseTeeById(self, teeId):

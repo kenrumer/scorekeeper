@@ -1,0 +1,23 @@
+.bottomSpaced {
+  margin-bottom:8px;
+}
+
+/*Bootstrap overrides*/
+.fixed-width-btn {
+  width: 164px;
+}
+body .modal-dialog {
+  width: 1300px;
+}
+
+/*scorecard modal*/
+.plusMinusButton {
+  width: 24px;
+}
+.scorecardCell {
+  width: 37px;
+}
+.scorecardBody {
+  height:158px;
+  overflow-y: scroll
+}

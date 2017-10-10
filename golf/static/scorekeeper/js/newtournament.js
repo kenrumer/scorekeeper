@@ -1,5 +1,5 @@
 /* global $, courseTeesJSON, numRounds, coursesJSON, tournamentName, dateStart, numRounds, playersJSON, id, name, duplicate, dateId, date, dateDuplicate */
-  var editTournamentTable;
+  var newTournamentTable;
   var addRowId = 0;
 
   function updateScorecardRound(data) {
@@ -294,8 +294,8 @@
       $('#loadingDialog').modal('hide');
     });
 
-    //Edit tournament table
-    editTournamentTable = $('#editTournamentTable').DataTable( {
+    //New tournament table
+    newTournamentTable = $('#newTournamentTable').DataTable( {
       'dom': 'Bfrtip',
       'buttons': [
         {
@@ -310,8 +310,7 @@
             if (coursesJSON.length > 1) {
               $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
             } else {
-              $('#scorecard >tbody').html('');
-              addRowToScorecard();
+              makeScorecard();
               $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
             }
           }
@@ -325,6 +324,6 @@
         'processing': '<p class="bg-warning">Processing...</p>'
       }
     });
-    $('#editTournamentTimeStartDatePicker').datetimepicker({format: 'LT'});
-    $('#editTournamentTimeEndDatePicker').datetimepicker({format: 'LT'});
+    $('#newScorecardStartTimePicker').datetimepicker({format: 'LT'});
+    $('#newScorecardFinishTimePicker').datetimepicker({format: 'LT', "defaultDate":new Date()});
   });

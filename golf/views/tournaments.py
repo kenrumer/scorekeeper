@@ -87,7 +87,6 @@ def newTournament(request):
             courseTee['yardageTotal'] = courseTee['yardageOut'] + courseTee['yardageIn']
             courseTee['parTotal'] = courseTee['parOut'] + courseTee['parIn']
     courseTeesJSON = json.dumps(courseTeesJSON, cls=DjangoJSONEncoder)
-    print (courseTeesJSON)
     t.save()
 
     """
@@ -135,34 +134,37 @@ def calculateScores(request):
     try:
         s = Scorecard.objects.get(date=datetime.strptime(request.POST['date'],'%m/%d/%Y').strftime('%Y-%m-%d'))
     except Scorecard.DoesNotExist:
-        s = Scorecard(date=request.POST['date'])
-    
-    try:
-        scorer = Player.objects.get(id=request.POST['scorerId'])
-        s.scorer = scorer
-    except:
-        s.external_scorer = request.POST['scorer']
-    try:
-        attest = Player.objects.get(id=request.POST['attestId'])
-        s.attest = attest
-    except:
-        s.external_attest = request.POST['attest']
-    
+        s = Scorecard(date=datetime.strptime(request.POST['date'],'%m/%d/%Y').strftime('%Y-%m-%d'))
+    if (request.POST['scorer'] != ''):
+        try:
+            scorer = Player.objects.get(club_member_number=request.POST['scorerId'])
+            s.scorer = scorer
+        except Player.DoesNotExist:
+            s.external_scorer = request.POST['scorer']
+    if (request.POST['attest'] != ''):
+        try:
+            attest = Player.objects.get(club_member_number=request.POST['attestId'])
+            s.attest = attest
+        except Player.DoesNotExist:
+            s.external_attest = request.POST['attest']
     if (request.POST['teeTime'] != ''):
         s.tee_time = request.POST['teeTime']
     if (request.POST['finishTime'] != ''):
         s.finish_time = request.POST['finishTime']
     s.save()
-    t = Tournament.objects.get(id=tournamentId)
-    formatPlugin = model_to_dict(FormatPlugin.objects.get(id=t.format_plugin__id))
+    try:
+        t = Tournament.objects.filter(id=tournamentId).values('format_plugin__id')[0]
+    except Tournament.DoesNotExist:
+        return JsonResponse('')
+    formatPlugin = model_to_dict(FormatPlugin.objects.get(id=t['format_plugin__id']))
     classModule = importlib.import_module('golf.formatplugins.'+formatPlugin['class_package'])
     classAccess = getattr(classModule, formatPlugin['class_name'])
     classInst = classAccess(tournamentId, s.id)
-    classInst.calculateScores(request.POST)
+    resultList = classInst.calculateScores(request.POST)
 
-    resultList = list(Round.objects.get(tournament_id=request.POST['tournamentId']).all())
-    print(resultList)
-    return JsonResponse(resultList)
+    resultListJSON = json.dumps(resultList, cls=DjangoJSONEncoder)
+    print(resultListJSON)
+    return JsonResponse({'results':resultList})
 
 def editTournament(request, tournamentId):
     """

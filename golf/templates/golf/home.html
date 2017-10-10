@@ -5,7 +5,7 @@
 {% block title %} Scorekeeper {% endblock %}
 
 {% block head_extra %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="{% static "scorekeeper/js/jquery.redirect.js" %}" type="text/javascript"></script>
@@ -13,47 +13,15 @@
   <script src="{% static "scorekeeper/js/jquery.multi-select.js" %}" type="text/javascript"></script>
   <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
   <script>
-    var clubsJSON = {};
-    {% if clubsJSON %}
-    clubsJSON = JSON.parse(unescape('{{ clubsJSON|safe|escapejs }}'));
-    {% endif %}
-    var playerPluginsJSON = {};
-    {% if playerPluginsJSON %}
-    playerPluginsJSON = JSON.parse(unescape('{{ playerPluginsJSON|safe|escapejs }}'));
-    {% endif %}
-    var coursesJSON = {};
-    {% if coursesJSON %}
-    coursesJSON = JSON.parse('{{ coursesJSON|safe }}');
-    coursesJSON.sort(function (a, b) {
-      return a.priority > b.priority ? 1 : -1;
-    });
-    {% endif %}
-    var courseTeesJSON = {};
-    {% if courseTeesJSON %}
-    courseTeesJSON = JSON.parse('{{ courseTeesJSON|safe }}');
-    courseTeesJSON.sort(function (a, b) {
-      return a.priority > b.priority ? 1 : -1;
-    });
-    {% endif %}
-    var tournamentDatesJSON = {};
-    {% if tournamentDatesJSON %}
-    tournamentDatesJSON = JSON.parse('{{ tournamentDatesJSON|safe }}');
-    {% endif %}
-    var formatsJSON = {};
-    {% if formatsJSON %}
-    formatsJSON = JSON.parse('{{ formatsJSON|safe }}');
-    formatsJSON.sort(function (a, b) {
-      return a.priority < b.priority ? 1 : -1;
-    });
-    {% endif %}
-    var tournamentsJSON = {};
-    {% if tournamentsJSON %}
-    tournamentsJSON = JSON.parse('{{ tournamentsJSON|safe }}');
-    {% endif %}
-    var playersJSON = {};
-    {% if playersJSON %}
-    playersJSON = JSON.parse('{{ playersJSON|safe }}');
-    {% endif %}
+    var clubsJSON = JSON.parse(unescape('{{ clubsJSON|safe|escapejs }}'));
+    var defaultNumRounds = 1;
+    var playerPluginsJSON = JSON.parse(unescape('{{ playerPluginsJSON|safe|escapejs }}'));
+    var coursesJSON = JSON.parse(unescape('{{ coursesJSON|safe }}'));
+    var courseTeesJSON = JSON.parse(unescape('{{ courseTeesJSON|safe }}'));
+    var tournamentDatesJSON = JSON.parse(unescape('{{ tournamentDatesJSON|safe }}'));
+    var formatsJSON = JSON.parse(unescape('{{ formatsJSON|safe }}'));
+    var tournamentsJSON = JSON.parse(unescape('{{ tournamentsJSON|safe }}'));
+    var playersJSON = JSON.parse(unescape('{{ playersJSON|safe }}'));
   </script>
   <link rel="stylesheet" href="{% static "/scorekeeper/css/bootstrap.fd.css" %}">
   <script src="{% static "scorekeeper/js/bootstrap.fd.js" %}" type="text/javascript"></script>
@@ -260,35 +228,37 @@
     </div>
 
     <!-- New tournament wizard -->
-    <!-- New tournament page 1 -->
-    <div class="modal fade" id="newTournamentPage1" tabindex="-1" role="dialog" aria-labelledby="newTournamentPage1Label">
-      <div class="modal-dialog modalNewTournamentPage1 modal-lg" role="document">
+    <!-- New tournament format -->
+    <div class="modal fade" id="newTournamentFormat" tabindex="-1" role="dialog" aria-labelledby="newTournamentFormatLabel">
+      <div class="modal-dialog modalNewTournamentFormat modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="newTournamentPage1Label">Enter New Tournament</h4>
+            <h4 class="modal-title" id="newTournamentFormatLabel">Enter New Tournament</h4>
           </div>
           <div class="modal-body">
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <label for="newTournamentPage1Name">Name</label>
+                <label for="newTournamentFormatName">Name</label>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-5">
-                <input type=text class="newTournamentPage1Name form-control" id="newTournamentPage1Name" value="{{ clubs.0.default_tournament_name }} - {% now 'SHORT_DATE_FORMAT' %}" />
+                <!-- value set in home.js -->
+                <input type=text class="newTournamentFormatName form-control" id="newTournamentFormatName" />
               </div>
               <div class="col-sm-3"></div>
             </div>
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <label for="newTournamentPage1DateStart">Date started</label>
+                <label for="newTournamentFormatDateStart">Date started</label>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-5">
-                <div class="input-group date" id="newTournamentPage1DateStartDatePicker">
-                  <input type="text" class="form-control" id="newTournamentPage1DateStart" value="{% now 'SHORT_DATE_FORMAT' %}" />
+                <div class="input-group date" id="newTournamentFormatDateStartDatePicker">
+                  <!-- value set in home.js -->
+                  <input type="text" class="form-control" id="newTournamentFormatDateStart" />
                   <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                   </span>
@@ -299,11 +269,11 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <label for="newTournamentPage1Format">Select Format</label>
+                <label for="newTournamentFormats">Select Format</label>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-5">
-                <select class="newTournamentPage1Format form-control" id="newTournamentPage1Format">
+                <select class="newTournamentFormats form-control" id="newTournamentFormats">
                   <!-- options added by home.js -->
                 </select>
               </div>
@@ -312,14 +282,12 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <label for="newTournamentPage1Setup">Setup</label>
+                <label for="newTournamentFormatSetup">Setup</label>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-5">
-                <select class="newTournamentPage1Setup form-control" id="newTournamentPage1Setup">
-                  <option value="0">Normal</option>
-                  <option value="1">2-man Team</option>
-                  <option value="2">4-man Team</option>
+                <select class="newTournamentFormatSetup form-control" id="newTournamentFormatSetup">
+                  <!-- options added by home.js -->
                 </select>
               </div>
               <div class="col-sm-3"></div>
@@ -327,18 +295,19 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <label for="newTournamentPage1NumRounds">Number of rounds</label>
+                <label for="newTournamentFormatNumRounds">Number of rounds</label>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <input type="number" class="newTournamentPage1NumRounds form-control" id="newTournamentPage1NumRounds" value=1 min=1 max=99 />
+                  <!-- value set by home.js -->
+                <input type="number" class="newTournamentFormatNumRounds form-control" id="newTournamentFormatNumRounds" min="1" max="99" />
               </div>
               <div class="col-sm-6"></div>
             </div>
           </div>
           <div class="modal-footer">
             <div class="col-sm-8"></div>
-            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage1SetCoursesButton">Set Courses</button></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentFormatNextButton">Next</button></div>
             <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
             <div class="col-sm-1"></div>
@@ -347,30 +316,22 @@
       </div>
     </div>
 
-    <!-- New tournament page 2 -->
-    <div class="modal fade" id="newTournamentPage2" tabindex="-1" role="dialog" aria-labelledby="newTournamentPage2Label">
-      <div class="modal-dialog modalNewTournamentPage2 modal-lg" role="document">
+    <!-- New Tournament Dates -->
+    <div class="modal fade" id="newTournamentDates" tabindex="-1" role="dialog" aria-labelledby="newTournamentDatesLabel">
+      <div class="modal-dialog modalNewTournamentDates modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="newTournamentPage2Label">Enter New Tournament - Set Courses</h4>
+            <h4 class="modal-title" id="newTournamentDatesLabel">Enter New Tournament - Set Dates</h4>
           </div>
           <div class="modal-body">
-            <div class="row bottomSpaced">
-              <div class="col-sm-1"></div>
-              <div class="col-sm-10">
-                <select id="newTournamentPage2Courses" multiple="multiple" name="newTournamentPage2Courses[]">
-                  <!-- options added by home.js -->
-                </select>
-              </div>
-              <div class="col-sm-1"></div>
-            </div>
+            <div id="newTournamentDatesRoundsPlaceholder"><!-- page is built in home.js--></div>
           </div>
           <div class="modal-footer">
             <div class="col-sm-6"></div>
-            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage2BackButton">Back</button></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentDatesBackButton">Back</button></div>
             <div class="col-sm-1"></div>
-            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage2SetCourseTeesButton">Set Course Tees</button></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentDatesNextButton">Next</button></div>
             <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
             <div class="col-sm-1"></div>
@@ -379,19 +340,19 @@
       </div>
     </div>
 
-    <!-- New tournament page 3 -->
-    <div class="modal fade" id="newTournamentPage3" tabindex="-1" role="dialog" aria-labelledby="newTournamentPage3Label">
-      <div class="modal-dialog modalNewTournamentPage3 modal-lg" role="document">
+    <!-- New Tournament Courses -->
+    <div class="modal fade" id="newTournamentCourses" tabindex="-1" role="dialog" aria-labelledby="newTournamentCoursesLabel">
+      <div class="modal-dialog modalNewTournamentCourses modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="newTournamentPage3Label">Enter New Tournament - Set Course Tees</h4>
+            <h4 class="modal-title" id="newTournamentCoursesLabel">Enter New Tournament - Set Courses</h4>
           </div>
           <div class="modal-body">
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-10">
-                <select id="newTournamentPage3CourseTees" multiple="multiple" name="newTournamentPage3CourseTees[]">
+                <select id="newTournamentCoursesMS" multiple="multiple" name="newTournamentCoursesMS[]">
                   <!-- options added by home.js -->
                 </select>
               </div>
@@ -400,9 +361,41 @@
           </div>
           <div class="modal-footer">
             <div class="col-sm-6"></div>
-            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage3BackButton">Back</button></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentCoursesBackButton">Back</button></div>
             <div class="col-sm-1"></div>
-            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentPage3startTournamentButton">Start Tournament</button></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentCoursesNextButton">Next</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
+            <div class="col-sm-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Tournament Course Tees -->
+    <div class="modal fade" id="newTournamentCourseTees" tabindex="-1" role="dialog" aria-labelledby="newTournamentCourseTeesLabel">
+      <div class="modal-dialog modalNewTournamentCourseTees modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="newTournamentCourseTeesLabel">Enter New Tournament - Set Course Tees</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row bottomSpaced">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+                <select id="newTournamentCourseTeesMS" multiple="multiple" name="newTournamentCourseTeesMS[]">
+                  <!-- options added by home.js -->
+                </select>
+              </div>
+              <div class="col-sm-1"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-6"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentCourseTeesBackButton">Back</button></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-primary" data-id="id" id="newTournamentCourseTeesNextButton">Next</button></div>
             <div class="col-sm-1"></div>
             <div class="col-sm-1"><button type="button" class="btn fixed-width-btn btn-default" data-dismiss="modal">Cancel</button></div>
             <div class="col-sm-1"></div>
@@ -460,7 +453,7 @@
                	</div>
                	<div class="list-group editTournamentList">
                 {% for tournament in tournaments %}
-                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editTournamentListItem" tournament-name="{{ tournament.name }}" data-tournamentId="{{ tournament.club_member_number }}">
+                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editTournamentListItem" tournament-name="{{ tournament.name }}" data-tournament-id="{{ tournament.club_member_number }}">
                     <div class="row">
                       <div class="col-sm-1"></div>
                       <div class="col-sm-10">
@@ -519,7 +512,7 @@
                	</div>
                	<div class="list-group editPlayersList">
                 {% for player in players %}
-                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="{{ player.name }}" data-clubMemberNumber="{{ player.club_member_number }}">
+                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="{{ player.name }}" data-club-member-number="{{ player.club_member_number }}">
                     <div class="row">
                       <div class="col-sm-1"></div>
                       <div class="col-sm-10">
