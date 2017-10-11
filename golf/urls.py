@@ -32,7 +32,8 @@ urlpatterns = [
     url(r'^printsignupsheets/$', csrf_exempt(printables.printSignupSheets), name='printsignupsheets'),
     
     url(r'^editformats/$', tournaments.editFormats, name='editformats'),
-    
+
+    url(r'^checkfortournamentduplicate/$', csrf_exempt(tournaments.checkForTournamentDuplicate), name='checkfortournamentduplicate'),
     url(r'^newtournament/$', csrf_exempt(tournaments.newTournament), name='newtournament'),
     url(r'^edittournament/(?P<tournamentId>\d+)$', tournaments.editTournament, name='edittournament'),
     

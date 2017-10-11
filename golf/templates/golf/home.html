@@ -252,23 +252,6 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <label for="newTournamentFormatDateStart">Date started</label>
-              </div>
-              <div class="col-sm-1"></div>
-              <div class="col-sm-5">
-                <div class="input-group date" id="newTournamentFormatDateStartDatePicker">
-                  <!-- value set in home.js -->
-                  <input type="text" class="form-control" id="newTournamentFormatDateStart" />
-                  <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                  </span>
-                </div>
-              </div>
-              <div class="col-sm-3"></div>
-            </div>
-            <div class="row bottomSpaced">
-              <div class="col-sm-1"></div>
-              <div class="col-sm-2">
                 <label for="newTournamentFormats">Select Format</label>
               </div>
               <div class="col-sm-1"></div>
@@ -315,6 +298,35 @@
         </div>
       </div>
     </div>
+
+    <!-- New tournament duplicate -->
+    <div class="modal fade" id="newTournamentDuplicate" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
+		  <div class="modal-dialog modal-m">
+		    <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="newTournamentDuplicateLabel">Duplicate tournament detected!</h4>
+          </div>
+		      <div class="modal-body">
+		        <div class="row">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-10">
+		            <div class="" id="newTournamentDuplicateText">A tournament with the same name already exists.  Do you want to edit the tournament or create a new one?</div>
+		          </div>
+              <div class="col-sm-1"></div>
+		        </div>
+		      </div>
+          <div class="modal-footer">
+            <div class="row">
+              <div class="col-sm-3"></div>
+              <div class="col-sm-2"><button class="btn fixed-width-btn btn-primary" id="newTournamentDuplicateCreateNewTournament">Create New</button></div>
+              <div class="col-sm-2"></div>
+              <div class="col-sm-2"><button class="btn fixed-width-btn btn-default" id="newTournamentDuplicateCancelTournament">Cancel</button></div>
+              <div class="col-sm-3"></div>
+            </div>
+          </div>
+		    </div>
+		  </div>
+		</div>
 
     <!-- New Tournament Dates -->
     <div class="modal fade" id="newTournamentDates" tabindex="-1" role="dialog" aria-labelledby="newTournamentDatesLabel">
@@ -645,9 +657,9 @@
           </div>
           <div class="modal-body">
             <div class="row bottomSpaced">
-    	      <div id="recentActivitySearch">
+    	        <div id="recentActivitySearch">
                 <div class="input-group col-md-12">
-           		  <input id="recentActivitySearchInput" type="text" class="form-control input-sm" placeholder="Search" />
+           		    <input id="recentActivitySearchInput" type="text" class="form-control input-sm" placeholder="Search" />
                	  <span class="input-group-btn">
                    	<button class="btn btn-info btn-sm" type="button">
                       <i class="glyphicon glyphicon-search"></i>
@@ -943,7 +955,7 @@
 		    <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="errorDialogLable">Error!</h4>
+            <h4 class="modal-title" id="errorDialogLabel">Error!</h4>
           </div>
 		      <div class="modal-body">
 		        <div class="row">
@@ -951,9 +963,9 @@
               <div class="col-sm-10">
 		            <div class="" id="errorHeader"></div>
 		          </div>
+		          <div class="col-sm-1"></div>
 		        </div>
 		        <div class="row">
-              <div class="col-sm-1"></div>
               <div class="col-sm-1"></div>
               <div class="col-sm-10">
 		            <div class="" id="errorText"></div>

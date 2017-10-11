@@ -51,6 +51,14 @@ body .modal-lg {
   background-position: left center;
   color: #666666;
 }
+.newTournamentDatesList {
+  height: 248px;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-padding-start: 0px;
+  -moz-padding-start: 0px;
+}
 .editTournament {
   background: url('/static/scorekeeper/icons/golfgreen.png') no-repeat;
   background-position: left center;

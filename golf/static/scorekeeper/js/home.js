@@ -21,7 +21,6 @@
   $('#newTournamentButton').click(function(event) {
     $('#newTournamentFormats').empty();
     $('#newTournamentFormatName').val(clubsJSON[0].default_tournament_name+' - '+strToday);
-    $('#newTournamentFormatDateStart').val(strToday);
     $.each(formatsJSON, function (i, item) {
       $('#newTournamentFormats').append('<option value="' + item.id + '">' + item.name + '</option>');
     });
@@ -37,27 +36,91 @@
   });
   
   $('#newTournamentFormatNextButton').click(function(event) {
+    var duplicate = false;
+    $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    var context = {
+      tournamentName: $('#newTournamentFormatName').val()
+    };
+    $.post('/golf/checkfortournamentduplicate/', context).done(function(data) {
+      $('#loadingDialog').modal('hide');
+      duplicate = data.duplicate;
+      console.log(duplicate);
+      /*Pretty much working, but interferes with testing.  This checks if there is a duplicate tournament.*/
+      if (duplicate == true) {
+        $('#newTournamentDuplicate').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      } else {
+        $('#newTournamentFormat').modal('hide');
+        var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
+        //Show choose dates
+        $('#newTournamentDatesRoundsPlaceholder').html('');
+        var datesInput = '<div class="list-group newTournamentDatesList">';
+        for (var i = 1; i <= numRounds; i++) {
+          datesInput += '  <div class="row" id="newTournamentDatesListItem'+i+'">';
+         	datesInput += '    <div class="col-sm-3"></div>';
+         	datesInput += '    <div class="col-sm-3">';
+         	datesInput += '      <input type="text" class="form-control" value="Round '+i+'" disabled />';
+          datesInput += '    </div>';
+          datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentDatesRoundDatePicker'+i+'">';
+          datesInput += '      <input type="text" class="form-control" id="newTournamentDatesDateStart'+i+'" value="'+strToday+'" />';
+          datesInput += '      <span class="input-group-addon">';
+          datesInput += '        <span class="glyphicon glyphicon-calendar"></span>';
+          datesInput += '      </span>';
+          datesInput += '    </div>';
+         	datesInput += '    <div class="col-sm-3"></div>';
+          datesInput += '  </div>';
+        }
+        datesInput += '</div>';
+        $('#newTournamentDatesRoundsPlaceholder').append(datesInput);
+        for (var i = 1; i <= numRounds; i++) {
+          $('#newTournamentDatesRoundsPlaceholder').find('#newTournamentDatesRoundDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
+        }
+        $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
+      }
+    }).fail(function(xhr, textStatus, error) {
+      $('#newTournamentFormat').modal('hide');
+      $('#loadingDialog').modal('hide');
+      $('#errorDialog').modal({}).show();
+      $('#errorHeader').text('failed to determine if this is a duplicate tournament!');
+      $('#errorText').text(xhr.responseText);
+      console.log('failed to load players!');
+      console.log(xhr.responseText);
+      console.log(textStatus);
+      console.log(error);
+    });
+  });
+
+  $('#newTournamentDuplicateCancelTournament').click(function(event) {
+    $('#newTournamentDuplicate').modal('hide');
+    $('#newTournamentFormat').modal('hide');
+  });
+  $('#newTournamentDuplicateCreateNewTournament').click(function(event) {
+    $('#newTournamentDuplicate').modal('hide');
     $('#newTournamentFormat').modal('hide');
     var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
-    if (numRounds === 1) {
-      $('#newTournamentCoursesMS').multiSelect('refresh');
-      newTournamentCoursesSelectedCourseList = [];
-      newTournamentCoursesAvailableCourseList = coursesJSON;
-      $.each(coursesJSON, function (i, item) {
-        if (item.default) {
-          $('#newTournamentCoursesMS').multiSelect('addOption', { value: item.id, text: item.name });
-          $('#newTournamentCoursesMS').multiSelect('select', item.id.toString());
-        } else {
-          $('#newTournamentCoursesMS').multiSelect('addOption', { value: item.id, text: item.name });
-        }
-      });
-      $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
-    } else {
-      for (var i = 1; i <= numRounds; i++) {
-        $('#newTournamentDatesRoundsPlaceholder').html('here we go');
-      }
-      $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
+    //Show choose dates
+    $('#newTournamentDatesRoundsPlaceholder').html('');
+    var datesInput = '<div class="list-group newTournamentDatesList">';
+    for (var i = 1; i <= numRounds; i++) {
+      datesInput += '  <div class="row" id="newTournamentDatesListItem'+i+'">';
+     	datesInput += '    <div class="col-sm-3"></div>';
+     	datesInput += '    <div class="col-sm-3">';
+     	datesInput += '      <input type="text" class="form-control" value="Round '+i+'" disabled />';
+      datesInput += '    </div>';
+      datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentDatesRoundDatePicker'+i+'">';
+      datesInput += '      <input type="text" class="form-control" id="newTournamentDatesDateStart'+i+'" value="'+strToday+'" />';
+      datesInput += '      <span class="input-group-addon">';
+      datesInput += '        <span class="glyphicon glyphicon-calendar"></span>';
+      datesInput += '      </span>';
+      datesInput += '    </div>';
+     	datesInput += '    <div class="col-sm-3"></div>';
+      datesInput += '  </div>';
     }
+    datesInput += '</div>';
+    $('#newTournamentDatesRoundsPlaceholder').append(datesInput);
+    for (var i = 1; i <= numRounds; i++) {
+      $('#newTournamentDatesRoundsPlaceholder').find('#newTournamentDatesRoundDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
+    }
+    $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
   });
 
   $('#newTournamentDatesBackButton').click(function(event) {
@@ -78,16 +141,11 @@
       }
     });
     $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
-  })
-  
+  });
+
   $('#newTournamentCoursesBackButton').click(function(event) {
     $('#newTournamentCourses').modal('hide');
-    var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
-    if (numRounds === 1) {
-      $('#newTournamentFormat').modal({backdrop: 'static'}, event.target).show();
-    } else {
-      $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
-    }
+    $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
   });
   $('#newTournamentCoursesNextButton').click(function(event) {
     $('#newTournamentCourses').modal('hide');
@@ -112,15 +170,20 @@
     });
     $('#newTournamentCourseTees').modal({backdrop: 'static'}, event.target).show();
   });
-  
+
   $('#newTournamentCourseTeesBackButton').click(function(event) {
     $('#newTournamentCourseTees').modal('hide');
     $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
   });
   $('#newTournamentCourseTeesNextButton').click(function(event) {
+    var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
+    var tournamentDates = [];
+    for (var i = 1; i <= numRounds; i++) {
+      tournamentDates.push($('#newTournamentDatesDateStart'+i).val());
+    }
     var context = {
       tournamentName: $('#newTournamentFormatName').val(),
-      dateStart: $('#newTournamentFormatDateStart').val(),
+      tournamentDates: JSON.stringify(tournamentDates),
       formatId: $('#newTournamentFormats').val(),
       setupId: $('#newTournamentFormatSetup').val(),
       numRounds: $('#newTournamentFormatNumRounds').val(),
@@ -273,7 +336,6 @@
   });
 
   //jquery controls
-  $('#newTournamentFormatDateStartDatePicker').datetimepicker({format: 'MM/DD/YYYY'});
   $('#newTournamentCoursesMS').multiSelect( {
     selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',
     selectionHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the courses played">',

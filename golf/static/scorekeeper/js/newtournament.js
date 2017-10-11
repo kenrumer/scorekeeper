@@ -1,4 +1,4 @@
-/* global $, courseTeesJSON, numRounds, coursesJSON, tournamentName, dateStart, numRounds, playersJSON, id, name, duplicate, dateId, date, dateDuplicate */
+/* global $, courseTeesJSON, numRounds, coursesJSON, tournamentName, numRounds, playersJSON, tournamentId, duplicate, tournamentDatesJSON, tournamentDateIdsJSON, roundId */
   var newTournamentTable;
   var addRowId = 0;
 
@@ -127,7 +127,7 @@
 
   function addRowToScorecard() {
     var appendText = '<tr id="scorecardRow'+addRowId+'" data-row-id="'+addRowId+'" data-slope='+courseTeesJSON[0].slope+'>';
-    appendText += '<td><button class="plusMinusButton" id="removeRowFromScorecard" data-rowId="'+addRowId+'">-</button></td>';
+    appendText += '<td><button class="plusMinusButton" id="removeRowFromScorecard" data-row-id="'+addRowId+'">-</button></td>';
     appendText += '<td><select id="playerNamesSelect" style="width: 140px" data-row-id="'+addRowId+'"><option>----------------------------</option>'+playerList()+'</select></td><td>'+teeList()+'</td>';
     for (var i = 1; i < 10; i++) {
       appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" data-hole-out="'+addRowId+'" type=number min=1 max=99 value='+courseTeesJSON[0].tees[i-1].par+'></td>';
@@ -148,7 +148,7 @@
   function makeScorecard() {
     $('#scorecard thead').html('');
     addHeaderToScorecard();
-    //Load the players for the score card scorer, attest
+    //Load the players for the scorecard scorer, attest
     $.each(playersJSON, function(i, item) {
       var option = '<option data-value="'+item.club_member_number+'" value="'+item.name+'"></option>';
       $('#scorecardScorer').append(option);
@@ -160,7 +160,7 @@
 
   $(document).ready(function() {
 
-    //TODO: Add the rounds tabs
+    //TODO: Add the rounds tabs functionality
     if (numRounds > 1) {
       var roundTabs = '<ul class="nav nav-tabs">';
       roundTabs += '  <li class="active"><a href="#">Round 1</a></li>';
@@ -274,12 +274,14 @@
         scorerId: scorerId,
         attest: attest,
         attestId: attestId,
-        tournamentId: id,
-        date: date,
+        tournamentId: tournamentId,
+        tournamentName: tournamentName,
+        tournamentDate: tournamentDatesJSON[roundId],
+        tournamentDateId: tournamentDateIdsJSON[roundId],
         scores: JSON.stringify(scores)
       };
       console.log(context);
-      $.post('/golf/calculatescores/', context).done(function(data) {
+      /*$.post('/golf/calculatescores/', context).done(function(data) {
         $('#loadingDialog').modal('hide');
       }).fail(function(xhr, textStatus, error) {
         $('#loadingDialog').modal('hide');
@@ -290,7 +292,7 @@
         console.log(xhr.responseText);
         console.log(textStatus);
         console.log(error);
-      });
+      });*/
       $('#loadingDialog').modal('hide');
     });
 
@@ -299,7 +301,7 @@
       'dom': 'Bfrtip',
       'buttons': [
         {
-          'text': '<u>A</u>dd Score Card',
+          'text': '<u>A</u>dd Scorecard',
           'key': {
             'key': 'a',
             'shiftKey': true
@@ -321,9 +323,11 @@
       'paging': false,
       'processing': true,
       'language': {
-        'processing': '<p class="bg-warning">Processing...</p>'
+        'processing': '<p class="bg-warning">Processing...</p>',
+        "emptyTable": "Add a scorecard!"
       }
     });
+    newTournamentTable.buttons().container().append('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: '+tournamentDatesJSON[roundId]+'</b>');
     $('#newScorecardStartTimePicker').datetimepicker({format: 'LT'});
     $('#newScorecardFinishTimePicker').datetimepicker({format: 'LT', "defaultDate":new Date()});
   });

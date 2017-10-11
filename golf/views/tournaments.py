@@ -16,16 +16,26 @@ def editFormats(request):
 def getFormats(request):
     return HttpResponse('Test')
 
+def checkForTournamentDuplicate(request):
+    """
+    Ajax function to check if the tournament already exists
+    """
+    tournamentName = request.POST.get('tournamentName')
+    try:
+        Tournament.objects.get(name=tournamentName)
+        responseJSON = '{"duplicate": true}'
+    except:
+        responseJSON = '{"duplicate": false}'
+    return JsonResponse(json.loads(responseJSON))
+
 def newTournament(request):
     """
     Create function for tournaments
     Need to ask several questions about course, tee, format, if multi-round - how many... how do you ask from a plugin?
     """
-    from django.core import serializers
     tournamentDuplicate = False
-    tournamentDateDuplicate = False
+    tournamentDatesJSON = json.loads(request.POST.get('tournamentDates'))
     tournamentName = request.POST.get('tournamentName')
-    dateStart = request.POST.get('dateStart')
     formatId = request.POST.get('formatId')
     setupId = request.POST.get('setupId')
     numRounds = request.POST.get('numRounds')
@@ -41,11 +51,7 @@ def newTournament(request):
         Course tee add/remove
     Will send this data to the newTournament template
     """
-    try:
-        t = Tournament.objects.get(name=tournamentName)
-        tournamentDuplicate = True
-    except Tournament.DoesNotExist:
-        t = Tournament(name=tournamentName)
+    t = Tournament(name=tournamentName)
     t.format_plugin = FormatPlugin.objects.get(id=formatId)
     t.save()
     
@@ -96,27 +102,31 @@ def newTournament(request):
     playersJSON = json.dumps(players, cls=DjangoJSONEncoder)
 
     """
-    Set tournament first round/only round date
+    Set tournament round dates
     """
-    d = datetime.strptime(request.POST.get('dateStart'), '%m/%d/%Y')
-    try:
-        td = TournamentDate.objects.get(date=d)
-        tournamentDateDuplicate = True
-    except TournamentDate.DoesNotExist:
-        td = TournamentDate(date=d, tournament=t)
-        td.save()
+    tournamentDateIds = []
+    for tournamentDate in tournamentDatesJSON:
+        d = datetime.strptime(tournamentDate, '%m/%d/%Y')
+        try:
+            td = TournamentDate.objects.get(date=d)
+        except TournamentDate.DoesNotExist:
+            td = TournamentDate(date=d, tournament=t)
+            td.save()
+        tournamentDateIds.append(td.id)
+    tournamentDateIdsJSON = json.dumps(tournamentDateIds, cls=DjangoJSONEncoder)
+    tournamentDatesJSON = json.dumps(tournamentDatesJSON, cls=DjangoJSONEncoder)
 
     """
     Render the page
     """
     context = {
-        "id": t.id,
-        "name": request.POST.get('name'),
+        "tournamentId": t.id,
+        "tournamentName": tournamentName,
         "duplicate": tournamentDuplicate,
-        "dateId": td.id,
-        "date": request.POST.get('dateStart'),
-        "dateDuplicate": tournamentDateDuplicate,
-        "numRounds": request.POST.get('numRounds'),
+        "tournamentDateIdsJSON": tournamentDateIdsJSON,
+        "tournamentDatesJSON": tournamentDatesJSON,
+        "numRounds": numRounds,
+        "setupId": setupId,
         "coursesJSON": coursesJSON,
         "courseTeesJSON": courseTeesJSON,
         "players": players,
