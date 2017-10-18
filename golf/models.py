@@ -6,10 +6,29 @@ from django.urls import reverse
 
 class Tournament(models.Model):
     """
-    Model representing a Tournament
+    Model representing a Tournament, a set of tournament rounds
     """
     name = models.CharField(max_length=200, verbose_name='Name', help_text='Enter the name of the tournament (e.g. John Doe Memorial)')
     format_plugin = models.ForeignKey('FormatPlugin', verbose_name='Format', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament format')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        return self.name
+
+class TournamentRound(models.Model):
+    """
+    Basically every tournament page in the view
+    name, format and date_scheduled should be the uniqueness
+    Editting these fields will be a pain!!!
+    """
+    name = models.CharField(max_length=200, verbose_name='Name', help_text='Enter the name of this round of the tournament (e.g. John Doe Memorial)')
+    date_scheduled = models.DateField(verbose_name='Date Scheduled', null=True, blank=True, help_text='Date this round of the tournament was supposed to be played')
+    date_started = models.DateField(verbose_name='Date Started', null=True, blank=True, help_text='Select the date started (rarely different than scheduled)for this tournament')
+    date_finished = models.DateField(verbose_name='Date Finished', null=True, blank=True, help_text='Select the date finished (rarely different than scheduled)for this tournament')
+    round_format_plugin = models.ForeignKey('RoundFormatPlugin', verbose_name='Format', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament format')
+    tournament = models.ForeignKey('Tournament', verbose_name='Tournament Played', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament')
+
     courses = models.ManyToManyField('Course', verbose_name='Courses', blank=True, help_text='Select the courses players are playing and set the default for the card')
     course_tees = models.ManyToManyField('CourseTee', verbose_name='Course and tee', blank=True, help_text='Select the courses and tees players are playing')
     def __str__(self):
@@ -18,24 +37,12 @@ class Tournament(models.Model):
         """
         return self.name
 
-class TournamentDate(models.Model):
-    """
-    Model for the range of dates for a tournament.  Only used in the search date ranges
-    """
-    date = models.DateField(verbose_name='Date', null=True, blank=True, help_text='Select the date for this tournament')
-    tournament = models.ForeignKey('Tournament', verbose_name='Tournament Played', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament(s) played this date')
-    def __str__(self):
-        """
-        String for representing the Model object (in Admin site etc.)
-        """
-        return self.tournament.name
-
 class FormatPlugin(models.Model):
     """
-    Model representing a Tournament Format
+    Model representing a Format Plugin
     """
-    name = models.CharField(max_length=200, help_text='Enter the name of the format')
-    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
+    name = models.CharField(max_length=200, help_text='Enter the name of the tournament format')
+    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting a tournament format')
     class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
     def __str__(self):
@@ -44,7 +51,38 @@ class FormatPlugin(models.Model):
         """
         return self.name
 
-class TournamentPayoutPlugin(models.Model):
+class Scorecard(models.Model):
+    """
+    Model representing a Scorecard is a ForeignKey to rounds
+    """
+    tee_time = models.TimeField(verbose_name='Tee Time', null=True, blank=True, help_text='Enter the tee time for the scorecard')
+    finish_time = models.TimeField(verbose_name='Finish Time', null=True, blank=True, help_text='Enter the finish time for the scorecard')
+    external_scorer = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the name of the scorer if it is not a player')
+    external_attest = models.CharField(max_length=200, verbose_name='External Attestation Name', null=True, blank=True, help_text='Enter the name of the attestation if it is not a player')
+    scorer = models.ForeignKey('Player', related_name='player_scorer', verbose_name='Scorer Player Id', null=True, blank=True, help_text='Enter the player that kept score')
+    attest = models.ForeignKey('Player', related_name='player_attest', verbose_name='Attest Player Id', null=True, blank=True, help_text='Enter the player that attests with the score')
+    tournament_round = models.ForeignKey('TournamentRound', verbose_name='Tournament Round', on_delete=models.SET_NULL, null=True, blank=True, help_text='map to tournament round')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        retStr = ''
+        try:
+            dateStr = 'Date: '+self.tournament_round.date.strftime('%m/%d/%Y') + ', '
+        except:
+            dateStr = ''
+        try:
+            teeTime = 'Tee Time: '+self.tee_time.strftime('%H:%M') + ', '
+        except:
+            teeTime = ''
+        try:
+            finishTime = 'Finish time: '+self.finish_time.strftime('%H:%M')
+        except:
+            finishTime = ''
+        
+        return dateStr+teeTime+finishTime
+
+class PayoutPlugin(models.Model):
     """
     Model representing the plugins that will calculate payout for the overall tournament
     Payout plugin gets a ton of data each time a scorecard is submitted
@@ -61,48 +99,35 @@ class TournamentPayoutPlugin(models.Model):
 
 class Round(models.Model):
     """
-    Model representing a Round
+    Model representing a Round. This with scores creates a single page of the tournament view
+    Each player has a round in a tournament, a little ambigous, it'll make sense some day
+    Each round has many scores
     """
     handicap_index = models.DecimalField(max_digits=3, verbose_name='Handicap Index', decimal_places=1, help_text='Enter the players handicap index at time of tournament')
     course_handicap = models.IntegerField(verbose_name='Course Handicap', help_text='Enter the course handicap at time of tournament')
     total_out = models.IntegerField(verbose_name='OUT', null=True, blank=True, help_text='Enter the score of the front 9 holes')
-    total_out_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    total_out_style = models.CharField(max_length=200, verbose_name='Style for total out gross style', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
     total_out_net = models.IntegerField(verbose_name='Front 9 Net', null=True, blank=True, help_text='Enter the net score for the front nine')
-    total_out_net_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
+    total_out_net_style = models.CharField(max_length=200, verbose_name='Style for total out net style', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     total_in = models.IntegerField(verbose_name='IN', null=True, blank=True, help_text='Enter the score of the back 9 holes')
-    total_in_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    total_in_style = models.CharField(max_length=200, verbose_name='Style for total in gross style', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
     total_in_net = models.IntegerField(verbose_name='Back 9 Net', null=True, blank=True, help_text='Enter the net score for the back 9')
-    total_in_net_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
+    total_in_net_style = models.CharField(max_length=200, verbose_name='Style for total in net style', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     total = models.IntegerField(verbose_name='Total', null=True, blank=True, help_text='Enter the total score for the round')
-    total_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    total_style = models.CharField(max_length=200, verbose_name='Style for total gross style', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
     net = models.IntegerField(verbose_name='Course Handicap', null=True, blank=True, help_text='Enter the net score for the round')
-    net_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
+    net_style = models.CharField(max_length=200, verbose_name='Style for total net style', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     player = models.ForeignKey('Player', verbose_name='Player Id')
-    tournament = models.ForeignKey('Tournament', verbose_name='Tournament Id', on_delete=models.SET_NULL, null=True, blank=True)
+    date_started = models.DateField(verbose_name='Date Started', null=True, blank=True, help_text='Select the date this round was started')
+    date_finished = models.DateField(verbose_name='Date Finished', null=True, blank=True, help_text='Select the date this round was finished')
+    tournament_round = models.ForeignKey('TournamentRound', verbose_name='Tournament Round', on_delete=models.SET_NULL, null=True, blank=True, help_text='map to tournament round')
     scorecard = models.ForeignKey('Scorecard', verbose_name='Scorecard')
-    course_tee = models.ForeignKey('CourseTee', null=True, blank=True, verbose_name='Course and Tee This Round was Played on')
+    course_tee = models.ForeignKey('CourseTee', verbose_name='Course and Tee', null=True, blank=True, help_text='Course and Tee This Round was Played on')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.player.name
-
-class Scorecard(models.Model):
-    """
-    Model representing a Scorecard is a ForeignKey to rounds
-    """
-    date = models.DateField(verbose_name='Date', null=True, blank=True, help_text='Enter the date for the scorecard')
-    tee_time = models.TimeField(verbose_name='Tee Time', null=True, blank=True, help_text='Enter the tee time for the scorecard')
-    finish_time = models.TimeField(verbose_name='Finish Time', null=True, blank=True, help_text='Enter the finish time for the scorecard')
-    scorer = models.ForeignKey('Player', related_name='player_scorer', verbose_name='Scorer Player Id', null=True, blank=True, help_text='Enter the player that kept score')
-    external_scorer = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the name of the scorer if it is not a player')
-    attest = models.ForeignKey('Player', related_name='player_attest', verbose_name='Attest Player Id', null=True, blank=True, help_text='Enter the player that attests with the score')
-    external_attest = models.CharField(max_length=200, verbose_name='External Attestation Name', null=True, blank=True, help_text='Enter the name of the attestation if it is not a player')
-    def __str__(self):
-        """
-        String for representing the Model object (in Admin site etc.)
-        """
-        return self.date.strftime('%m/%d/%Y') + ' ' + self.finish_time.strftime('%H:%M')
+        return self.player.name + ' - ' + self.tournament_round.date.strftime('%m/%d/%Y')
 
 class Score(models.Model):
     """
@@ -120,7 +145,27 @@ class Score(models.Model):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.score
+        #return str(self.score)
+        #try:
+        #    td = TournamentRound.objects.get(tournament=self.round.tournament.id)
+        #except TournamentRound.DoesNotExist:
+        #    return str(self.score)
+        #return td.date.strftime('%m/%d/%Y') + ': ' + self.tee.hole.course.name + ' #' + str(self.tee.hole.number) + ' "' + str(self.score) + '" - ' + self.round.player.name
+        return str(self.score)
+
+class RoundFormatPlugin(models.Model):
+    """
+    Model representing a Tournament Format
+    """
+    name = models.CharField(max_length=200, help_text='Enter the name of the format')
+    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
+    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
+    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        return self.name
 
 class Course(models.Model):
     """

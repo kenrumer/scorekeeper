@@ -13,55 +13,44 @@
   if (mm < 10) {
     mm = '0' + mm;
   }
-  var strToday = dd+'/'+mm+'/'+yyyy;
+  var strToday = mm+'/'+dd+'/'+yyyy;
   $(document).ready(function() {
 
   //Menu buttons
   //New Tournament Wizard
   $('#newTournamentButton').click(function(event) {
-    $('#newTournamentFormats').empty();
-    $('#newTournamentFormatName').val(clubsJSON[0].default_tournament_name+' - '+strToday);
-    $.each(formatsJSON, function (i, item) {
-      $('#newTournamentFormats').append('<option value="' + item.id + '">' + item.name + '</option>');
+    $('#newTournamentName').val(clubsJSON[0].default_tournament_name+' - '+strToday);
+    $('#newTournamentTypes').empty();
+    $.each(typesJSON, function (i, item) {
+      $('#newTournamentTypes').append('<option value="' + item.id + '">' + item.name + '</option>');
     });
-    //This is an option for format because need to know if we are using players or teams in the scorecards
-    //  I'm guessing this becomes part of the format plugin
-    $('#newTournamentFormatSetup').html('');
-    var setupOptions = '<option value="0">Normal</option>';
-    setupOptions += '<option value="1">2-man Team</option>';
-    setupOptions += '<option value="2">4-man Team</option>';
-    $('#newTournamentFormatSetup').append(setupOptions);
-    $('#newTournamentFormatNumRounds').val(defaultNumRounds);
-    $('#newTournamentFormat').modal({backdrop: 'static'}, event.target).show();
+    $('#newTournament').modal({backdrop: 'static'}, event.target).show();
   });
-  
-  $('#newTournamentFormatNextButton').click(function(event) {
-    var duplicate = false;
+
+  $('#newTournamentNextButton').click(function(event) {
     $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
     var context = {
-      tournamentName: $('#newTournamentFormatName').val()
+      tournamentName: $('#newTournamentName').val()
     };
     $.post('/golf/checkfortournamentduplicate/', context).done(function(data) {
       $('#loadingDialog').modal('hide');
-      duplicate = data.duplicate;
-      console.log(duplicate);
-      /*Pretty much working, but interferes with testing.  This checks if there is a duplicate tournament.*/
+      var duplicate = data.duplicate;
+      var formatNumRounds = data.formatNumRounds;
+      var formatAvailableFormats = dat
       if (duplicate == true) {
         $('#newTournamentDuplicate').modal({backdrop: 'static', keyboard: false}, event.target).show();
       } else {
-        $('#newTournamentFormat').modal('hide');
-        var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
-        //Show choose dates
-        $('#newTournamentDatesRoundsPlaceholder').html('');
-        var datesInput = '<div class="list-group newTournamentDatesList">';
+        $('#newTournament').modal('hide');
+        $('#newTournamentRoundsPlaceholder').html('');
+        var datesInput = '<div class="list-group newTournamentRoundsList">';
         for (var i = 1; i <= numRounds; i++) {
-          datesInput += '  <div class="row" id="newTournamentDatesListItem'+i+'">';
+          datesInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
          	datesInput += '    <div class="col-sm-3"></div>';
          	datesInput += '    <div class="col-sm-3">';
          	datesInput += '      <input type="text" class="form-control" value="Round '+i+'" disabled />';
           datesInput += '    </div>';
-          datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentDatesRoundDatePicker'+i+'">';
-          datesInput += '      <input type="text" class="form-control" id="newTournamentDatesDateStart'+i+'" value="'+strToday+'" />';
+          datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentRoundsDatePicker'+i+'">';
+          datesInput += '      <input type="text" class="form-control" id="newTournamentRoundsDateStart'+i+'" value="'+strToday+'" />';
           datesInput += '      <span class="input-group-addon">';
           datesInput += '        <span class="glyphicon glyphicon-calendar"></span>';
           datesInput += '      </span>';
@@ -70,11 +59,11 @@
           datesInput += '  </div>';
         }
         datesInput += '</div>';
-        $('#newTournamentDatesRoundsPlaceholder').append(datesInput);
+        $('#newTournamentsRoundsPlaceholder').append(datesInput);
         for (var i = 1; i <= numRounds; i++) {
-          $('#newTournamentDatesRoundsPlaceholder').find('#newTournamentDatesRoundDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
+          $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
         }
-        $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
+        $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
       }
     }).fail(function(xhr, textStatus, error) {
       $('#newTournamentFormat').modal('hide');
@@ -98,16 +87,16 @@
     $('#newTournamentFormat').modal('hide');
     var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
     //Show choose dates
-    $('#newTournamentDatesRoundsPlaceholder').html('');
-    var datesInput = '<div class="list-group newTournamentDatesList">';
+    $('#newTournamentRoundsPlaceholder').html('');
+    var datesInput = '<div class="list-group newTournamentRoundsDatesList">';
     for (var i = 1; i <= numRounds; i++) {
-      datesInput += '  <div class="row" id="newTournamentDatesListItem'+i+'">';
+      datesInput += '  <div class="row" id="newTournamentRoundsDatesListItem'+i+'">';
      	datesInput += '    <div class="col-sm-3"></div>';
      	datesInput += '    <div class="col-sm-3">';
      	datesInput += '      <input type="text" class="form-control" value="Round '+i+'" disabled />';
       datesInput += '    </div>';
-      datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentDatesRoundDatePicker'+i+'">';
-      datesInput += '      <input type="text" class="form-control" id="newTournamentDatesDateStart'+i+'" value="'+strToday+'" />';
+      datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentRoundsDatePicker'+i+'">';
+      datesInput += '      <input type="text" class="form-control" id="newTournamentRoundsDateStart'+i+'" value="'+strToday+'" />';
       datesInput += '      <span class="input-group-addon">';
       datesInput += '        <span class="glyphicon glyphicon-calendar"></span>';
       datesInput += '      </span>';
@@ -116,19 +105,19 @@
       datesInput += '  </div>';
     }
     datesInput += '</div>';
-    $('#newTournamentDatesRoundsPlaceholder').append(datesInput);
+    $('#newTournamentRoundsPlaceholder').append(datesInput);
     for (var i = 1; i <= numRounds; i++) {
-      $('#newTournamentDatesRoundsPlaceholder').find('#newTournamentDatesRoundDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
+      $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
     }
-    $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
+    $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
   });
 
-  $('#newTournamentDatesBackButton').click(function(event) {
-    $('#newTournamentDates').modal('hide');
+  $('#newTournamentRoundsBackButton').click(function(event) {
+    $('#newTournamentRounds').modal('hide');
     $('#newTournamentFormat').modal({backdrop: 'static'}, event.target).show();
   });
-  $('#newTournamentDatesNextButton').click(function(event) {
-    $('#newTournamentDates').modal('hide');
+  $('#newTournamentRoundsNextButton').click(function(event) {
+    $('#newTournamentRounds').modal('hide');
     $('#newTournamentCoursesMS').multiSelect('refresh');
     newTournamentCoursesSelectedCourseList = [];
     newTournamentCoursesAvailableCourseList = coursesJSON;
@@ -145,7 +134,7 @@
 
   $('#newTournamentCoursesBackButton').click(function(event) {
     $('#newTournamentCourses').modal('hide');
-    $('#newTournamentDates').modal({backdrop: 'static'}, event.target).show();
+    $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
   });
   $('#newTournamentCoursesNextButton').click(function(event) {
     $('#newTournamentCourses').modal('hide');
@@ -177,21 +166,34 @@
   });
   $('#newTournamentCourseTeesNextButton').click(function(event) {
     var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
-    var tournamentDates = [];
+    var tournamentRounds = [];
     for (var i = 1; i <= numRounds; i++) {
-      tournamentDates.push($('#newTournamentDatesDateStart'+i).val());
+      tournamentRounds.push($('#newTournamentRoundsDateStart'+i).val());
     }
     var context = {
       tournamentName: $('#newTournamentFormatName').val(),
-      tournamentDates: JSON.stringify(tournamentDates),
       formatId: $('#newTournamentFormats').val(),
-      setupId: $('#newTournamentFormatSetup').val(),
+      teamsId: $('#newTournamentFormatTeams').val(),
       numRounds: $('#newTournamentFormatNumRounds').val(),
+      tournamentRoundsJSON: JSON.stringify(tournamentRounds),
       coursesJSON: JSON.stringify(newTournamentCoursesSelectedCourseList),
       courseTeesJSON: JSON.stringify(newTournamentCourseTeesSelectedCourseTeeList)
     };
-    console.log(context);
-    $.redirect('/golf/newtournament/', context, 'POST', '', true);
+    $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    $.post('/golf/newtournament/', context).done(function(data) {
+      $('#loadingDialog').modal('hide');
+      console.log(data.courseTeesJSON);
+      $.redirect('/golf/tournament/', data, 'POST', '', true);
+    }).fail(function(xhr, textStatus, error) {
+      $('#loadingDialog').modal('hide');
+      $('#errorDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $('#errorHeader').text('failed to create a tournament!');
+      $('#errorText').text(xhr.responseText);
+      console.log('failed to create a tournament!');
+      console.log(xhr.responseText);
+      console.log(textStatus);
+      console.log(error);
+    });
   });
 
   //Edit Tournament

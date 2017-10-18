@@ -51,8 +51,8 @@ body .modal-lg {
   background-position: left center;
   color: #666666;
 }
-.newTournamentDatesList {
-  height: 248px;
+.newTournamentRoundsList {
+  height: 148px;
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -116,6 +116,12 @@ body .modal-lg {
 /*New Tournament*/
 .newTournamentFormatNumRounds {
   width: 74px;
+}
+#ms-newTournamentCoursesMS {
+  height: 160px;
+}
+#ms-newTournamentCourseTeesMS {
+  height: 160px;
 }
 
 /*Edit Tournament*/

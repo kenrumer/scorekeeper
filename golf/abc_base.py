@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from .models import Player, Club, Tee, Round, Score, Tournament, Scorecard
+from .models import Player, Club, CourseTee, Tee, Round, Score, Tournament, TournamentRound, Scorecard
 from django.utils import timezone
 
 """
@@ -67,10 +67,11 @@ class PlayerBase(object):
 class FormatBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, tournamentId, scorecardId):
+    def __init__(self, tournamentId, tournamentRoundId, scorecardId):
         self.tournamentId = tournamentId
+        self.tournamentRoundId = tournamentRoundId
         self.scorecardId = scorecardId
-        print (self.tournamentId)
+        print(tournamentId)
         pass
 
     @abstractmethod
@@ -80,53 +81,140 @@ class FormatBase(object):
     def mergePlayerResults(self, newPlayerResultList):
         resultList = []
         try:
-            t = Tournament.objects.get(id=self.tournamentId)
-        except (Tournament.DoesNotExist):
-            return resultList
+            tr = TournamentRound.objects.get(id=self.tournamentRoundId)
+        except (TournamentRound.DoesNotExist):
+            print ('Failed to get tournament round')
+            print (self.tournamentRoundId)
+            return False
         try:
-            roundList = list(Round.objects.filter(tournament=t.id).values('id'))
-            for round in roundList:
-                try:
-                    resultList.append(list(Score.objects.filter(round=round['id']).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number')))
-                    print ('resultList')
-                    print (resultList)
-                except (Score.DoesNotExist):
-                    pass
+            rounds = Round.objects.filter(tournament_round=td.id)
         except (Round.DoesNotExist):
-            pass
-        for result in newPlayerResultList:
-            resultList.append(result)
+            print ('there are not any rounds for this tournament_round')
+            print (td.id)
+            return newPlayerResultList
+        if (len(rounds) == 0):
+            return newPlayerResultList
+        for round in rounds:
+            score = {}
+            score['clubMemberNumber'] = round.player.club_member_number
+            score['playerName'] = round.player.name
+            score['handicapIndex'] = round.handicap_index
+            score['courseTeeId'] = round.course_tee.id
+            score['courseHCP'] = round.course_handicap
+            score['totalOut'] = round.total_out
+            score['totalIn'] = round.total_in
+            score['total'] = round.total
+            score['totalNet'] = round.net
+            for i in range(18):
+                ss = Score.objects.filter(round=round.id, tee__hole__number=int(i+1)).values()[0]
+                score['hole'+str(i)] = ss['score']
+            resultList.append(score)
+        print ('resultList')
+        print (resultList)
+        for score in newPlayerResultList:
+            nfound = True
+            for result in resultList:
+                if (result['clubMemberNumber'] == score['clubMemberNumber']):
+                    nfound = False
+                    result['playerName'] = score['playerName']
+                    result['handicapIndex'] = score['handicapIndex']
+                    result['courseTeeId'] = score['courseTeeId']
+                    result['courseHCP'] = score['courseHandicap']
+                    result['totalOut'] = score['totalOut']
+                    result['totalIn'] = score['totalIn']
+                    result['total'] = score['total']
+                    result['totalNet'] = score['totalNet']
+                    for i in range(18):
+                        result['hole'+str(i)] = score.score['hole'+str(i)]
+                    pass
+            if (nfound):
+                resultList.append(score)
         return resultList
 
     def updateTournament(self, currentTournamentResults):
         """
             Sets the current tournament values in the database
+            return True for success and False for fail
+            TODO: Probably should say how many where updated.
         """
         for player in currentTournamentResults:
             try:
                 p = Player.objects.get(club_member_number=player['clubMemberNumber'])
             except (Player.DoesNotExist):
-                return
+                print ('Get player failed');
+                print (player['clubMemberNumber'])
+                return False
             try:
-                t = Tournament.objects.get(id=self.tournamentId)
-            except (Tournament.DoesNotExist):
-                return
+                td = TournamentDate.objects.get(id=self.tournamentDateId)
+            except (TournamentDate.DoesNotExist):
+                print ('Get TournamentDate failed')
+                print (self.tournamentDateId)
+                return False
             try:
                 sc = Scorecard.objects.get(id=self.scorecardId)
             except (Scorecard.DoesNotExist):
-                return
+                print ('Get Scorecard failed')
+                print (self.scorecardId)
+                return False
             try:
-                r = Round.objects.get(tournament=t.id, player=p)
-            except (Round.DoesNotExist):
-                r = Round(tournament=t, player=p, scorecard=sc, handicap_index=player['handicapIndex'], course_handicap=player['courseHCP'], total_out=player['totalOut'], total_out_style=player['totalOutStyle'], total_out_net=player['totalOutNet'], total_out_net_style=player['totalOutNetStyle'], total_in=player['totalIn'], total_in_style=player['totalInStyle'], total_in_net=player['totalInNet'], total_in_net_style=player['totalInNetStyle'], total=player['total'], total_style=player['totalStyle'], net=player['totalNet'], net_style=player['totalNetStyle'])
+                ct = CourseTee.objects.get(id=player['courseTeeId'])
+            except (CourseTee.DoesNotExist):
+                print ('Get CourseTee failed')
+                print (player['courseTeeId'])
+                return False
+            try:
+                r = Round.objects.get(tournament_date=td.id, player=p)
+                r.tournament_date = td
+                r.player = p
+                r.scorecard = sc
+                r.course_tee = ct
+                r.handicap_index = player['handicapIndex']
+                r.course_handicap = player['courseHCP']
+                r.total_out = player['totalOut']
+                r.total_out_style = player['totalOutStyle']
+                r.total_out_net = player['totalOutNet']
+                r.total_out_net_style = player['totalOutNetStyle']
+                r.total_in = player['totalIn']
+                r.total_in_style = player['totalInStyle']
+                r.total_in_net = player['totalInNet']
+                r.total_in_net_style = player['totalInNetStyle']
+                r.total = player['total']
+                r.total_style = player['totalStyle']
+                r.net = player['totalNet']
+                r.net_style = player['totalNetStyle']
                 r.save()
-            try:
-                s = list(Score.objects.filter(round=r.id).values('score', 'score_style', 'score_net', 'score_net_style', 'round__handicap_index', 'round__course_handicap', 'round__total_out', 'round__total_out_style', 'round__total_out_net', 'round__total_out_net_style', 'round__total_in', 'round__total_in_style', 'round__total_in_net', 'round__total_in_net_style', 'round__total', 'round__total_style', 'round__net', 'round__net_style', 'round__player__club_member_number'))
-            except (Score.DoesNotExist):
-                for i in range(0,17):
-                    s = Score(round=r, score=player['gross_scores'][i], score_style=player['gross_styles'][i], score_netscore=player['net_scores'][i], score_net_style=player['net_styles'][i])
+            except (Round.DoesNotExist):
+                #Create the round because it doesn't exist
+                r = Round(tournament_date=td, player=p, scorecard=sc, course_tee=ct, handicap_index=player['handicapIndex'], course_handicap=player['courseHCP'], total_out=player['totalOut'], total_out_style=player['totalOutStyle'], total_out_net=player['totalOutNet'], total_out_net_style=player['totalOutNetStyle'], total_in=player['totalIn'], total_in_style=player['totalInStyle'], total_in_net=player['totalInNet'], total_in_net_style=player['totalInNetStyle'], total=player['total'], total_style=player['totalStyle'], net=player['totalNet'], net_style=player['totalNetStyle'])
+                r.save()
+            except:
+                print ('Get Round failed')
+                print (self.tournamentDateId)
+                return False
+            for i in range (18):
+                try:
+                    te = Tee.objects.get(course_tee=player['courseTeeId'], hole__number=int(i+1))
+                except (Tee.DoesNotExist):
+                    print ('Get Tee failed')
+                    print (player['courseTeeId'])
+                    print (int(i+1))
+                    return False
+                try:
+                    s = Score.objects.get(tee=te.id, round=r)
+                    s.tee = te
+                    s.score = player['grossScores'][i]
+                    s.score_style = player['grossStyles'][i]
+                    s.score_net = player['netScores'][i]
+                    s.score_net_style = player['netStyles'][i]
                     s.save()
-        return
+                except Score.DoesNotExist:
+                    s = Score(round=r, tee=te, score=player['grossScores'][i], score_style=player['grossStyles'][i], score_net=player['netScores'][i], score_net_style=player['netStyles'][i])
+                    s.save()
+                except:
+                    print ('Get Score failed')
+                    print (te.id)
+                    return False
+        return True
 
     def getCourseTeeById(self, teeId):
         """

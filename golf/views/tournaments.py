@@ -1,6 +1,6 @@
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, JsonResponse
-from ..models import Tournament, TournamentDate, FormatPlugin, Course, CourseTee, Player, Tee, Round, Scorecard
+from ..models import Tournament, TournamentRound, FormatPlugin, Course, CourseTee, Player, Tee, Round, Scorecard, Score
 from django.forms.models import model_to_dict
 import importlib
 from datetime import datetime
@@ -30,15 +30,14 @@ def checkForTournamentDuplicate(request):
 
 def newTournament(request):
     """
-    Create function for tournaments
-    Need to ask several questions about course, tee, format, if multi-round - how many... how do you ask from a plugin?
+    Ajax function to create a new tournament.  Required because the reload button is creating new tournaments instead of showing the data
+    how do you ask from a plugin?
     """
-    tournamentDuplicate = False
-    tournamentDatesJSON = json.loads(request.POST.get('tournamentDates'))
     tournamentName = request.POST.get('tournamentName')
     formatId = request.POST.get('formatId')
     setupId = request.POST.get('setupId')
     numRounds = request.POST.get('numRounds')
+    tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
     coursesJSON = json.loads(request.POST.get('coursesJSON'))
     courseTeesJSON = json.loads(request.POST.get('courseTeesJSON'))
     
@@ -60,14 +59,16 @@ def newTournament(request):
     """
     for course in coursesJSON:
         t.courses.add(course['id'])
-    t.save()
+        t.save()
     coursesJSON = json.dumps(coursesJSON, cls=DjangoJSONEncoder)
 
     """
     Get tees
     """
+    print (courseTeesJSON)
     for courseTee in courseTeesJSON:
         t.course_tees.add(courseTee['id'])
+        t.save()
         courseTee["tees"] = list(Tee.objects.filter(course_tee__id=courseTee['id']).values('id', 'yardage', 'par', 'hole__name', 'hole__number').order_by('hole__number'))
         courseTee["hole_count"] = len(courseTee['tees'])
         courseTee['yardageOut'] = 0
@@ -76,7 +77,7 @@ def newTournament(request):
         courseTee['parIn'] = 0
         #Someday should be able to work with 9 hole courses... Not today
         if (int(courseTee['hole_count']) == 9):
-            for front in range(0, 9):
+            for front in range(9):
                 courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
                 courseTee['parOut'] += int(courseTee['tees'][front]['par'])
             courseTee['yardageOut'] = courseTee['yardageOut']
@@ -84,7 +85,7 @@ def newTournament(request):
             courseTee['parOut'] = courseTee['parOut']
             courseTee['parTotal'] = courseTee['parOut']
         if (int(courseTee['hole_count']) == 18):
-            for front in range(0, 9):
+            for front in range(9):
                 courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
                 courseTee['parOut'] += int(courseTee['tees'][front]['par'])
             for back in range(9, 18):
@@ -93,7 +94,48 @@ def newTournament(request):
             courseTee['yardageTotal'] = courseTee['yardageOut'] + courseTee['yardageIn']
             courseTee['parTotal'] = courseTee['parOut'] + courseTee['parIn']
     courseTeesJSON = json.dumps(courseTeesJSON, cls=DjangoJSONEncoder)
-    t.save()
+    print (courseTeesJSON)
+
+    """
+    Set tournament rounds
+    """
+    tournamentRoundIds = []
+    for tournamentRound in tournamentRoundsJSON:
+        d = datetime.strptime(tournamentRound.date, '%m/%d/%Y')
+        try:
+            tr = TournamentRound.objects.get(date=d)
+        except TournamentRound.DoesNotExist:
+            tr = TournamentRound(date=d, tournament=t)
+            tr.save()
+        tournamentRoundIds.append(tr.id)
+    tournamentRoundIdsJSON = json.dumps(tournamentRoundIds, cls=DjangoJSONEncoder)
+    tournamentRoundsJSON = json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder)
+    context = {
+        "tournamentId": t.id,
+        "tournamentName": tournamentName,
+        "tournamentRoundIdsJSON": tournamentRoundIdsJSON,
+        "tournamentRoundsJSON": tournamentRoundsJSON,
+        "numRounds": numRounds,
+        "formatId": formatId,
+        "setupId": setupId,
+        "coursesJSON": coursesJSON,
+        "courseTeesJSON": courseTeesJSON
+    }
+    return JsonResponse(context)
+
+def tournament(request):
+    """
+    View function for editting a tournament (even if new)
+    """
+    tournamentId = request.POST.get('tournamentId')
+    tournamentName = request.POST.get('tournamentName')
+    formatId = request.POST.get('formatId')
+    setupId = request.POST.get('setupId')
+    numRounds = request.POST.get('numRounds')
+    tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
+    tournamentRoundIdsJSON = json.loads(request.POST.get('tournamentRoundIdsJSON'))
+    coursesJSON = json.loads(request.POST.get('coursesJSON'))
+    courseTeesJSON = json.loads(request.POST.get('courseTeesJSON'))
 
     """
     Get all players
@@ -101,38 +143,20 @@ def newTournament(request):
     players = list(Player.objects.values('id', 'name', 'club_member_number', 'handicap_index'))
     playersJSON = json.dumps(players, cls=DjangoJSONEncoder)
 
-    """
-    Set tournament round dates
-    """
-    tournamentDateIds = []
-    for tournamentDate in tournamentDatesJSON:
-        d = datetime.strptime(tournamentDate, '%m/%d/%Y')
-        try:
-            td = TournamentDate.objects.get(date=d)
-        except TournamentDate.DoesNotExist:
-            td = TournamentDate(date=d, tournament=t)
-            td.save()
-        tournamentDateIds.append(td.id)
-    tournamentDateIdsJSON = json.dumps(tournamentDateIds, cls=DjangoJSONEncoder)
-    tournamentDatesJSON = json.dumps(tournamentDatesJSON, cls=DjangoJSONEncoder)
-
-    """
-    Render the page
-    """
     context = {
-        "tournamentId": t.id,
+        "tournamentId": tournamentId,
         "tournamentName": tournamentName,
-        "duplicate": tournamentDuplicate,
-        "tournamentDateIdsJSON": tournamentDateIdsJSON,
-        "tournamentDatesJSON": tournamentDatesJSON,
-        "numRounds": numRounds,
+        "formatId": formatId,
         "setupId": setupId,
-        "coursesJSON": coursesJSON,
-        "courseTeesJSON": courseTeesJSON,
+        "numRounds": numRounds,
+        "tournamentRoundIdsJSON": json.dumps(tournamentRoundIdsJSON, cls=DjangoJSONEncoder),
+        "tournamentRoundsJSON": json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder),
+        "coursesJSON": json.dumps(coursesJSON, cls=DjangoJSONEncoder),
+        "courseTeesJSON": json.dumps(courseTeesJSON, cls=DjangoJSONEncoder),
         "players": players,
         "playersJSON": playersJSON
     }
-    return render(request, 'golf/newtournament.html', context=context)
+    return render(request, 'golf/tournament.html', context=context)
 
 def calculateScores(request):
     """
@@ -141,40 +165,67 @@ def calculateScores(request):
     Return the rankings grosses and nets and colors per cell
     """
     tournamentId = request.POST['tournamentId']
+    tournamentRoundId = request.POST['tournamentRoundId']
     try:
-        s = Scorecard.objects.get(date=datetime.strptime(request.POST['date'],'%m/%d/%Y').strftime('%Y-%m-%d'))
-    except Scorecard.DoesNotExist:
-        s = Scorecard(date=datetime.strptime(request.POST['date'],'%m/%d/%Y').strftime('%Y-%m-%d'))
+        td = TournamentRound.objects.get(id=tournamentRoundId);
+    except TournamentRound.DoesNotExist:
+        return JsonResponse(json.loads('{}'))
+
+    s = Scorecard(tournament_date=td)
     if (request.POST['scorer'] != ''):
         try:
             scorer = Player.objects.get(club_member_number=request.POST['scorerId'])
             s.scorer = scorer
         except Player.DoesNotExist:
             s.external_scorer = request.POST['scorer']
+
     if (request.POST['attest'] != ''):
         try:
             attest = Player.objects.get(club_member_number=request.POST['attestId'])
             s.attest = attest
         except Player.DoesNotExist:
             s.external_attest = request.POST['attest']
+
     if (request.POST['teeTime'] != ''):
         s.tee_time = request.POST['teeTime']
+
     if (request.POST['finishTime'] != ''):
         s.finish_time = request.POST['finishTime']
+
     s.save()
+
     try:
-        t = Tournament.objects.filter(id=tournamentId).values('format_plugin__id')[0]
+        t = Tournament.objects.get(id=tournamentId)
     except Tournament.DoesNotExist:
-        return JsonResponse('')
-    formatPlugin = model_to_dict(FormatPlugin.objects.get(id=t['format_plugin__id']))
-    classModule = importlib.import_module('golf.formatplugins.'+formatPlugin['class_package'])
-    classAccess = getattr(classModule, formatPlugin['class_name'])
-    classInst = classAccess(tournamentId, s.id)
+        return JsonResponse(json.loads('{}'))
+
+    formatPlugin = FormatPlugin.objects.get(id=t.format_plugin.id)
+    classModule = importlib.import_module('golf.formatplugins.'+formatPlugin.class_package)
+    classAccess = getattr(classModule, formatPlugin.class_name)
+    classInst = classAccess(tournamentId, tournamentRoundId, s.id)
     resultList = classInst.calculateScores(request.POST)
 
     resultListJSON = json.dumps(resultList, cls=DjangoJSONEncoder)
     print(resultListJSON)
     return JsonResponse({'results':resultList})
+
+def clearRoundData(request):
+    tournamentId = request.POST['tournamentId']
+    tournamentName = request.POST['tournamentName']
+    tournamentRoundId = request.POST['tournamentRoundId']
+    tournamentRound = request.POST['tournamentRound']
+    roundId = request.POST['roundId']
+    try:
+        tr = TournamentRound.objects.get(id=tournamentRoundId);
+    except TournamentRound.DoesNotExist:
+        return JsonResponse(json.loads('{}'))
+    
+    scorecards = Scorecard.objects.filter(tournament_round=tr).delete()
+    rounds = Round.objects.filter(tournament_round=tr)
+    for r in rounds:
+        Score.objects.filter(round=r.id).delete()
+    return JsonResponse(json.loads('{}'))
+        
 
 def editTournament(request, tournamentId):
     """

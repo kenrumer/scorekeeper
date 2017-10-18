@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %} New Tournament {% endblock %}
+{% block title %} Tournament {% endblock %}
 
 {% block head_extra %}
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
@@ -16,7 +16,6 @@
   <script type="text/javascript">
     var tournamentId = {{ tournamentId }};
     var tournamentName = '{{ tournamentName }}';
-    var duplicate = '{{ duplicate|escapejs }}';
     var tournamentDateIdsJSON = JSON.parse('{{ tournamentDateIdsJSON|safe }}');
     var tournamentDatesJSON = JSON.parse('{{ tournamentDatesJSON|safe }}');
     var numRounds = {{ numRounds }};
@@ -25,8 +24,8 @@
     var playersJSON = JSON.parse('{{ playersJSON|safe }}');
     var roundId = 0;
   </script>
-  <link href="{% static "scorekeeper/css/newtournament.css" %}" rel="stylesheet" type="text/css">
-  <script src="{% static "scorekeeper/js/newtournament.js" %}" type="text/javascript"></script>
+  <link href="{% static "scorekeeper/css/tournament.css" %}" rel="stylesheet" type="text/css">
+  <script src="{% static "scorekeeper/js/tournament.js" %}" type="text/javascript"></script>
 {% endblock %}
 
 {% block content %}
