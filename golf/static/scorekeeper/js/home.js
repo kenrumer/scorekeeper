@@ -42,7 +42,7 @@
           roundsInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
          	roundsInput += '    <div class="col-sm-1"></div>';
          	roundsInput += '    <div class="col-sm-3">';
-         	roundsInput += '      <input type="text" class="form-control" value="Round '+i+'" />';
+         	roundsInput += '      <input type="text" class="form-control" id="newTournamentRoundsName'+i+'" value="Round '+i+'" />';
           roundsInput += '    </div>';
          	roundsInput += '    <div class="col-sm-3">';
          	roundsInput += '       <select class="form-control" id="newTournamentRoundsFormatPlugin'+i+'">';
@@ -68,7 +68,7 @@
         $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
       }
     }).fail(function(xhr, textStatus, error) {
-      $('#newTournamentFormat').modal('hide');
+      $('#newTournament').modal('hide');
       $('#loadingDialog').modal('hide');
       $('#errorDialog').modal({}).show();
       $('#errorHeader').text('failed to determine if this is a duplicate tournament!');
@@ -82,12 +82,12 @@
 
   $('#newTournamentDuplicateCancelTournament').click(function(event) {
     $('#newTournamentDuplicate').modal('hide');
-    $('#newTournamentFormat').modal('hide');
+    $('#newTournament').modal('hide');
   });
   $('#newTournamentDuplicateCreateNewTournament').click(function(event) {
     $('#newTournamentDuplicate').modal('hide');
-    $('#newTournamentFormat').modal('hide');
-    var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
+    $('#newTournament').modal('hide');
+    var numRounds = parseInt($('#newTournamentNumRounds').val(), 10);
     //Show choose dates
     $('#newTournamentRoundsPlaceholder').html('');
     var roundsInput = '<div class="list-group newTournamentRoundsList">';
@@ -95,7 +95,7 @@
       roundsInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
      	roundsInput += '    <div class="col-sm-1"></div>';
      	roundsInput += '    <div class="col-sm-3">';
-     	roundsInput += '      <input type="text" class="form-control" value="Round '+i+'" />';
+     	roundsInput += '      <input type="text" class="form-control" id="newTournamentRoundsName'+i+'" value="Round '+i+'" />';
       roundsInput += '    </div>';
      	roundsInput += '    <div class="col-sm-3">';
      	roundsInput += '       <select class="form-control" id="newTournamentRoundsFormatPlugin'+i+'">';
@@ -123,7 +123,7 @@
 
   $('#newTournamentRoundsBackButton').click(function(event) {
     $('#newTournamentRounds').modal('hide');
-    $('#newTournamentFormat').modal({backdrop: 'static'}, event.target).show();
+    $('#newTournament').modal({backdrop: 'static'}, event.target).show();
   });
   $('#newTournamentRoundsNextButton').click(function(event) {
     $('#newTournamentRounds').modal('hide');
@@ -159,7 +159,6 @@
       });
       return add;
     });
-    console.log($('#newTournamentCourseTeesMS'));
     $.each(newTournamentCourseTeesAvailableCourseTeeList, function (i, item) {
       if (item.default) {
         $('#newTournamentCourseTeesMS').multiSelect('addOption', { value: item.id, text: item.course__name+' - '+item.name });
@@ -176,26 +175,26 @@
     $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
   });
   $('#newTournamentCourseTeesNextButton').click(function(event) {
-    var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
+    var numRounds = parseInt($('#newTournamentNumRounds').val(), 10);
     var tournamentRounds = [];
     for (var i = 1; i <= numRounds; i++) {
       var tournamentRound = {
         formatId: $('#newTournamentRoundsFormatPlugin'+i).val(),
-        scheduledDate:$('#newTournamentRoundsScheduledDate'+i).val()
-      }
+        scheduledDate: $('#newTournamentRoundsScheduledDate'+i).val(),
+        name: $('#newTournamentRoundsName'+i).val()
+      };
       tournamentRounds.push(tournamentRound);
     }
     var context = {
       tournamentName: $('#newTournamentName').val(),
-      numRounds: $('#newTournamentFormatNumRounds').val(),
+      numRounds: numRounds,
       tournamentRoundsJSON: JSON.stringify(tournamentRounds),
-      coursesJSON: JSON.stringify(newTournamentCoursesSelectedCourseList),
-      courseTeesJSON: JSON.stringify(newTournamentCourseTeesSelectedCourseTeeList)
+      availableCoursesJSON: JSON.stringify(newTournamentCoursesSelectedCourseList),
+      availableCourseTeesJSON: JSON.stringify(newTournamentCourseTeesSelectedCourseTeeList)
     };
     $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
     $.post('/golf/newtournament/', context).done(function(data) {
       $('#loadingDialog').modal('hide');
-      console.log(data.courseTeesJSON);
       $.redirect('/golf/tournament/', data, 'POST', '', true);
     }).fail(function(xhr, textStatus, error) {
       $('#loadingDialog').modal('hide');

@@ -30,93 +30,79 @@ def checkForTournamentDuplicate(request):
 
 def newTournament(request):
     """
-    Ajax function to create a new tournament.  Required because the reload button is creating new tournaments instead of showing the data
-    how do you ask from a plugin?
+    Ajax function to create a new tournament.
+    TODO: Setup is an interesting concept... Can we ask if this is a team tourney
     """
     tournamentName = request.POST.get('tournamentName')
-    formatId = request.POST.get('formatId')
-    setupId = request.POST.get('setupId')
     numRounds = request.POST.get('numRounds')
     tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
-    coursesJSON = json.loads(request.POST.get('coursesJSON'))
-    courseTeesJSON = json.loads(request.POST.get('courseTeesJSON'))
-    
+    availableCoursesJSON = json.loads(request.POST.get('availableCoursesJSON'))
+    availableCourseTeesJSON = json.loads(request.POST.get('availableCourseTeesJSON'))
+
     """
-    Get tournament information.  This may have changed because of user error
-        Tournament (by name) already exists
-        Date start change
-        Format change
-        Course add/remove
-        Course tee add/remove
-    Will send this data to the newTournament template
+    Set tournament
     """
     t = Tournament(name=tournamentName)
     t.save()
-    
-    """
-    Get courses
-    """
-    for course in coursesJSON:
-        t.courses.add(course['id'])
-        t.save()
-    coursesJSON = json.dumps(coursesJSON, cls=DjangoJSONEncoder)
-
-    """
-    Get tees
-    """
-    print (courseTeesJSON)
-    for courseTee in courseTeesJSON:
-        t.course_tees.add(courseTee['id'])
-        t.save()
-        courseTee["tees"] = list(Tee.objects.filter(course_tee__id=courseTee['id']).values('id', 'yardage', 'par', 'hole__name', 'hole__number').order_by('hole__number'))
-        courseTee["hole_count"] = len(courseTee['tees'])
-        courseTee['yardageOut'] = 0
-        courseTee['parOut'] = 0
-        courseTee['yardageIn'] = 0
-        courseTee['parIn'] = 0
-        #Someday should be able to work with 9 hole courses... Not today
-        if (int(courseTee['hole_count']) == 9):
-            for front in range(9):
-                courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
-                courseTee['parOut'] += int(courseTee['tees'][front]['par'])
-            courseTee['yardageOut'] = courseTee['yardageOut']
-            courseTee['yardageTotal'] = courseTee['yardageOut']
-            courseTee['parOut'] = courseTee['parOut']
-            courseTee['parTotal'] = courseTee['parOut']
-        if (int(courseTee['hole_count']) == 18):
-            for front in range(9):
-                courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
-                courseTee['parOut'] += int(courseTee['tees'][front]['par'])
-            for back in range(9, 18):
-                courseTee['yardageIn'] += int(courseTee['tees'][back]['yardage'])
-                courseTee['parIn'] += int(courseTee['tees'][back]['par'])
-            courseTee['yardageTotal'] = courseTee['yardageOut'] + courseTee['yardageIn']
-            courseTee['parTotal'] = courseTee['parOut'] + courseTee['parIn']
-    courseTeesJSON = json.dumps(courseTeesJSON, cls=DjangoJSONEncoder)
-    print (courseTeesJSON)
 
     """
     Set tournament rounds
     """
-    tournamentRoundIds = []
     for tournamentRound in tournamentRoundsJSON:
-        d = datetime.strptime(tournamentRound.scheduledDate, '%m/%d/%Y')
-        fp = FormatPlugin.objects.get(id=tournamentRound.formatId)
-        tr = TournamentRound(date=d, tournament=t, format_plugin=fp)
+        d = datetime.strptime(tournamentRound['scheduledDate'], '%m/%d/%Y')
+        fp = FormatPlugin.objects.get(id=tournamentRound['formatId'])
+        tr = TournamentRound(scheduled_date=d, tournament=t, format_plugin=fp, name=tournamentRound['name'])
+        """
+        Set tournament courses and tees
+        """
+        for availableCourse in availableCoursesJSON:
+            tr.available_courses.add(availableCourse['id'])
+        for availableCourseTee in availableCourseTeesJSON:
+            tr.available_course_tees.add(availableCourseTee['id'])
         tr.save()
-        tournamentRoundIds.append(tr.id)
-    tournamentRoundIdsJSON = json.dumps(tournamentRoundIds, cls=DjangoJSONEncoder)
+        tournamentRound['id'] = tr.id
     tournamentRoundsJSON = json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder)
+    availableCoursesJSON = json.dumps(availableCoursesJSON, cls=DjangoJSONEncoder)
+
+
+    """
+    Set tournament course tees
+    """
+    for availableCourseTee in availableCourseTeesJSON:
+        availableCourseTee["tees"] = list(Tee.objects.filter(course_tee__id=availableCourseTee['id']).values('id', 'yardage', 'par', 'hole__name', 'hole__number').order_by('hole__number'))
+        availableCourseTee["hole_count"] = len(availableCourseTee['tees'])
+        availableCourseTee['yardageOut'] = 0
+        availableCourseTee['parOut'] = 0
+        availableCourseTee['yardageIn'] = 0
+        availableCourseTee['parIn'] = 0
+        #Someday should be able to work with 9 hole courses... Not today
+        if (int(availableCourseTee['hole_count']) == 9):
+            for front in range(9):
+                availableCourseTee['yardageOut'] += int(availableCourseTee['tees'][front]['yardage'])
+                availableCourseTee['parOut'] += int(availableCourseTee['tees'][front]['par'])
+            availableCourseTee['yardageOut'] = availableCourseTee['yardageOut']
+            availableCourseTee['yardageTotal'] = availableCourseTee['yardageOut']
+            availableCourseTee['parOut'] = availableCourseTee['parOut']
+            availableCourseTee['parTotal'] = availableCourseTee['parOut']
+        if (int(availableCourseTee['hole_count']) == 18):
+            for front in range(9):
+                availableCourseTee['yardageOut'] += int(availableCourseTee['tees'][front]['yardage'])
+                availableCourseTee['parOut'] += int(availableCourseTee['tees'][front]['par'])
+            for back in range(9, 18):
+                availableCourseTee['yardageIn'] += int(availableCourseTee['tees'][back]['yardage'])
+                availableCourseTee['parIn'] += int(availableCourseTee['tees'][back]['par'])
+            availableCourseTee['yardageTotal'] = availableCourseTee['yardageOut'] + availableCourseTee['yardageIn']
+            availableCourseTee['parTotal'] = availableCourseTee['parOut'] + availableCourseTee['parIn']
+    availableCourseTeesJSON = json.dumps(availableCourseTeesJSON, cls=DjangoJSONEncoder)
+    print (availableCourseTeesJSON)
+
     context = {
         "tournamentId": t.id,
         "tournamentName": tournamentName,
-        "tournamentRoundIdsJSON": tournamentRoundIdsJSON,
-        "tournamentRoundsJSON": tournamentRoundsJSON,
         "numRounds": numRounds,
-        "formatId": formatId,
-        "setupId": setupId,
-        "coursesJSON": coursesJSON,
-        "courseTeesJSON": courseTeesJSON
+        "tournamentRoundsJSON": tournamentRoundsJSON,
+        "availableCoursesJSON": availableCoursesJSON,
+        "availableCourseTeesJSON": availableCourseTeesJSON
     }
     return JsonResponse(context)
 
@@ -126,31 +112,24 @@ def tournament(request):
     """
     tournamentId = request.POST.get('tournamentId')
     tournamentName = request.POST.get('tournamentName')
-    formatId = request.POST.get('formatId')
-    setupId = request.POST.get('setupId')
     numRounds = request.POST.get('numRounds')
     tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
-    tournamentRoundIdsJSON = json.loads(request.POST.get('tournamentRoundIdsJSON'))
-    coursesJSON = json.loads(request.POST.get('coursesJSON'))
-    courseTeesJSON = json.loads(request.POST.get('courseTeesJSON'))
+    availableCoursesJSON = json.loads(request.POST.get('availableCoursesJSON'))
+    availableCourseTeesJSON = json.loads(request.POST.get('availableCourseTeesJSON'))
 
     """
     Get all players
     """
-    players = list(Player.objects.values('id', 'name', 'club_member_number', 'handicap_index'))
+    players = list(Player.objects.values())
     playersJSON = json.dumps(players, cls=DjangoJSONEncoder)
 
     context = {
         "tournamentId": tournamentId,
         "tournamentName": tournamentName,
-        "formatId": formatId,
-        "setupId": setupId,
         "numRounds": numRounds,
-        "tournamentRoundIdsJSON": json.dumps(tournamentRoundIdsJSON, cls=DjangoJSONEncoder),
         "tournamentRoundsJSON": json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder),
-        "coursesJSON": json.dumps(coursesJSON, cls=DjangoJSONEncoder),
-        "courseTeesJSON": json.dumps(courseTeesJSON, cls=DjangoJSONEncoder),
-        "players": players,
+        "availableCoursesJSON": json.dumps(availableCoursesJSON, cls=DjangoJSONEncoder),
+        "availableCourseTeesJSON": json.dumps(availableCourseTeesJSON, cls=DjangoJSONEncoder),
         "playersJSON": playersJSON
     }
     return render(request, 'golf/tournament.html', context=context)
@@ -216,13 +195,13 @@ def clearRoundData(request):
         tr = TournamentRound.objects.get(id=tournamentRoundId);
     except TournamentRound.DoesNotExist:
         return JsonResponse(json.loads('{}'))
-    
-    scorecards = Scorecard.objects.filter(tournament_round=tr).delete()
+
+    Scorecard.objects.filter(tournament_round=tr).delete()
     rounds = Round.objects.filter(tournament_round=tr)
     for r in rounds:
         Score.objects.filter(round=r.id).delete()
     return JsonResponse(json.loads('{}'))
-        
+
 
 def editTournament(request, tournamentId):
     """

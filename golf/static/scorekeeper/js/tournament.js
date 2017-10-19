@@ -1,4 +1,4 @@
-/* global $, courseTeesJSON, numRounds, coursesJSON, tournamentName, numRounds, playersJSON, tournamentId, duplicate, tournamentDatesJSON, tournamentDateIdsJSON, roundId */
+/* global $, tournamentId, tournamentName, numRounds, tournamentRoundsJSON, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId */
   var newTournamentTable;
   var addRowId = 0;
 
@@ -54,16 +54,16 @@
   
   function teeList() {
     var teeList = "";
-    if (courseTeesJSON.length == 0) {
+    if (availableCourseTeesJSON.length == 0) {
       return "";
     }
-    if (courseTeesJSON.length == 1) {
-      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+courseTeesJSON[0].slope+'" data-course-tee-color="'+courseTeesJSON[0].color+'" data-course-tee-id="'+courseTeesJSON[0].id+'" style="background-color:'+courseTeesJSON[0].color+'">'+courseTeesJSON[0].color+'</div>';
+    if (availableCourseTeesJSON.length == 1) {
+      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTeesJSON[0].slope+'" data-course-tee-color="'+availableCourseTeesJSON[0].color+'" data-course-tee-id="'+availableCourseTeesJSON[0].id+'" style="background-color:'+availableCourseTeesJSON[0].color+'">'+availableCourseTeesJSON[0].color+'</div>';
     } else {
-      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+courseTeesJSON[0].slope+'" data-course-tee-color="'+courseTeesJSON[0].color+'" data-course-tee-id="'+courseTeesJSON[0].id+'" class="dropdown">';
-      teeList += '  <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+courseTeesJSON[0].color+'" type="button" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>';
+      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTeesJSON[0].slope+'" data-course-tee-color="'+availableCourseTeesJSON[0].color+'" data-course-tee-id="'+availableCourseTeesJSON[0].id+'" class="dropdown">';
+      teeList += '  <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+availableCourseTeesJSON[0].color+'" type="button" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>';
       teeList += '  <ul id="courseTees'+addRowId+'" class="dropdown-menu" aria-labelledby="teeSelectButton'+addRowId+'">';
-      $.each(courseTeesJSON, function(i, item) {
+      $.each(availableCourseTeesJSON, function(i, item) {
         teeList += '    <li style="background-color:'+item.color+'"><a href="#" id="courseTeeChangeButton" data-row-id="'+addRowId+'" data-course-tee-slope="'+item.slope+'" data-course-tee-color="'+item.color+'" data-course-tee-id="'+item.id+'">'+item.color+'</a></li>';
       });
       teeList += '  </ul></div>';
@@ -88,7 +88,7 @@
     headerRow += '  <th><input class="scorecardCell" value="HCP" disabled></th>';
     headerRow += '  <th><input class="scorecardCell" value="NET" disabled></th>';
     headerRow += '</tr>';
-    $.each(courseTeesJSON, function(i, item) {
+    $.each(availableCourseTeesJSON, function(i, item) {
       headerRow += '<tr style="background-color:'+item.color+'">';
       headerRow += '  <th></th>';
       headerRow += '  <th></th>';
@@ -126,20 +126,20 @@
   }
 
   function addRowToScorecard() {
-    var appendText = '<tr id="scorecardRow'+addRowId+'" data-row-id="'+addRowId+'" data-slope='+courseTeesJSON[0].slope+'>';
+    var appendText = '<tr id="scorecardRow'+addRowId+'" data-row-id="'+addRowId+'" data-slope='+availableCourseTeesJSON[0].slope+'>';
     appendText += '<td><button class="plusMinusButton" id="removeRowFromScorecard" data-row-id="'+addRowId+'">-</button></td>';
     appendText += '<td><select id="playerNamesSelect" style="width: 140px" data-row-id="'+addRowId+'"><option>----------------------------</option>'+playerList()+'</select></td><td>'+teeList()+'</td>';
     for (var i = 0; i < 9; i++) {
-      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-out="'+addRowId+'" type=number min=1 max=99 value='+courseTeesJSON[0].tees[i].par+'></td>';
+      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-out="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTeesJSON[0].tees[i].par+'></td>';
     }
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalOut'+addRowId+'" value="'+courseTeesJSON[0].parOut+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalOut'+addRowId+'" value="'+availableCourseTeesJSON[0].parOut+'" disabled></td>';
     for (var i = 9; i < 18; i++) {
-      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-in="'+addRowId+'" type=number min=1 max=99 value='+courseTeesJSON[0].tees[i].par+'></td>';
+      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-in="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTeesJSON[0].tees[i].par+'></td>';
     }
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalIn'+addRowId+'" value="'+courseTeesJSON[0].parIn+'" disabled></td>';
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="total'+addRowId+'" value="'+courseTeesJSON[0].parTotal+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalIn'+addRowId+'" value="'+availableCourseTeesJSON[0].parIn+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="total'+addRowId+'" value="'+availableCourseTeesJSON[0].parTotal+'" disabled></td>';
     appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="hcp'+addRowId+'" value="0" disabled></td>';
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalNet'+addRowId+'" value="'+courseTeesJSON[0].parTotal+'" disabled></td></tr>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalNet'+addRowId+'" value="'+availableCourseTeesJSON[0].parTotal+'" disabled></td></tr>';
     $('#scorecard >tbody').append(appendText);
     $('#scorecard #scorecardRow'+addRowId+' #playerNamesSelect').focus();
     addRowId++;
@@ -181,7 +181,7 @@
     //}
 
     //Load the courses list for select course modal
-    $.each(coursesJSON, function (i, item) {
+    $.each(availableCourseTeesJSON, function (i, item) {
       var option = '<option value="'+item.id+'">'+item.name+'</option>';
       $('#enterScorecardCourse').append(option);
     });
@@ -279,8 +279,7 @@
         attestId: attestId,
         tournamentId: tournamentId,
         tournamentName: tournamentName,
-        tournamentDate: tournamentDatesJSON[roundId],
-        tournamentDateId: tournamentDateIdsJSON[roundId],
+        tournamentRoundJSON: tournamentRoundsJSON[roundId],
         scores: JSON.stringify(scores)
       };
       $.post('/golf/calculatescores/', context).done(function(data) {
@@ -314,7 +313,7 @@
           'action': function ( event, dt, node, config ) {
             event.stopPropagation();
             addRowId = 0;
-            if (coursesJSON.length > 1) {
+            if (availableCoursesJSON.length > 1) {
               $('#enterScorecardCourse').modal({backdrop: 'static'}, event.target).show();
             } else {
               makeScorecard();
@@ -329,8 +328,7 @@
             var context = {
               tournamentId: tournamentId,
               tournamentName: tournamentName,
-              tournamentDate: tournamentDatesJSON[roundId],
-              tournamentDateId: tournamentDateIdsJSON[roundId],
+              tournamentRoundJSON: tournamentRoundsJSON[roundId],
               roundId: roundId
             };
             $.post('/golf/clearrounddata/', context, function(data) {
@@ -358,7 +356,7 @@
         "emptyTable": "Add a scorecard!"
       }
     });
-    newTournamentTable.buttons().container().append('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentDatesJSON[roundId]+'" /></b>');
+    newTournamentTable.buttons().container().append('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentRoundsJSON[roundId].scheduledDate+'" /></b>');
     $('#newScorecardStartTimePicker').datetimepicker({format: 'LT'});
     $('#newScorecardFinishTimePicker').datetimepicker({format: 'LT'});
   });

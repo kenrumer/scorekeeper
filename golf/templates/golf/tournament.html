@@ -16,11 +16,10 @@
   <script type="text/javascript">
     var tournamentId = {{ tournamentId }};
     var tournamentName = '{{ tournamentName }}';
-    var tournamentDateIdsJSON = JSON.parse('{{ tournamentDateIdsJSON|safe }}');
-    var tournamentDatesJSON = JSON.parse('{{ tournamentDatesJSON|safe }}');
     var numRounds = {{ numRounds }};
-    var coursesJSON = JSON.parse('{{ coursesJSON|safe }}');
-    var courseTeesJSON = JSON.parse('{{ courseTeesJSON|safe }}');
+    var tournamentRoundsJSON = JSON.parse('{{ tournamentRoundsJSON|safe }}');
+    var availableCoursesJSON = JSON.parse('{{ availableCoursesJSON|safe }}');
+    var availableCourseTeesJSON = JSON.parse('{{ availableCourseTeesJSON|safe }}');
     var playersJSON = JSON.parse('{{ playersJSON|safe }}');
     var roundId = 0;
   </script>
