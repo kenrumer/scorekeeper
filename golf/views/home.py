@@ -1,4 +1,4 @@
-from ..models import Tournament, TournamentRound, TournamentFormatPlugin, Player, Course, CourseTee, Club, Activity, PlayerPlugin
+from ..models import Tournament, TournamentRound, FormatPlugin, Player, Course, CourseTee, Club, Activity, PlayerPlugin
 from django.shortcuts import render
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -12,14 +12,14 @@ def homeView(request):
     clubsJSON = json.dumps(clubs, cls=DjangoJSONEncoder)
     courses = list(Course.objects.all().values().order_by('priority'))
     coursesJSON = json.dumps(courses, cls=DjangoJSONEncoder)
-    courseTees = list(CourseTee.objects.all().values().order_by('priority'))
+    courseTees = list(CourseTee.objects.all().values('id', 'name', 'priority', 'default', 'slope', 'color', 'course__name', 'course__id').order_by('priority'))
     courseTeesJSON = json.dumps(courseTees, cls=DjangoJSONEncoder)
     tournaments = list(Tournament.objects.all().values())
     tournamentsJSON = json.dumps(tournaments, cls=DjangoJSONEncoder)
     tournamentRounds = list(TournamentRound.objects.all().values())
     tournamentRoundsJSON = json.dumps(tournamentRounds, cls=DjangoJSONEncoder)
-    tournamentFormats = list(TournamentFormatPlugin.objects.all().values().order_by('priority'))
-    tournamentFormatsJSON = json.dumps(tournamentFormats, cls=DjangoJSONEncoder)
+    formatPlugins = list(FormatPlugin.objects.all().values().order_by('priority'))
+    formatPluginsJSON = json.dumps(formatPlugins, cls=DjangoJSONEncoder)
     players = list(Player.objects.all().values())
     playersJSON = json.dumps(players, cls=DjangoJSONEncoder)
     playerPlugins = list(PlayerPlugin.objects.all().values())
@@ -28,28 +28,22 @@ def homeView(request):
     activitiesJSON = json.dumps(activities, cls=DjangoJSONEncoder)
     context = {
         'clubs': clubs,
-        'courseTees': courseTees,
         'courses': courses,
+        'courseTees': courseTees,
         'tournaments': tournaments,
         'tournamentRounds': tournamentRounds,
-        'tournamentFormats': tournamentFormats,
+        'formatPlugins': formatPlugins,
         'players': players,
         'playerplugins': playerPlugins,
         'activities': activities,
     }
-    #Used in settings and new tournament
+    #Used in settings and new tournament, if len is 0, need to create a new club wizard
     if (len(clubs) == 0):
         context['clubsJSON'] = {}
     else:
         context['clubsJSON'] = clubsJSON
 
-    #Used in load players and edit players
-    if (len(playerPlugins) == 0):
-        context['playerPluginsJSON'] = {}
-    else:
-        context['playerPluginsJSON'] = playerPluginsJSON
-
-    #Used in new tournament
+    #Used in new tournament, edit courses, settings
     if (len(courses) == 0):
         context['coursesJSON'] = {}
     else:
@@ -61,25 +55,31 @@ def homeView(request):
     else:
         context['courseTeesJSON'] = courseTeesJSON
 
-    if (len(tournamentRounds) == 0):
-        context['tournamentRoundsJSON'] = {}
-    else:
-        context['tournamentRoundsJSON'] = tournamentRoundsJSON
-
-    if (len(tournamentFormats) == 0):
-        context['tournamentFormatsJSON'] = {}
-    else:
-        context['tournamentFormatsJSON'] = tournamentFormatsJSON
-
     if (len(tournaments) == 0):
         context['tournamentsJSON'] = {}
     else:
         context['tournamentsJSON'] = tournamentsJSON
 
+    if (len(tournamentRounds) == 0):
+        context['tournamentRoundsJSON'] = {}
+    else:
+        context['tournamentRoundsJSON'] = tournamentRoundsJSON
+
+    if (len(formatPlugins) == 0):
+        context['formatPluginsJSON'] = {}
+    else:
+        context['formatPluginsJSON'] = formatPluginsJSON
+
     if (len(players) == 0):
         context['playersJSON'] = {}
     else:
         context['playersJSON'] = playersJSON
+
+    #Used in load players
+    if (len(playerPlugins) == 0):
+        context['playerPluginsJSON'] = {}
+    else:
+        context['playerPluginsJSON'] = playerPluginsJSON
 
     if (len(activities) == 0):
         context['activitiesJSON'] = {}

@@ -1,4 +1,4 @@
-/* global $, clubsJSON, defaultNumRounds, formatsJSON, coursesJSON, courseTeesJSON */
+/* global $, clubsJSON, coursesJSON, courseTeesJSON, tournamentsJSON, tournamentRoundsJSON, formatPluginsJSON, playersJSON, playerPluginsJSON, activitiesJSON */
   var newTournamentCoursesAvailableCourseList = [];
   var newTournamentCoursesSelectedCourseList = [];
   var newTournamentCourseTeesAvailableCourseTeeList = [];
@@ -20,10 +20,6 @@
   //New Tournament Wizard
   $('#newTournamentButton').click(function(event) {
     $('#newTournamentName').val(clubsJSON[0].default_tournament_name+' - '+strToday);
-    $('#newTournamentTypes').empty();
-    $.each(typesJSON, function (i, item) {
-      $('#newTournamentTypes').append('<option value="' + item.id + '">' + item.name + '</option>');
-    });
     $('#newTournament').modal({backdrop: 'static'}, event.target).show();
   });
 
@@ -35,33 +31,39 @@
     $.post('/golf/checkfortournamentduplicate/', context).done(function(data) {
       $('#loadingDialog').modal('hide');
       var duplicate = data.duplicate;
-      var formatNumRounds = data.formatNumRounds;
-      var formatAvailableFormats = dat
       if (duplicate == true) {
         $('#newTournamentDuplicate').modal({backdrop: 'static', keyboard: false}, event.target).show();
       } else {
         $('#newTournament').modal('hide');
+        var numRounds = parseInt($('#newTournamentNumRounds').val(), 10);
         $('#newTournamentRoundsPlaceholder').html('');
-        var datesInput = '<div class="list-group newTournamentRoundsList">';
+        var roundsInput = '<div class="list-group newTournamentRoundsList">';
         for (var i = 1; i <= numRounds; i++) {
-          datesInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
-         	datesInput += '    <div class="col-sm-3"></div>';
-         	datesInput += '    <div class="col-sm-3">';
-         	datesInput += '      <input type="text" class="form-control" value="Round '+i+'" disabled />';
-          datesInput += '    </div>';
-          datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentRoundsDatePicker'+i+'">';
-          datesInput += '      <input type="text" class="form-control" id="newTournamentRoundsDateStart'+i+'" value="'+strToday+'" />';
-          datesInput += '      <span class="input-group-addon">';
-          datesInput += '        <span class="glyphicon glyphicon-calendar"></span>';
-          datesInput += '      </span>';
-          datesInput += '    </div>';
-         	datesInput += '    <div class="col-sm-3"></div>';
-          datesInput += '  </div>';
+          roundsInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
+         	roundsInput += '    <div class="col-sm-1"></div>';
+         	roundsInput += '    <div class="col-sm-3">';
+         	roundsInput += '      <input type="text" class="form-control" value="Round '+i+'" />';
+          roundsInput += '    </div>';
+         	roundsInput += '    <div class="col-sm-3">';
+         	roundsInput += '       <select class="form-control" id="newTournamentRoundsFormatPlugin'+i+'">';
+          $.each(formatPluginsJSON, function (i, item) {
+         	  roundsInput += '          <option value="'+item.id+'">'+item.name+'</option>';
+          });
+         	roundsInput += '       </select>';
+         	roundsInput += '    </div>';
+          roundsInput += '    <div class="col-sm-3 input-group date" id="newTournamentRoundsScheduledDatePicker'+i+'">';
+          roundsInput += '      <input type="text" class="form-control" id="newTournamentRoundsScheduledDate'+i+'" value="'+strToday+'" />';
+          roundsInput += '      <span class="input-group-addon">';
+          roundsInput += '        <span class="glyphicon glyphicon-calendar"></span>';
+          roundsInput += '      </span>';
+          roundsInput += '    </div>';
+         	roundsInput += '    <div class="col-sm-1"></div>';
+          roundsInput += '  </div>';
         }
-        datesInput += '</div>';
-        $('#newTournamentsRoundsPlaceholder').append(datesInput);
+        roundsInput += '</div>';
+        $('#newTournamentRoundsPlaceholder').append(roundsInput);
         for (var i = 1; i <= numRounds; i++) {
-          $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
+          $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsScheduledDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
         }
         $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
       }
@@ -88,26 +90,33 @@
     var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
     //Show choose dates
     $('#newTournamentRoundsPlaceholder').html('');
-    var datesInput = '<div class="list-group newTournamentRoundsDatesList">';
+    var roundsInput = '<div class="list-group newTournamentRoundsList">';
     for (var i = 1; i <= numRounds; i++) {
-      datesInput += '  <div class="row" id="newTournamentRoundsDatesListItem'+i+'">';
-     	datesInput += '    <div class="col-sm-3"></div>';
-     	datesInput += '    <div class="col-sm-3">';
-     	datesInput += '      <input type="text" class="form-control" value="Round '+i+'" disabled />';
-      datesInput += '    </div>';
-      datesInput += '    <div class="col-sm-3 input-group date" id="newTournamentRoundsDatePicker'+i+'">';
-      datesInput += '      <input type="text" class="form-control" id="newTournamentRoundsDateStart'+i+'" value="'+strToday+'" />';
-      datesInput += '      <span class="input-group-addon">';
-      datesInput += '        <span class="glyphicon glyphicon-calendar"></span>';
-      datesInput += '      </span>';
-      datesInput += '    </div>';
-     	datesInput += '    <div class="col-sm-3"></div>';
-      datesInput += '  </div>';
+      roundsInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
+     	roundsInput += '    <div class="col-sm-1"></div>';
+     	roundsInput += '    <div class="col-sm-3">';
+     	roundsInput += '      <input type="text" class="form-control" value="Round '+i+'" />';
+      roundsInput += '    </div>';
+     	roundsInput += '    <div class="col-sm-3">';
+     	roundsInput += '       <select class="form-control" id="newTournamentRoundsFormatPlugin'+i+'">';
+      $.each(formatPluginsJSON, function (i, item) {
+     	  roundsInput += '          <option value="'+item.id+'">'+item.name+'</option>';
+      });
+     	roundsInput += '       </select>';
+     	roundsInput += '    </div>';
+      roundsInput += '    <div class="col-sm-3 input-group date" id="newTournamentRoundsScheduledDatePicker'+i+'">';
+      roundsInput += '      <input type="text" class="form-control" id="newTournamentRoundsScheduledDate'+i+'" value="'+strToday+'" />';
+      roundsInput += '      <span class="input-group-addon">';
+      roundsInput += '        <span class="glyphicon glyphicon-calendar"></span>';
+      roundsInput += '      </span>';
+      roundsInput += '    </div>';
+     	roundsInput += '    <div class="col-sm-1"></div>';
+      roundsInput += '  </div>';
     }
-    datesInput += '</div>';
-    $('#newTournamentRoundsPlaceholder').append(datesInput);
+    roundsInput += '</div>';
+    $('#newTournamentRoundsPlaceholder').append(roundsInput);
     for (var i = 1; i <= numRounds; i++) {
-      $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
+      $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsScheduledDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
     }
     $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
   });
@@ -141,14 +150,16 @@
     $('#newTournamentCourseTeesMS').multiSelect('refresh');
     newTournamentCourseTeesSelectedCourseTeeList = [];
     newTournamentCourseTeesAvailableCourseTeeList = courseTeesJSON.filter(function(element) {
-      var add = $.each(newTournamentCoursesSelectedCourseList, function(i, course) {
-        if (course.id === element.course) {
+      var add = false;
+      $.each(newTournamentCoursesSelectedCourseList, function(i, course) {
+        if (course.id === element.course__id) {
+          add = true;
           return false;
         }
-        return true;
       });
       return add;
     });
+    console.log($('#newTournamentCourseTeesMS'));
     $.each(newTournamentCourseTeesAvailableCourseTeeList, function (i, item) {
       if (item.default) {
         $('#newTournamentCourseTeesMS').multiSelect('addOption', { value: item.id, text: item.course__name+' - '+item.name });
@@ -168,12 +179,14 @@
     var numRounds = parseInt($('#newTournamentFormatNumRounds').val(), 10);
     var tournamentRounds = [];
     for (var i = 1; i <= numRounds; i++) {
-      tournamentRounds.push($('#newTournamentRoundsDateStart'+i).val());
+      var tournamentRound = {
+        formatId: $('#newTournamentRoundsFormatPlugin'+i).val(),
+        scheduledDate:$('#newTournamentRoundsScheduledDate'+i).val()
+      }
+      tournamentRounds.push(tournamentRound);
     }
     var context = {
-      tournamentName: $('#newTournamentFormatName').val(),
-      formatId: $('#newTournamentFormats').val(),
-      teamsId: $('#newTournamentFormatTeams').val(),
+      tournamentName: $('#newTournamentName').val(),
       numRounds: $('#newTournamentFormatNumRounds').val(),
       tournamentRoundsJSON: JSON.stringify(tournamentRounds),
       coursesJSON: JSON.stringify(newTournamentCoursesSelectedCourseList),

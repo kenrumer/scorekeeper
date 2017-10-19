@@ -14,12 +14,11 @@
   <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
   <script>
     var clubsJSON = JSON.parse(unescape('{{ clubsJSON|safe|escapejs }}'));
-    var playerPluginsJSON = JSON.parse(unescape('{{ playerPluginsJSON|safe|escapejs }}'));
     var coursesJSON = JSON.parse(unescape('{{ coursesJSON|safe }}'));
     var courseTeesJSON = JSON.parse(unescape('{{ courseTeesJSON|safe }}'));
     var tournamentsJSON = JSON.parse(unescape('{{ tournamentsJSON|safe }}'));
     var tournamentRoundsJSON = JSON.parse(unescape('{{ tournamentRoundsJSON|safe }}'));
-    var tournamentFormatPluginsJSON = JSON.parse(unescape('{{ tournamentFormatPluginsJSON|safe }}'));
+    var formatPluginsJSON = JSON.parse(unescape('{{ formatPluginsJSON|safe }}'));
     var playersJSON = JSON.parse(unescape('{{ playersJSON|safe }}'));
     var playerPluginsJSON = JSON.parse(unescape('{{ playerPluginsJSON|safe }}'));
     var activitiesJSON = JSON.parse(unescape('{{ activitiesJSON|safe }}'));
@@ -253,13 +252,11 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-2">
-                <label for="newTournamentTypes">Select Type</label>
+                <label for="newTournamentNumRounds">Number of rounds</label>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-5">
-                <select class="newTournamentTypes form-control" id="newTournamentTypes">
-                  <!-- options added by home.js -->
-                </select>
+                <input type="number" class="newTournamentNumRounds form-control" id="newTournamentNumRounds" min=1 max=99 value=1 />
               </div>
               <div class="col-sm-3"></div>
             </div>
@@ -304,7 +301,7 @@
 		  </div>
 		</div>
 
-    <!-- New Tournament Dates -->
+    <!-- New Tournament Rounds -->
     <div class="modal fade" id="newTournamentRounds" tabindex="-1" role="dialog" aria-labelledby="newTournamentRoundsLabel">
       <div class="modal-dialog modalNewTournamentRounds modal-lg" role="document">
         <div class="modal-content">

@@ -51,7 +51,6 @@ def newTournament(request):
     Will send this data to the newTournament template
     """
     t = Tournament(name=tournamentName)
-    t.format_plugin = FormatPlugin.objects.get(id=formatId)
     t.save()
     
     """
@@ -101,12 +100,10 @@ def newTournament(request):
     """
     tournamentRoundIds = []
     for tournamentRound in tournamentRoundsJSON:
-        d = datetime.strptime(tournamentRound.date, '%m/%d/%Y')
-        try:
-            tr = TournamentRound.objects.get(date=d)
-        except TournamentRound.DoesNotExist:
-            tr = TournamentRound(date=d, tournament=t)
-            tr.save()
+        d = datetime.strptime(tournamentRound.scheduledDate, '%m/%d/%Y')
+        fp = FormatPlugin.objects.get(id=tournamentRound.formatId)
+        tr = TournamentRound(date=d, tournament=t, format_plugin=fp)
+        tr.save()
         tournamentRoundIds.append(tr.id)
     tournamentRoundIdsJSON = json.dumps(tournamentRoundIds, cls=DjangoJSONEncoder)
     tournamentRoundsJSON = json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder)
