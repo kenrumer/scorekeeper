@@ -52,6 +52,8 @@ def newTournament(request):
         d = datetime.strptime(tournamentRound['scheduledDate'], '%m/%d/%Y')
         fp = FormatPlugin.objects.get(id=tournamentRound['formatId'])
         tr = TournamentRound(scheduled_date=d, tournament=t, format_plugin=fp, name=tournamentRound['name'])
+        tr.save()
+        tournamentRound['id'] = tr.id
         """
         Set tournament courses and tees
         """
@@ -60,7 +62,6 @@ def newTournament(request):
         for availableCourseTee in availableCourseTeesJSON:
             tr.available_course_tees.add(availableCourseTee['id'])
         tr.save()
-        tournamentRound['id'] = tr.id
     tournamentRoundsJSON = json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder)
     availableCoursesJSON = json.dumps(availableCoursesJSON, cls=DjangoJSONEncoder)
 
@@ -141,13 +142,9 @@ def calculateScores(request):
     Return the rankings grosses and nets and colors per cell
     """
     tournamentId = request.POST['tournamentId']
-    tournamentRoundId = request.POST['tournamentRoundId']
-    try:
-        td = TournamentRound.objects.get(id=tournamentRoundId);
-    except TournamentRound.DoesNotExist:
-        return JsonResponse(json.loads('{}'))
+    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
 
-    s = Scorecard(tournament_date=td)
+    s = Scorecard()
     if (request.POST['scorer'] != ''):
         try:
             scorer = Player.objects.get(club_member_number=request.POST['scorerId'])
@@ -162,8 +159,8 @@ def calculateScores(request):
         except Player.DoesNotExist:
             s.external_attest = request.POST['attest']
 
-    if (request.POST['teeTime'] != ''):
-        s.tee_time = request.POST['teeTime']
+    if (request.POST['startTime'] != ''):
+        s.start_time = request.POST['startTime']
 
     if (request.POST['finishTime'] != ''):
         s.finish_time = request.POST['finishTime']
@@ -175,10 +172,10 @@ def calculateScores(request):
     except Tournament.DoesNotExist:
         return JsonResponse(json.loads('{}'))
 
-    formatPlugin = FormatPlugin.objects.get(id=t.format_plugin.id)
+    formatPlugin = FormatPlugin.objects.get(id=tournamentRound['formatId'])
     classModule = importlib.import_module('golf.formatplugins.'+formatPlugin.class_package)
     classAccess = getattr(classModule, formatPlugin.class_name)
-    classInst = classAccess(tournamentId, tournamentRoundId, s.id)
+    classInst = classAccess(tournamentId, tournamentRound['id'], s.id)
     resultList = classInst.calculateScores(request.POST)
 
     resultListJSON = json.dumps(resultList, cls=DjangoJSONEncoder)

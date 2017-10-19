@@ -30,7 +30,7 @@ class TournamentRound(models.Model):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.name+' - '+self.format_plugin.name+' - '+self.date_scheduled.strftime('%m/%d/%Y')
+        return self.name+' - '+self.format_plugin.name+' - '+self.scheduled_date.strftime('%m/%d/%Y')
 
 class FormatPlugin(models.Model):
     """
@@ -76,7 +76,7 @@ class Round(models.Model):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.player.name+' - '+self.tournament_round.tournament.name+' - '+self.tournament_round.name+' - '+self.tournament_round.date_scheduled.strftime('%m/%d/%Y')
+        return self.player.name+' - '+self.tournament_round.tournament.name+' - '+self.tournament_round.name+' - '+self.tournament_round.scheduled_date.strftime('%m/%d/%Y')
 
 class Scorecard(models.Model):
     """
@@ -85,9 +85,9 @@ class Scorecard(models.Model):
     start_time = models.DateTimeField(verbose_name='Date Started', null=True, blank=True, help_text='Select the date this round was started')
     finish_time = models.DateTimeField(verbose_name='Date Finished', null=True, blank=True, help_text='Select the date this round was finished')
     external_scorer = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the name of the scorer if it is not a player')
-    external_attest = models.CharField(max_length=200, verbose_name='External Attestation Name', null=True, blank=True, help_text='Enter the name of the attestation if it is not a player')
+    external_attest = models.CharField(max_length=200, verbose_name='External Attest Name', null=True, blank=True, help_text='Enter the name of the attest if it is not a player')
     scorer = models.ForeignKey('Player', related_name='player_scorer', verbose_name='Scorer Player Id', null=True, blank=True, help_text='Enter the player that kept score')
-    attest = models.ForeignKey('Player', related_name='player_attest', verbose_name='Attest Player Id', null=True, blank=True, help_text='Enter the player that attests with the score')
+    attest = models.ForeignKey('Player', related_name='player_attest', verbose_name='Attest Player Id', null=True, blank=True, help_text='Enter the player that attests the score')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
@@ -108,9 +108,9 @@ class Score(models.Model):
         when calibrated with a format, course, handicap, tee handicap
     """
     score = models.IntegerField(verbose_name='Score', help_text='Enter the score for the hole')
-    score_style = models.CharField(max_length=200, verbose_name='Style Applied to the Cell', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
+    score_style = models.CharField(max_length=200, verbose_name='Style for gross score', null=True, blank=True,  help_text='Enter the background-color for the cell in gross view')
     score_net = models.IntegerField(verbose_name='Score Net', null=True, blank=True, help_text='Enter the net score for the hole')
-    score_net_style = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
+    score_net_style = models.CharField(max_length=200, verbose_name='Style for net score', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     hole_played = models.IntegerField(verbose_name='Hole Played', null=True, blank=True, help_text='Enter the hole number played (e.g. in shotgun start if this is hole 16, but the second hole played enter 2)')
     tee = models.ForeignKey('Tee', verbose_name='Hole and Tee Id')
     round = models.ForeignKey('Round', null=True, blank=True, verbose_name='Round for this score')

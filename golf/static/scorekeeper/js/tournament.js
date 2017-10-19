@@ -1,4 +1,4 @@
-/* global $, tournamentId, tournamentName, numRounds, tournamentRoundsJSON, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId */
+/* global $, tournamentId, tournamentName, numRounds, tournamentRoundsJSON, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId, moment */
   var newTournamentTable;
   var addRowId = 0;
 
@@ -150,7 +150,18 @@
     addHeaderToScorecard();
     //Load the players for the scorecard scorer, attest
     var nowDate = new Date();
-    var nowStr = ((nowDate.getHours()>12)?(nowDate.getHours()-12):nowDate.getHours())+":"+((nowDate.getMinutes() < 10)?"0":"")+nowDate.getMinutes()+" "+((nowDate.getHours()>12)?('PM'):'AM');
+    var nowStr = (nowDate.getMonth()+1<10)?'0':'';
+    nowStr += (nowDate.getMonth()+1)+'/';
+    nowStr += (nowDate.getDate()<10)?'0':'';
+    nowStr += nowDate.getDate()+'/';
+    nowStr += nowDate.getFullYear()+' ';
+    nowStr += (nowDate.getHours()>12)?(nowDate.getHours()-12):nowDate.getHours()+':';
+    nowStr += ((nowDate.getMinutes() < 10)?"0":"")+nowDate.getMinutes()+' ';
+    nowStr += ((nowDate.getHours()>12)?'PM':'AM');
+    console.log(nowStr);
+    console.log(nowDate.getMonth());
+    console.log((nowDate.getDate()<10)?'0':''+nowDate.getDate()+'/');
+    console.log(nowDate.getFullYear());
     $('#newScorecardFinishTime').val(nowStr);
     $('#newScorecardStartTime').val(nowStr);
     $('#scorecardScorer').empty();
@@ -270,16 +281,18 @@
       var scorerId = $('#scorecardScorer').find('[value="'+scorer+'"]').data('value');
       var attest = $('#newScorecardAttest').val();
       var attestId = $('#scorecardAttest').find('[value="'+attest+'"]').data('value');
+      var startTime = $('#newScorecardStartTime').val();
+      var finishTime = $('#newScorecardFinishTime').val();
       var context = {
-        teeTime: $('#newScorecardStartTime').val(),
-        finishTime: $('#newScorecardFinishTime').val(),
+        startTime: moment(startTime).format('YYYY-MM-DD HH:MM'),
+        finishTime: moment(finishTime).format('YYYY-MM-DD HH:MM'),
         scorer: scorer,
         scorerId: scorerId,
         attest: attest,
         attestId: attestId,
         tournamentId: tournamentId,
         tournamentName: tournamentName,
-        tournamentRoundJSON: tournamentRoundsJSON[roundId],
+        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
         scores: JSON.stringify(scores)
       };
       $.post('/golf/calculatescores/', context).done(function(data) {
@@ -357,6 +370,6 @@
       }
     });
     newTournamentTable.buttons().container().append('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentRoundsJSON[roundId].scheduledDate+'" /></b>');
-    $('#newScorecardStartTimePicker').datetimepicker({format: 'LT'});
-    $('#newScorecardFinishTimePicker').datetimepicker({format: 'LT'});
+    $('#newScorecardStartTimePicker').datetimepicker();
+    $('#newScorecardFinishTimePicker').datetimepicker();
   });

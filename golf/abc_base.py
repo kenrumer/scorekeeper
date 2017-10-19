@@ -71,7 +71,7 @@ class FormatBase(object):
         self.tournamentId = tournamentId
         self.tournamentRoundId = tournamentRoundId
         self.scorecardId = scorecardId
-        print(tournamentId)
+        print(tournamentRoundId)
         pass
 
     @abstractmethod
@@ -87,10 +87,10 @@ class FormatBase(object):
             print (self.tournamentRoundId)
             return False
         try:
-            rounds = Round.objects.filter(tournament_round=td.id)
+            rounds = Round.objects.filter(tournament_round=tr.id)
         except (Round.DoesNotExist):
             print ('there are not any rounds for this tournament_round')
-            print (td.id)
+            print (tr.id)
             return newPlayerResultList
         if (len(rounds) == 0):
             return newPlayerResultList
@@ -145,10 +145,10 @@ class FormatBase(object):
                 print (player['clubMemberNumber'])
                 return False
             try:
-                td = TournamentDate.objects.get(id=self.tournamentDateId)
-            except (TournamentDate.DoesNotExist):
-                print ('Get TournamentDate failed')
-                print (self.tournamentDateId)
+                tr = TournamentRound.objects.get(id=self.tournamentRoundId)
+            except (TournamentRound.DoesNotExist):
+                print ('Get TournamentRound failed')
+                print (self.tournamentRoundId)
                 return False
             try:
                 sc = Scorecard.objects.get(id=self.scorecardId)
@@ -163,9 +163,7 @@ class FormatBase(object):
                 print (player['courseTeeId'])
                 return False
             try:
-                r = Round.objects.get(tournament_date=td.id, player=p)
-                r.tournament_date = td
-                r.player = p
+                r = Round.objects.get(tournament_round=tr.id, player=p)
                 r.scorecard = sc
                 r.course_tee = ct
                 r.handicap_index = player['handicapIndex']
@@ -185,7 +183,7 @@ class FormatBase(object):
                 r.save()
             except (Round.DoesNotExist):
                 #Create the round because it doesn't exist
-                r = Round(tournament_date=td, player=p, scorecard=sc, course_tee=ct, handicap_index=player['handicapIndex'], course_handicap=player['courseHCP'], total_out=player['totalOut'], total_out_style=player['totalOutStyle'], total_out_net=player['totalOutNet'], total_out_net_style=player['totalOutNetStyle'], total_in=player['totalIn'], total_in_style=player['totalInStyle'], total_in_net=player['totalInNet'], total_in_net_style=player['totalInNetStyle'], total=player['total'], total_style=player['totalStyle'], net=player['totalNet'], net_style=player['totalNetStyle'])
+                r = Round(tournament_round=tr, player=p, scorecard=sc, course_tee=ct, handicap_index=player['handicapIndex'], course_handicap=player['courseHCP'], total_out=player['totalOut'], total_out_style=player['totalOutStyle'], total_out_net=player['totalOutNet'], total_out_net_style=player['totalOutNetStyle'], total_in=player['totalIn'], total_in_style=player['totalInStyle'], total_in_net=player['totalInNet'], total_in_net_style=player['totalInNetStyle'], total=player['total'], total_style=player['totalStyle'], net=player['totalNet'], net_style=player['totalNetStyle'])
                 r.save()
             except:
                 print ('Get Round failed')
