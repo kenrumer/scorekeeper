@@ -185,17 +185,19 @@ def calculateScores(request):
 def clearRoundData(request):
     tournamentId = request.POST['tournamentId']
     tournamentName = request.POST['tournamentName']
-    tournamentRoundId = request.POST['tournamentRoundId']
-    tournamentRound = request.POST['tournamentRound']
-    roundId = request.POST['roundId']
-    try:
-        tr = TournamentRound.objects.get(id=tournamentRoundId);
-    except TournamentRound.DoesNotExist:
-        return JsonResponse(json.loads('{}'))
+    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
 
-    Scorecard.objects.filter(tournament_round=tr).delete()
-    rounds = Round.objects.filter(tournament_round=tr)
+    try:
+        tr = TournamentRound.objects.get(id=tournamentRound['id'])
+    except TournamentRound.DoesNotExist:
+        return False
+
+    rounds = Round.objects.filter(tournament_round=tournamentRound['id'])
     for r in rounds:
+        try:
+            Scorecard.objects.filter(id=tr.scorecard.id).delete()
+        except:
+            pass
         Score.objects.filter(round=r.id).delete()
     return JsonResponse(json.loads('{}'))
 

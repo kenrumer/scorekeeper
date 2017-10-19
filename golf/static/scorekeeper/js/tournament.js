@@ -149,21 +149,8 @@
     $('#scorecard thead').html('');
     addHeaderToScorecard();
     //Load the players for the scorecard scorer, attest
-    var nowDate = new Date();
-    var nowStr = (nowDate.getMonth()+1<10)?'0':'';
-    nowStr += (nowDate.getMonth()+1)+'/';
-    nowStr += (nowDate.getDate()<10)?'0':'';
-    nowStr += nowDate.getDate()+'/';
-    nowStr += nowDate.getFullYear()+' ';
-    nowStr += (nowDate.getHours()>12)?(nowDate.getHours()-12):nowDate.getHours()+':';
-    nowStr += ((nowDate.getMinutes() < 10)?"0":"")+nowDate.getMinutes()+' ';
-    nowStr += ((nowDate.getHours()>12)?'PM':'AM');
-    console.log(nowStr);
-    console.log(nowDate.getMonth());
-    console.log((nowDate.getDate()<10)?'0':''+nowDate.getDate()+'/');
-    console.log(nowDate.getFullYear());
-    $('#newScorecardFinishTime').val(nowStr);
-    $('#newScorecardStartTime').val(nowStr);
+    $('#newScorecardStartTime').val(moment().subtract(3, 'hours').format('MM/DD/YYYY hh:ss A'));
+    $('#newScorecardFinishTime').val(moment().format('MM/DD/YYYY hh:ss A'));
     $('#scorecardScorer').empty();
     $('#scorecardAttest').empty();
     $('#newScorecardScorer').val('');
@@ -299,6 +286,26 @@
         $('#loadingDialog').modal('hide');
         $('#enterScorecard').modal('hide');
         console.log(data);
+        newTournamentTable.clear();
+        $.each(data.results, function(i, item) {
+          var addRowData = [
+            1,
+            '<button style="background: url(\'/static/scorekeeper/icons/scorecard.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecard();" /><button style="background: url(\'/static/scorekeeper/icons/scorecardrow.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecardRow();" />',
+            item.playerName,
+            item.courseHCP];
+          for (var j = 0; j < 9; j++) {
+            addRowData.push(item.grossScores[j]);
+          }
+          addRowData.push(item.totalOut);
+          for (var j = 9; j < 18; j++) {
+            addRowData.push(item.grossScores[j]);
+          }
+          addRowData.push(item.totalIn);
+          addRowData.push(item.total);
+          addRowData.push(item.courseHCP);
+          addRowData.push(item.totalNet);
+          newTournamentTable.row.add(addRowData).draw();
+        });
         //TODO: set tables data and styles
       }).fail(function(xhr, textStatus, error) {
         $('#loadingDialog').modal('hide');
@@ -341,10 +348,10 @@
             var context = {
               tournamentId: tournamentId,
               tournamentName: tournamentName,
-              tournamentRoundJSON: tournamentRoundsJSON[roundId],
-              roundId: roundId
+              tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
             };
-            $.post('/golf/clearrounddata/', context, function(data) {
+            $.post('/golf/clearrounddata/', context).done(function(data) {
+              newTournamentTable.clear();
               $('#loadingDialog').modal('hide');
               console.log(data);
             }).fail(function(xhr, textStatus, error) {
