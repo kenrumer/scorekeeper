@@ -114,8 +114,14 @@ body .modal-lg {
 }
 
 /*New Tournament*/
-.newTournamentFormatNumRounds {
+.newTournamentNumRounds {
   width: 74px;
+}
+.newTournamentWizard-dialog {
+  width: 1220px;
+}
+.newTournamentWizard-body {
+  height: 165px;
 }
 #ms-newTournamentCoursesMS {
   height: 160px;

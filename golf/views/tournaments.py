@@ -21,10 +21,13 @@ def checkForTournamentDuplicate(request):
     Ajax function to check if the tournament already exists
     """
     tournamentName = request.POST.get('tournamentName')
+    print(tournamentName)
     try:
         Tournament.objects.get(name=tournamentName)
         responseJSON = '{"duplicate": true}'
-    except:
+    except Tournament.MultipleObjectsReturned:
+        responseJSON = '{"duplicate": true}'
+    except Tournament.DoesNotExist:
         responseJSON = '{"duplicate": false}'
     return JsonResponse(json.loads(responseJSON))
 
@@ -151,40 +154,62 @@ def calculateScores(request):
             s.scorer = scorer
         except Player.DoesNotExist:
             s.external_scorer = request.POST['scorer']
-
     if (request.POST['attest'] != ''):
         try:
             attest = Player.objects.get(club_member_number=request.POST['attestId'])
             s.attest = attest
         except Player.DoesNotExist:
             s.external_attest = request.POST['attest']
-
     if (request.POST['startTime'] != ''):
         s.start_time = request.POST['startTime']
-
     if (request.POST['finishTime'] != ''):
         s.finish_time = request.POST['finishTime']
-
     s.save()
-
-    try:
-        t = Tournament.objects.get(id=tournamentId)
-    except Tournament.DoesNotExist:
-        return JsonResponse(json.loads('{}'))
 
     formatPlugin = FormatPlugin.objects.get(id=tournamentRound['formatId'])
     classModule = importlib.import_module('golf.formatplugins.'+formatPlugin.class_package)
     classAccess = getattr(classModule, formatPlugin.class_name)
     classInst = classAccess(tournamentId, tournamentRound['id'], s.id)
     resultList = classInst.calculateScores(request.POST)
+    print(getTournamentRoundStatus(tournamentRound['id']))
+    return JsonResponse(getTournamentRoundStatus(tournamentRound['id']))
 
-    resultListJSON = json.dumps(resultList, cls=DjangoJSONEncoder)
-    print(resultListJSON)
-    return JsonResponse({'results':resultList})
+def getTournamentRoundStatus(tournamentRoundId):
+    """
+    This method returns the current tournament status in an easy way for datatables to read
+    """
+    rows = []
+    try:
+        rounds = Round.objects.filter(tournament_round=tournamentRoundId).order_by('total')
+    except:
+        print ('Failed to get rounds')
+        print (tournamentRoundId)
+        return False
+    i = 1
+    for r in rounds:
+        try:
+            scores = Score.objects.filter(round=r.id).order_by('tee__hole__number')
+        except:
+            print ('Failed to get scores')
+            print (r.id)
+            return False
+        row = []
+        row.append(i)
+        row.append('<button style="background: url(\'/static/scorekeeper/icons/scorecard.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecard();" /><button style="background: url(\'/static/scorekeeper/icons/scorecardrow.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecardRow();" />')
+        row.append(r.player.name)
+        row.append(r.course_handicap)
+        for index, item in enumerate(scores):
+            if (index == 9):
+                row.append(item.total_out)
+            row.append(item.score)
+        row.append(r.total_in)
+        row.append(r.total)
+        row.append(r.course_handicap)
+        row.append(r.net)
+        i += 1
+    return
 
 def clearRoundData(request):
-    tournamentId = request.POST['tournamentId']
-    tournamentName = request.POST['tournamentName']
     tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
 
     try:
@@ -199,6 +224,7 @@ def clearRoundData(request):
         except:
             pass
         Score.objects.filter(round=r.id).delete()
+        r.delete()
     return JsonResponse(json.loads('{}'))
 
 

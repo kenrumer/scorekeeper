@@ -205,6 +205,5 @@ class SkinsAndPinsFormat(FormatBase):
                     else:
                         standing['netStyles'].append('')
 
-        print (updatedTournamentStandings)
         super().updateTournament(updatedTournamentStandings)
-        return updatedTournamentStandings
+        return True

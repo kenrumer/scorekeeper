@@ -289,7 +289,7 @@
         newTournamentTable.clear();
         $.each(data.results, function(i, item) {
           var addRowData = [
-            1,
+            item.rank,
             '<button style="background: url(\'/static/scorekeeper/icons/scorecard.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecard();" /><button style="background: url(\'/static/scorekeeper/icons/scorecardrow.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecardRow();" />',
             item.playerName,
             item.courseHCP];
