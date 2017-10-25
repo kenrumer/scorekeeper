@@ -112,6 +112,8 @@ class Score(models.Model):
     score_net = models.IntegerField(verbose_name='Score Net', null=True, blank=True, help_text='Enter the net score for the hole')
     score_net_style = models.CharField(max_length=200, verbose_name='Style for net score', null=True, blank=True,  help_text='Enter the background-color for the cell in net view')
     hole_played = models.IntegerField(verbose_name='Hole Played', null=True, blank=True, help_text='Enter the hole number played (e.g. in shotgun start if this is hole 16, but the second hole played enter 2)')
+    skin_net = models.IntegerField(verbose_name='Skin', default=False, help_text='Is this score evaluated as a skin? This changes with each scorecard submitted (1:yes, 0:no)')
+    skin = models.IntegerField(verbose_name='Skin', default=False, help_text='Is this score evaluated as a skin? This changes with each scorecard submitted (1:yes, 0:no)')
     tee = models.ForeignKey('Tee', verbose_name='Hole and Tee Id')
     round = models.ForeignKey('Round', null=True, blank=True, verbose_name='Round for this score')
     def __str__(self):

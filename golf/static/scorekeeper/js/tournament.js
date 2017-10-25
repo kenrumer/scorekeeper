@@ -1,5 +1,5 @@
-/* global $, tournamentId, tournamentName, numRounds, tournamentRoundsJSON, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId, moment */
-  var newTournamentTable;
+/* global $, tournamentId, tournamentName, roundCount, tournamentRoundsJSON, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId, moment, view */
+  var tournamentTable;
   var addRowId = 0;
 
   function updateScorecardRound(data) {
@@ -164,20 +164,155 @@
     addRowToScorecard();
   }
 
+  /* Will put this back in after testing
+  $(window).on('beforeunload', function(event) {
+    return 'are you sure you want to leave?';
+  });*/
+
   $(document).ready(function() {
 
     //TODO: Add the rounds tabs functionality, totals page
-    //if (numRounds > 1) {
-      var roundTabs = '<ul class="nav nav-tabs">';
-      roundTabs += '  <li class="active"><a href="#">Round 1</a></li>';
-        for (var i = 2; i <= numRounds; i++) {
-        roundTabs += '  <li><a href="#">Round '+i+'</a></li>';
-        }
-      roundTabs += '  <li><a href="#">Total</a></li>';
-      roundTabs += '</ul>';
-      $('#roundTabPlaceholder').html(roundTabs);
-    //}
+    var roundTabs = '<ul class="nav nav-tabs">';
+    for (var i = 0; i < roundCount; i++) {
+      if (roundId == i) {
+        roundTabs += '  <li class="active" data-toggle="tab"><a href="#">'+tournamentRoundsJSON[roundId].name+'</a></li>';
+      } else {
+        roundTabs += '  <li data-toggle="tab"><a href="#">'+tournamentRoundsJSON[roundId].name+'</a></li>';
+      }
+    }
+    if (roundCount > 1) {
+      roundTabs += '  <li data-toggle="tab"><a href="#">Total</a></li>';
+    }
+    roundTabs += '</ul>';
+    $('#roundTabPlaceholder').html(roundTabs);
 
+    $('#netScoresPill a').click(function(event) {
+      console.log('net clicked');
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      var context = {
+        tournamentId: tournamentId,
+        tournamentName: tournamentName,
+        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
+        view: 'net'
+      };
+      $.post('/golf/getscores/', context).done(function(data) {
+        console.log(data);
+        $('#payoutForm').hide();
+        $('#tournamentTableWrapper').show();
+        tournamentTable.clear();
+        $.each(data.rows, function(i, item) {
+          tournamentTable.row.add(item).draw();
+        });
+        view = 'net';
+        $('#loadingDialog').modal('hide');
+      }).fail(function(xhr, textStatus, error) {
+        $('#loadingDialog').modal('hide');
+        $('#errorDialog').modal({}).show();
+        $('#errorHeader').text('failed to load net scores!');
+        $('#errorText').text(xhr.responseText);
+        console.log('failed to load net scores!');
+        console.log(xhr.responseText);
+        console.log(textStatus);
+        console.log(error);
+      });
+    });
+
+    $('#grossScoresPill').click(function(event) {
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      var context = {
+        tournamentId: tournamentId,
+        tournamentName: tournamentName,
+        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
+        view: 'gross'
+      };
+      $.post('/golf/getscores/', context).done(function(data) {
+        console.log(data);
+        $('#payoutForm').hide();
+        $('#tournamentTableWrapper').show();
+        tournamentTable.clear();
+        $.each(data.rows, function(i, item) {
+          tournamentTable.row.add(item).draw();
+        });
+        view = 'gross';
+        $('#loadingDialog').modal('hide');
+      }).fail(function(xhr, textStatus, error) {
+        $('#loadingDialog').modal('hide');
+        $('#errorDialog').modal({}).show();
+        $('#errorHeader').text('failed to load gross scores!');
+        $('#errorText').text(xhr.responseText);
+        console.log('failed to load gross scores!');
+        console.log(xhr.responseText);
+        console.log(textStatus);
+        console.log(error);
+      });
+    });
+
+    $('#payoutPill a').click(function(event) {
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      var context = {
+        tournamentId: tournamentId,
+        tournamentName: tournamentName,
+        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId])
+      };
+      $.post('/golf/getpayout/', context).done(function(data) {
+        console.log(data);
+        view = 'payout';
+        $('#tournamentTableWrapper').hide();
+        $('#payoutForm').show();
+        $('#payoutPlayerCount').val(data.net.rows.length);
+        var payoutTotal = data.net.rows.length * parseInt($('#payoutBuyIn').val(), 10);
+        $('#payoutTotal').val(payoutTotal);
+        var payoutClubDues = ($('#payoutClubDuesPercent').val() / 100) * payoutTotal;
+        $('#payoutClubDues').val(payoutClubDues);
+        var payoutTotal2 = payoutTotal - payoutClubDues;
+        $('#payoutTotal2').val(payoutTotal2);
+        var payoutTotal3 = payoutTotal2 - $('#payoutProximityTotal').val();
+        $('#payoutTotal3').val(payoutTotal3);
+        var payoutSkinsTotal = parseInt(($('#payoutSkinsPercent').val() / 100) * payoutTotal3, 10);
+        $('#payoutSkinsTotal').val(payoutSkinsTotal);
+        $('#payoutSkinsTotalDisplay').html(payoutSkinsTotal)
+        var payoutSweepsTotal = parseInt(($('#payoutSweepsPercent').val() / 100) * payoutTotal3, 10);
+        $('#payoutSweepsTotal').val(payoutSweepsTotal);
+        var payoutSweepsNetTotal = parseInt(($('#payoutSweepsNetPercent').val() / 100) * payoutSweepsTotal, 10);
+        $('#payoutSweepsNetTotal').val(payoutSweepsNetTotal);
+        var payoutSweepsNetCount = 0;
+        if (payoutSweepsNetTotal <= 160) {
+          payoutSweepsNetCount = 3;
+        } else {
+          if (payoutSweepsNetTotal <= 300) {
+            payoutSweepsNetCount = 4;
+          } else {
+            payoutSweepsNetCount = 5;
+          }
+        }
+        $('#payoutSweepsNetCount').val(payoutSweepsNetCount);
+        var payoutSweepsGrossTotal = parseInt(($('#payoutSweepsGrossPercent').val() / 100) * payoutSweepsTotal, 10);
+        $('#payoutSweepsGrossTotal').val(payoutSweepsGrossTotal);
+        var payoutSweepsGrossCount = 0;
+        if (payoutSweepsGrossTotal <= 160) {
+          payoutSweepsGrossCount = 3;
+        } else {
+          if (payoutSweepsGrossTotal <= 300) {
+            payoutSweepsGrossCount = 4;
+          } else {
+            payoutSweepsGrossCount = 5;
+          }
+        }
+        $('#payoutSweepsGrossCount').val(payoutSweepsGrossCount);
+        $('#payoutSweepsTotalDisplay').html(payoutSweepsTotal)
+        $('#loadingDialog').modal('hide');
+      }).fail(function(xhr, textStatus, error) {
+        $('#loadingDialog').modal('hide');
+        $('#errorDialog').modal({}).show();
+        $('#errorHeader').text('failed to load payout!');
+        $('#errorText').text(xhr.responseText);
+        console.log('failed to load payout!');
+        console.log(xhr.responseText);
+        console.log(textStatus);
+        console.log(error);
+      });
+    });
+    
     //Load the courses list for select course modal
     $.each(availableCourseTeesJSON, function (i, item) {
       var option = '<option value="'+item.id+'">'+item.name+'</option>';
@@ -280,32 +415,17 @@
         tournamentId: tournamentId,
         tournamentName: tournamentName,
         tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
-        scores: JSON.stringify(scores)
+        scores: JSON.stringify(scores),
+        view: view
       };
       $.post('/golf/calculatescores/', context).done(function(data) {
+        console.log(data);
+        tournamentTable.clear();
+        $.each(data.rows, function(i, item) {
+          tournamentTable.row.add(item).draw();
+        });
         $('#loadingDialog').modal('hide');
         $('#enterScorecard').modal('hide');
-        console.log(data);
-        newTournamentTable.clear();
-        $.each(data.results, function(i, item) {
-          var addRowData = [
-            item.rank,
-            '<button style="background: url(\'/static/scorekeeper/icons/scorecard.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecard();" /><button style="background: url(\'/static/scorekeeper/icons/scorecardrow.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecardRow();" />',
-            item.playerName,
-            item.courseHCP];
-          for (var j = 0; j < 9; j++) {
-            addRowData.push(item.grossScores[j]);
-          }
-          addRowData.push(item.totalOut);
-          for (var j = 9; j < 18; j++) {
-            addRowData.push(item.grossScores[j]);
-          }
-          addRowData.push(item.totalIn);
-          addRowData.push(item.total);
-          addRowData.push(item.courseHCP);
-          addRowData.push(item.totalNet);
-          newTournamentTable.row.add(addRowData).draw();
-        });
         //TODO: set tables data and styles
       }).fail(function(xhr, textStatus, error) {
         $('#loadingDialog').modal('hide');
@@ -320,8 +440,8 @@
       $('#loadingDialog').modal('hide');
     });
 
-    //New tournament table
-    newTournamentTable = $('#newTournamentTable').DataTable( {
+    //tournament table
+    tournamentTable = $('#tournamentTable').DataTable( {
       'dom': 'Bfrtip',
       'buttons': [
         {
@@ -332,26 +452,44 @@
           },
           'action': function ( event, dt, node, config ) {
             event.stopPropagation();
-            addRowId = 0;
             if (availableCoursesJSON.length > 1) {
               $('#enterScorecardCourse').modal({backdrop: 'static'}, event.target).show();
             } else {
+              addRowId = 0;
               makeScorecard();
               $('#enterScorecard').modal({backdrop: 'static'}, event.target).show();
             }
           }
         },
         {
-          'text': 'Clear Round Data',
+          'text': 'P<u>r</u>int',
+          'key': {
+            'key': 'r',
+            'shiftKey': true
+          },
           'action': function ( event, dt, node, config) {
+            event.stopPropagation();
             $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
             var context = {
-              tournamentId: tournamentId,
-              tournamentName: tournamentName,
+              tournamentId: tournamentId
+            };
+            window.open('/golf/printtournament/');
+          }
+        },
+        {
+          'text': '<u>C</u>lear Round Data',
+          'key': {
+            'key': 'c',
+            'shiftKey': true
+          },
+          'action': function ( event, dt, node, config) {
+            event.stopPropagation();
+            $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+            var context = {
               tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
             };
             $.post('/golf/clearrounddata/', context).done(function(data) {
-              newTournamentTable.clear();
+              tournamentTable.clear();
               $('#loadingDialog').modal('hide');
               console.log(data);
             }).fail(function(xhr, textStatus, error) {
@@ -376,7 +514,23 @@
         "emptyTable": "Add a scorecard!"
       }
     });
-    newTournamentTable.buttons().container().append('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentRoundsJSON[roundId].scheduledDate+'" /></b>');
+    tournamentTable.buttons().container().append('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentRoundsJSON[roundId].scheduledDate+'" /></b>');
+
+    if (view == 'net') {
+      $('#netScoresPill').trigger('click');
+      $('#tournamentTableWrapper').show();
+      $('#payoutForm').hide();
+    }
+    if (view == 'gross') {
+      $('#grossScoresPill').trigger('click');
+      $('#tournamentTableWrapper').show();
+      $('#payoutForm').hide();
+    }
+    if (view == 'payout') {
+      $('#payoutPill').trigger('click');
+      $('#tournamentTableWrapper').hide();
+      $('#payoutForm').show();
+    }
     $('#newScorecardStartTimePicker').datetimepicker();
     $('#newScorecardFinishTimePicker').datetimepicker();
   });

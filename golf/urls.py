@@ -38,6 +38,8 @@ urlpatterns = [
     url(r'^tournament/$', csrf_exempt(tournaments.tournament), name='tournament'),
     url(r'^clearrounddata/$', csrf_exempt(tournaments.clearRoundData), name='clearrounddata'),
     url(r'^edittournament/(?P<tournamentId>\d+)$', tournaments.tournament, name='edittournament'),
+    url(r'^getscores/$', csrf_exempt(tournaments.getScores), name='getscores'),
+    url(r'^getpayout/$', csrf_exempt(tournaments.getPayout), name='getpayout'),
     
     url(r'^calculatescores/$', csrf_exempt(tournaments.calculateScores), name='calculatescores'),
     url(r'^leaderboard/(?P<tournamentId>\d+)$', tournaments.editTournament, name='edittournament'),

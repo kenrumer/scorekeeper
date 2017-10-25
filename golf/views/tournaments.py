@@ -37,7 +37,7 @@ def newTournament(request):
     TODO: Setup is an interesting concept... Can we ask if this is a team tourney
     """
     tournamentName = request.POST.get('tournamentName')
-    numRounds = request.POST.get('numRounds')
+    roundCount = request.POST.get('roundCount')
     tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
     availableCoursesJSON = json.loads(request.POST.get('availableCoursesJSON'))
     availableCourseTeesJSON = json.loads(request.POST.get('availableCourseTeesJSON'))
@@ -103,7 +103,7 @@ def newTournament(request):
     context = {
         "tournamentId": t.id,
         "tournamentName": tournamentName,
-        "numRounds": numRounds,
+        "roundCount": roundCount,
         "tournamentRoundsJSON": tournamentRoundsJSON,
         "availableCoursesJSON": availableCoursesJSON,
         "availableCourseTeesJSON": availableCourseTeesJSON
@@ -116,7 +116,7 @@ def tournament(request):
     """
     tournamentId = request.POST.get('tournamentId')
     tournamentName = request.POST.get('tournamentName')
-    numRounds = request.POST.get('numRounds')
+    roundCount = request.POST.get('roundCount')
     tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
     availableCoursesJSON = json.loads(request.POST.get('availableCoursesJSON'))
     availableCourseTeesJSON = json.loads(request.POST.get('availableCourseTeesJSON'))
@@ -130,7 +130,7 @@ def tournament(request):
     context = {
         "tournamentId": tournamentId,
         "tournamentName": tournamentName,
-        "numRounds": numRounds,
+        "roundCount": roundCount,
         "tournamentRoundsJSON": json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder),
         "availableCoursesJSON": json.dumps(availableCoursesJSON, cls=DjangoJSONEncoder),
         "availableCourseTeesJSON": json.dumps(availableCourseTeesJSON, cls=DjangoJSONEncoder),
@@ -146,6 +146,7 @@ def calculateScores(request):
     """
     tournamentId = request.POST['tournamentId']
     tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
+    view = request.POST['view']
 
     s = Scorecard()
     if (request.POST['scorer'] != ''):
@@ -171,16 +172,38 @@ def calculateScores(request):
     classAccess = getattr(classModule, formatPlugin.class_name)
     classInst = classAccess(tournamentId, tournamentRound['id'], s.id)
     resultList = classInst.calculateScores(request.POST)
-    print(getTournamentRoundStatus(tournamentRound['id']))
-    return JsonResponse(getTournamentRoundStatus(tournamentRound['id']))
+    roundStatus = getTournamentRoundStatus(tournamentRound['id'], view)
+    print('roundStatus')
+    print(roundStatus)
+    return JsonResponse(roundStatus)
 
-def getTournamentRoundStatus(tournamentRoundId):
+def getScores(request):
+    tournamentId = request.POST['tournamentId']
+    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
+    view = request.POST['view']
+    roundStatus = getTournamentRoundStatus(tournamentRound['id'], view)
+    return JsonResponse(roundStatus)
+
+def getPayout(request):
+    tournamentId = request.POST['tournamentId']
+    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
+    roundStatus = getTournamentRoundPayoutStatus(tournamentRound['id'])
+    return JsonResponse(roundStatus)
+
+def getTournamentRoundPayoutStatus(tournamentRoundId):
+    return {'net': getTournamentRoundStatus(tournamentRoundId, 'net'), 'gross': getTournamentRoundStatus(tournamentRoundId, 'gross')}
+
+def getTournamentRoundStatus(tournamentRoundId, view):
     """
     This method returns the current tournament status in an easy way for datatables to read
     """
     rows = []
+    styles = []
+    order = 'total'
+    if (view == 'net'):
+        order = 'net'
     try:
-        rounds = Round.objects.filter(tournament_round=tournamentRoundId).order_by('total')
+        rounds = Round.objects.filter(tournament_round=tournamentRoundId).order_by(order)
     except:
         print ('Failed to get rounds')
         print (tournamentRoundId)
@@ -193,6 +216,7 @@ def getTournamentRoundStatus(tournamentRoundId):
             print ('Failed to get scores')
             print (r.id)
             return False
+        style = []
         row = []
         row.append(i)
         row.append('<button style="background: url(\'/static/scorekeeper/icons/scorecard.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecard();" /><button style="background: url(\'/static/scorekeeper/icons/scorecardrow.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecardRow();" />')
@@ -200,14 +224,21 @@ def getTournamentRoundStatus(tournamentRoundId):
         row.append(r.course_handicap)
         for index, item in enumerate(scores):
             if (index == 9):
-                row.append(item.total_out)
-            row.append(item.score)
+                row.append(r.total_out)
+            if (view == 'net'):
+                style.append(item.score_net_style)
+                row.append(item.score_net)
+            else:
+                style.append(item.score_style)
+                row.append(item.score)
         row.append(r.total_in)
         row.append(r.total)
         row.append(r.course_handicap)
         row.append(r.net)
         i += 1
-    return
+        rows.append(row)
+        styles.append(style)
+    return { 'rows': rows, 'styles': styles }
 
 def clearRoundData(request):
     tournamentRound = json.loads(request.POST['tournamentRoundJSON'])

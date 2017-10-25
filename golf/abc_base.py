@@ -94,7 +94,6 @@ class FormatBase(object):
         if (len(rounds) == 0):
             return newPlayerResultList
             
-            
         #TODO: Normalizing when I don't need to...
         for round in rounds:
             score = {}
@@ -140,6 +139,12 @@ class FormatBase(object):
             TODO: Probably should say how many where updated.
             TODO: Return response time
         """
+        try:
+            tr = TournamentRound.objects.get(id=self.tournamentRoundId)
+        except:
+            print('Failed to get the tournament round')
+            print(self.tournamentRoundId)
+            return False
         for player in currentTournamentResults:
             try:
                 p = Player.objects.get(club_member_number=player['clubMemberNumber'])
@@ -160,7 +165,7 @@ class FormatBase(object):
                 print (player['courseTeeId'])
                 return False
             try:
-                r = Round.objects.get(tournament_round=self.tournamentRoundId, player=p)
+                r = Round.objects.get(tournament_round=tr, player=p)
                 r.scorecard = sc
                 r.course_tee = ct
                 r.handicap_index = player['handicapIndex']
@@ -180,7 +185,7 @@ class FormatBase(object):
                 r.save()
             except (Round.DoesNotExist):
                 #Create the round because it doesn't exist
-                r = Round(tournament_round=self.tournamentRoundId, player=p, scorecard=sc, course_tee=ct, handicap_index=player['handicapIndex'], course_handicap=player['courseHCP'], total_out=player['totalOut'], total_out_style=player['totalOutStyle'], total_out_net=player['totalOutNet'], total_out_net_style=player['totalOutNetStyle'], total_in=player['totalIn'], total_in_style=player['totalInStyle'], total_in_net=player['totalInNet'], total_in_net_style=player['totalInNetStyle'], total=player['total'], total_style=player['totalStyle'], net=player['totalNet'], net_style=player['totalNetStyle'])
+                r = Round(tournament_round=tr, player=p, scorecard=sc, course_tee=ct, handicap_index=player['handicapIndex'], course_handicap=player['courseHCP'], total_out=player['totalOut'], total_out_style=player['totalOutStyle'], total_out_net=player['totalOutNet'], total_out_net_style=player['totalOutNetStyle'], total_in=player['totalIn'], total_in_style=player['totalInStyle'], total_in_net=player['totalInNet'], total_in_net_style=player['totalInNetStyle'], total=player['total'], total_style=player['totalStyle'], net=player['totalNet'], net_style=player['totalNetStyle'])
                 r.save()
             except:
                 print ('Get Round failed')
@@ -201,9 +206,11 @@ class FormatBase(object):
                     s.score_style = player['grossStyles'][i]
                     s.score_net = player['netScores'][i]
                     s.score_net_style = player['netStyles'][i]
+                    s.skin = player['grossSkins'][i]
+                    s.skin_net = player['netSkins'][i]
                     s.save()
                 except Score.DoesNotExist:
-                    s = Score(round=r, tee=te, score=player['grossScores'][i], score_style=player['grossStyles'][i], score_net=player['netScores'][i], score_net_style=player['netStyles'][i])
+                    s = Score(round=r, tee=te, score=player['grossScores'][i], score_style=player['grossStyles'][i], score_net=player['netScores'][i], score_net_style=player['netStyles'][i], skin=player['grossSkins'][i], skin_net=player['netSkins'][i])
                     s.save()
                 except:
                     print ('Get Score failed')

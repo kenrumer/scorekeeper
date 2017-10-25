@@ -9,7 +9,7 @@
   //New Tournament Wizard
   $('#newTournamentButton').click(function(event) {
     $('#newTournamentName').val(clubsJSON[0].default_tournament_name+' - '+moment().format('MM/DD/YYYY'));
-    $('#newTournamentNumRounds').val(1);
+    $('#newTournamentRoundCount').val(1);
     $('#newTournament').modal({backdrop: 'static'}, event.target).show();
   });
 
@@ -26,10 +26,10 @@
         $('#newTournamentDuplicate').modal({backdrop: 'static', keyboard: false}, event.target).show();
       } else {
         $('#newTournament').modal('hide');
-        var numRounds = parseInt($('#newTournamentNumRounds').val(), 10);
+        var roundCount = parseInt($('#newTournamentRoundCount').val(), 10);
         $('#newTournamentRoundsPlaceholder').html('');
         var roundsInput = '<div class="list-group newTournamentRoundsList">';
-        for (var i = 1; i <= numRounds; i++) {
+        for (var i = 1; i <= roundCount; i++) {
           roundsInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
          	roundsInput += '    <div class="col-sm-1"></div>';
          	roundsInput += '    <div class="col-sm-3">';
@@ -53,7 +53,7 @@
         }
         roundsInput += '</div>';
         $('#newTournamentRoundsPlaceholder').append(roundsInput);
-        for (var i = 1; i <= numRounds; i++) {
+        for (var i = 1; i <= roundCount; i++) {
           $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsScheduledDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
         }
         $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
@@ -78,11 +78,11 @@
   $('#newTournamentDuplicateCreateNewTournament').click(function(event) {
     $('#newTournamentDuplicate').modal('hide');
     $('#newTournament').modal('hide');
-    var numRounds = parseInt($('#newTournamentNumRounds').val(), 10);
+    var roundCount = parseInt($('#newTournamentRoundCount').val(), 10);
     //Show choose dates
     $('#newTournamentRoundsPlaceholder').html('');
     var roundsInput = '<div class="list-group newTournamentRoundsList">';
-    for (var i = 1; i <= numRounds; i++) {
+    for (var i = 1; i <= roundCount; i++) {
       roundsInput += '  <div class="row" id="newTournamentRoundsListItem'+i+'">';
      	roundsInput += '    <div class="col-sm-1"></div>';
      	roundsInput += '    <div class="col-sm-3">';
@@ -106,7 +106,7 @@
     }
     roundsInput += '</div>';
     $('#newTournamentRoundsPlaceholder').append(roundsInput);
-    for (var i = 1; i <= numRounds; i++) {
+    for (var i = 1; i <= roundCount; i++) {
       $('#newTournamentRoundsPlaceholder').find('#newTournamentRoundsScheduledDatePicker'+i).datetimepicker({format: 'MM/DD/YYYY'});
     }
     $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
@@ -166,9 +166,9 @@
     $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
   });
   $('#newTournamentCourseTeesNextButton').click(function(event) {
-    var numRounds = parseInt($('#newTournamentNumRounds').val(), 10);
+    var roundCount = parseInt($('#newTournamentRoundCount').val(), 10);
     var tournamentRounds = [];
-    for (var i = 1; i <= numRounds; i++) {
+    for (var i = 1; i <= roundCount; i++) {
       var tournamentRound = {
         formatId: $('#newTournamentRoundsFormatPlugin'+i).val(),
         scheduledDate: $('#newTournamentRoundsScheduledDate'+i).val(),
@@ -178,7 +178,7 @@
     }
     var context = {
       tournamentName: $('#newTournamentName').val(),
-      numRounds: numRounds,
+      roundCount: roundCount,
       tournamentRoundsJSON: JSON.stringify(tournamentRounds),
       availableCoursesJSON: JSON.stringify(newTournamentCoursesSelectedCourseList),
       availableCourseTeesJSON: JSON.stringify(newTournamentCourseTeesSelectedCourseTeeList)

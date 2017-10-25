@@ -186,24 +186,32 @@ class SkinsAndPinsFormat(FormatBase):
                 if (lowestGrossCount == 1):
                     if (standing['grossScores'][i] == lowestGross):
                         standing['grossStyles'].append('background-color:#eee;')
+                        standing['grossSkins'].append(1)
                     else:
                         standing['grossStyles'].append('')
+                        standing['grossSkins'].append(0)
                 else:
                     if (standing['grossScores'][i] == lowestGross):
                         standing['grossStyles'].append('background-color:#ccc;')
+                        standing['grossSkins'].append(0)
                     else:
                         standing['grossStyles'].append('')
+                        standing['grossSkins'].append(0)
 
                 if (lowestNetCount == 1):
                     if (standing['netScores'][i] == lowestNet):
                         standing['netStyles'].append('background-color:#eee;')
+                        standing['netSkins'].append(1)
                     else:
                         standing['netStyles'].append('')
+                        standing['netSkins'].append(0)
                 else:
                     if (standing['netScores'][i] == lowestNet):
                         standing['netStyles'].append('background-color:#ccc;')
+                        standing['netSkins'].append(0)
                     else:
                         standing['netStyles'].append('')
+                        standing['netSkins'].append(0)
 
         super().updateTournament(updatedTournamentStandings)
         return True
