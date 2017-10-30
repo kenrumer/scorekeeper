@@ -67,15 +67,14 @@ class PlayerBase(object):
 class FormatBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, tournamentId, tournamentRoundId, scorecardId):
+    def __init__(self, tournamentId, tournamentRoundId):
         self.tournamentId = tournamentId
         self.tournamentRoundId = tournamentRoundId
-        self.scorecardId = scorecardId
         print(tournamentRoundId)
         pass
 
     @abstractmethod
-    def calculateScores(self, scores):
+    def updateScores(self, scores):
         return
 
     def mergePlayerResults(self, newPlayerResultList):
@@ -83,7 +82,7 @@ class FormatBase(object):
         Merges the existing players from the database with the new players
         TODO: Need to return response time
         """
-        resultList = []
+        playerResultList = []
         try:
             rounds = Round.objects.filter(tournament_round=self.tournamentRoundId)
         except (Round.DoesNotExist):
@@ -96,43 +95,41 @@ class FormatBase(object):
             
         #TODO: Normalizing when I don't need to...
         for round in rounds:
-            score = {}
-            score['clubMemberNumber'] = round.player.club_member_number
-            score['playerName'] = round.player.name
-            score['handicapIndex'] = round.handicap_index
-            score['courseTeeId'] = round.course_tee.id
-            score['courseHCP'] = round.course_handicap
-            score['totalOut'] = round.total_out
-            score['totalIn'] = round.total_in
-            score['total'] = round.total
-            score['totalNet'] = round.net
+            player = {}
+            player['clubMemberNumber'] = round.player.club_member_number
+            player['playerName'] = round.player.name
+            player['handicapIndex'] = round.handicap_index
+            player['courseTeeId'] = round.course_tee.id
+            player['courseHCP'] = round.course_handicap
+            player['totalOut'] = round.total_out
+            player['totalIn'] = round.total_in
+            player['total'] = round.total
+            player['totalNet'] = round.net
             for i in range(18):
                 ss = Score.objects.filter(round=round.id, tee__hole__number=int(i+1)).values()[0]
-                score['hole'+str(i)] = ss['score']
-            resultList.append(score)
-        print ('resultList')
-        print (resultList)
-        for score in newPlayerResultList:
+                player['hole'+str(i)] = ss['score']
+            playerResultList.append(player)
+        for player in newPlayerResultList:
             nfound = True
-            for result in resultList:
-                if (result['clubMemberNumber'] == score['clubMemberNumber']):
+            for result in playerResultList:
+                if (result['clubMemberNumber'] == player['clubMemberNumber']):
                     nfound = False
-                    result['playerName'] = score['playerName']
-                    result['handicapIndex'] = score['handicapIndex']
-                    result['courseTeeId'] = score['courseTeeId']
-                    result['courseHCP'] = score['courseHandicap']
-                    result['totalOut'] = score['totalOut']
-                    result['totalIn'] = score['totalIn']
-                    result['total'] = score['total']
-                    result['totalNet'] = score['totalNet']
+                    result['playerName'] = player['playerName']
+                    result['handicapIndex'] = player['handicapIndex']
+                    result['courseTeeId'] = player['courseTeeId']
+                    result['courseHCP'] = player['courseHandicap']
+                    result['totalOut'] = player['totalOut']
+                    result['totalIn'] = player['totalIn']
+                    result['total'] = player['total']
+                    result['totalNet'] = player['totalNet']
                     for i in range(18):
-                        result['hole'+str(i)] = score.score['hole'+str(i)]
+                        result['hole'+str(i)] = player.score['hole'+str(i)]
                     pass
             if (nfound):
-                resultList.append(score)
-        return resultList
+                playerResultList.append(player)
+        return playerResultList
 
-    def updateTournament(self, currentTournamentResults):
+    def updateTournament(self, playerResultList):
         """
             Sets the current tournament values in the database
             return True for success and False for fail
@@ -145,7 +142,7 @@ class FormatBase(object):
             print('Failed to get the tournament round')
             print(self.tournamentRoundId)
             return False
-        for player in currentTournamentResults:
+        for player in playerResultList:
             try:
                 p = Player.objects.get(club_member_number=player['clubMemberNumber'])
             except (Player.DoesNotExist):
@@ -153,10 +150,10 @@ class FormatBase(object):
                 print (player['clubMemberNumber'])
                 return False
             try:
-                sc = Scorecard.objects.get(id=self.scorecardId)
+                sc = Scorecard.objects.get(id=player['scorecardId'])
             except (Scorecard.DoesNotExist):
                 print ('Get Scorecard failed')
-                print (self.scorecardId)
+                print (player['scorecardId'])
                 return False
             try:
                 ct = CourseTee.objects.get(id=player['courseTeeId'])
@@ -204,13 +201,13 @@ class FormatBase(object):
                     s.tee = te
                     s.score = player['grossScores'][i]
                     s.score_style = player['grossStyles'][i]
+                    s.skin = player['grossSkins'][i]
                     s.score_net = player['netScores'][i]
                     s.score_net_style = player['netStyles'][i]
-                    s.skin = player['grossSkins'][i]
                     s.skin_net = player['netSkins'][i]
                     s.save()
                 except Score.DoesNotExist:
-                    s = Score(round=r, tee=te, score=player['grossScores'][i], score_style=player['grossStyles'][i], score_net=player['netScores'][i], score_net_style=player['netStyles'][i], skin=player['grossSkins'][i], skin_net=player['netSkins'][i])
+                    s = Score(round=r, tee=te, score=player['grossScores'][i], score_style=player['grossStyles'][i], skin=player['grossSkins'][i], score_net=player['netScores'][i], score_net_style=player['netStyles'][i], skin_net=player['netSkins'][i])
                     s.save()
                 except:
                     print ('Get Score failed')

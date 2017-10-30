@@ -17,8 +17,8 @@ body .modal-dialog {
 .tournament-scorecard {
   font-size: 80%;
 }
-.dt-buttons {
-  width:100%;
+div .customTitle {
+  text-align: center;
 }
 
 /*scorecard modal*/

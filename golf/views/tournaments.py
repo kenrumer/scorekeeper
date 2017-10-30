@@ -16,21 +16,6 @@ def editFormats(request):
 def getFormats(request):
     return HttpResponse('Test')
 
-def checkForTournamentDuplicate(request):
-    """
-    Ajax function to check if the tournament already exists
-    """
-    tournamentName = request.POST.get('tournamentName')
-    print(tournamentName)
-    try:
-        Tournament.objects.get(name=tournamentName)
-        responseJSON = '{"duplicate": true}'
-    except Tournament.MultipleObjectsReturned:
-        responseJSON = '{"duplicate": true}'
-    except Tournament.DoesNotExist:
-        responseJSON = '{"duplicate": false}'
-    return JsonResponse(json.loads(responseJSON))
-
 def newTournament(request):
     """
     Ajax function to create a new tournament.
@@ -38,9 +23,9 @@ def newTournament(request):
     """
     tournamentName = request.POST.get('tournamentName')
     roundCount = request.POST.get('roundCount')
-    tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
-    availableCoursesJSON = json.loads(request.POST.get('availableCoursesJSON'))
-    availableCourseTeesJSON = json.loads(request.POST.get('availableCourseTeesJSON'))
+    tournamentRounds = json.loads(request.POST.get('tournamentRounds'))
+    availableCourses = json.loads(request.POST.get('availableCourses'))
+    availableCourseTees = json.loads(request.POST.get('availableCourseTees'))
 
     """
     Set tournament
@@ -51,7 +36,7 @@ def newTournament(request):
     """
     Set tournament rounds
     """
-    for tournamentRound in tournamentRoundsJSON:
+    for tournamentRound in tournamentRounds:
         d = datetime.strptime(tournamentRound['scheduledDate'], '%m/%d/%Y')
         fp = FormatPlugin.objects.get(id=tournamentRound['formatId'])
         tr = TournamentRound(scheduled_date=d, tournament=t, format_plugin=fp, name=tournamentRound['name'])
@@ -60,19 +45,19 @@ def newTournament(request):
         """
         Set tournament courses and tees
         """
-        for availableCourse in availableCoursesJSON:
+        for availableCourse in availableCourses:
             tr.available_courses.add(availableCourse['id'])
-        for availableCourseTee in availableCourseTeesJSON:
+        for availableCourseTee in availableCourseTees:
             tr.available_course_tees.add(availableCourseTee['id'])
         tr.save()
-    tournamentRoundsJSON = json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder)
-    availableCoursesJSON = json.dumps(availableCoursesJSON, cls=DjangoJSONEncoder)
+    tournamentRounds = json.dumps(tournamentRounds, cls=DjangoJSONEncoder)
+    availableCourses = json.dumps(availableCourses, cls=DjangoJSONEncoder)
 
 
     """
     Set tournament course tees
     """
-    for availableCourseTee in availableCourseTeesJSON:
+    for availableCourseTee in availableCourseTees:
         availableCourseTee["tees"] = list(Tee.objects.filter(course_tee__id=availableCourseTee['id']).values('id', 'yardage', 'par', 'hole__name', 'hole__number').order_by('hole__number'))
         availableCourseTee["hole_count"] = len(availableCourseTee['tees'])
         availableCourseTee['yardageOut'] = 0
@@ -97,16 +82,15 @@ def newTournament(request):
                 availableCourseTee['parIn'] += int(availableCourseTee['tees'][back]['par'])
             availableCourseTee['yardageTotal'] = availableCourseTee['yardageOut'] + availableCourseTee['yardageIn']
             availableCourseTee['parTotal'] = availableCourseTee['parOut'] + availableCourseTee['parIn']
-    availableCourseTeesJSON = json.dumps(availableCourseTeesJSON, cls=DjangoJSONEncoder)
-    print (availableCourseTeesJSON)
+    availableCourseTees = json.dumps(availableCourseTees, cls=DjangoJSONEncoder)
 
     context = {
         "tournamentId": t.id,
         "tournamentName": tournamentName,
         "roundCount": roundCount,
-        "tournamentRoundsJSON": tournamentRoundsJSON,
-        "availableCoursesJSON": availableCoursesJSON,
-        "availableCourseTeesJSON": availableCourseTeesJSON
+        "tournamentRounds": tournamentRounds,
+        "availableCourses": availableCourses,
+        "availableCourseTees": availableCourseTees
     }
     return JsonResponse(context)
 
@@ -117,35 +101,35 @@ def tournament(request):
     tournamentId = request.POST.get('tournamentId')
     tournamentName = request.POST.get('tournamentName')
     roundCount = request.POST.get('roundCount')
-    tournamentRoundsJSON = json.loads(request.POST.get('tournamentRoundsJSON'))
-    availableCoursesJSON = json.loads(request.POST.get('availableCoursesJSON'))
-    availableCourseTeesJSON = json.loads(request.POST.get('availableCourseTeesJSON'))
+    tournamentRounds = json.loads(request.POST.get('tournamentRounds'))
+    availableCourses = json.loads(request.POST.get('availableCourses'))
+    availableCourseTees = json.loads(request.POST.get('availableCourseTees'))
 
     """
     Get all players
     """
     players = list(Player.objects.values())
-    playersJSON = json.dumps(players, cls=DjangoJSONEncoder)
+    players = json.dumps(players, cls=DjangoJSONEncoder)
 
     context = {
         "tournamentId": tournamentId,
         "tournamentName": tournamentName,
         "roundCount": roundCount,
-        "tournamentRoundsJSON": json.dumps(tournamentRoundsJSON, cls=DjangoJSONEncoder),
-        "availableCoursesJSON": json.dumps(availableCoursesJSON, cls=DjangoJSONEncoder),
-        "availableCourseTeesJSON": json.dumps(availableCourseTeesJSON, cls=DjangoJSONEncoder),
-        "playersJSON": playersJSON
+        "tournamentRounds": json.dumps(tournamentRounds, cls=DjangoJSONEncoder),
+        "availableCourses": json.dumps(availableCourses, cls=DjangoJSONEncoder),
+        "availableCourseTees": json.dumps(availableCourseTees, cls=DjangoJSONEncoder),
+        "players": players
     }
     return render(request, 'golf/tournament.html', context=context)
 
-def calculateScores(request):
+def updateScores(request):
     """
     Score the tournament
     Save the data
     Return the rankings grosses and nets and colors per cell
     """
     tournamentId = request.POST['tournamentId']
-    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
+    tournamentRound = json.loads(request.POST['tournamentRound'])
     view = request.POST['view']
 
     s = Scorecard()
@@ -166,33 +150,82 @@ def calculateScores(request):
     if (request.POST['finishTime'] != ''):
         s.finish_time = request.POST['finishTime']
     s.save()
+    
+    scores = request.POST['scores']
+    for score in scores:
+        score['scorecardId'] = s.id
 
     formatPlugin = FormatPlugin.objects.get(id=tournamentRound['formatId'])
     classModule = importlib.import_module('golf.formatplugins.'+formatPlugin.class_package)
     classAccess = getattr(classModule, formatPlugin.class_name)
-    classInst = classAccess(tournamentId, tournamentRound['id'], s.id)
-    resultList = classInst.calculateScores(request.POST)
+    classInst = classAccess(tournamentId, tournamentRound['id'])
+    classInst.updateScores(request.POST)
+    
     roundStatus = getTournamentRoundStatus(tournamentRound['id'], view)
-    print('roundStatus')
-    print(roundStatus)
     return JsonResponse(roundStatus)
 
 def getScores(request):
     tournamentId = request.POST['tournamentId']
-    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
+    tournamentRound = json.loads(request.POST['tournamentRound'])
     view = request.POST['view']
     roundStatus = getTournamentRoundStatus(tournamentRound['id'], view)
     return JsonResponse(roundStatus)
 
 def getPayout(request):
     tournamentId = request.POST['tournamentId']
-    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
+    tournamentRound = json.loads(request.POST['tournamentRound'])
+
+    formatPlugin = FormatPlugin.objects.get(id=tournamentRound['formatId'])
+    classModule = importlib.import_module('golf.formatplugins.'+formatPlugin.class_package)
+    classAccess = getattr(classModule, formatPlugin.class_name)
+    classInst = classAccess(tournamentId, tournamentRound['id'])
+    resultList = classInst.calculateScores(request.POST)
+    
     roundStatus = getTournamentRoundPayoutStatus(tournamentRound['id'])
     return JsonResponse(roundStatus)
 
 def getTournamentRoundPayoutStatus(tournamentRoundId):
-    return {'net': getTournamentRoundStatus(tournamentRoundId, 'net'), 'gross': getTournamentRoundStatus(tournamentRoundId, 'gross')}
+    return {
+        'net': getTournamentRoundStatus(tournamentRoundId, 'net'),
+        'gross': getTournamentRoundStatus(tournamentRoundId, 'gross'),
+        'netSkins':getTournamentRoundSkinStatus(tournamentRoundId, 'net'),
+        'skins':getTournamentRoundSkinStatus(tournamentRoundId, 'gross')
+    }
 
+def getTournamentRoundSkinStatus(tournamentRoundId, view):
+    """
+    This method returns the current tournament status
+    """
+    skins = []
+    order = 'total'
+    if (view == 'net'):
+        order = 'net'
+    try:
+        rounds = Round.objects.filter(tournament_round=tournamentRoundId).order_by(order)
+    except:
+        print ('Failed to get rounds')
+        print (tournamentRoundId)
+        return False
+    i = 1
+    for r in rounds:
+        try:
+            scores = Score.objects.filter(round=r.id).order_by('tee__hole__number')
+        except:
+            print ('Failed to get scores')
+            print (r.id)
+            return False
+        skin = []
+        playerName = r.player.name
+        for index, item in enumerate(scores):
+            if (view == 'net'):
+                if (item.skin_net == 1):
+                    skin.append(i)
+            else:
+                if (item.skin == 1):
+                    skin.append(i)
+        skins.append(skin)
+    return { 'playerName': playerName, 'skins': skins }
+    
 def getTournamentRoundStatus(tournamentRoundId, view):
     """
     This method returns the current tournament status in an easy way for datatables to read
@@ -219,7 +252,7 @@ def getTournamentRoundStatus(tournamentRoundId, view):
         style = []
         row = []
         row.append(i)
-        row.append('<button style="background: url(\'/static/scorekeeper/icons/scorecard.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecard();" /><button style="background: url(\'/static/scorekeeper/icons/scorecardrow.png\') no-repeat;width:29px;height:29px;" onclick="javascript:editScorecardRow();" />')
+        row.append('<div class="btn-group"><button type="button" class="btn btn-default" onclick="javascript:editScorecard();" aria-label="Edit Scorecard"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></button><button type="button" class="btn btn-default" onclick="javascript:editScorecardRow();" aria-label="Edit Scorecard Row"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></div>')
         row.append(r.player.name)
         row.append(r.course_handicap)
         for index, item in enumerate(scores):
@@ -241,7 +274,7 @@ def getTournamentRoundStatus(tournamentRoundId, view):
     return { 'rows': rows, 'styles': styles }
 
 def clearRoundData(request):
-    tournamentRound = json.loads(request.POST['tournamentRoundJSON'])
+    tournamentRound = json.loads(request.POST['tournamentRound'])
 
     try:
         tr = TournamentRound.objects.get(id=tournamentRound['id'])

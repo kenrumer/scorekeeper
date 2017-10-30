@@ -1,4 +1,4 @@
-/* global $, tournamentId, tournamentName, roundCount, tournamentRoundsJSON, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId, moment, view */
+/* global $, tournamentId, tournamentName, roundCount, tournamentRounds, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId, moment, view */
   var tournamentTable;
   var addRowId = 0;
 
@@ -172,12 +172,12 @@
   $(document).ready(function() {
 
     //TODO: Add the rounds tabs functionality, totals page
-    var roundTabs = '<ul class="nav nav-tabs">';
+    var roundTabs = '<ul class="nav nav-tabs navbar-right">';
     for (var i = 0; i < roundCount; i++) {
       if (roundId == i) {
-        roundTabs += '  <li class="active" data-toggle="tab"><a href="#">'+tournamentRoundsJSON[roundId].name+'</a></li>';
+        roundTabs += '  <li class="active" data-toggle="tab"><a href="#">'+tournamentRounds[roundId].name+'</a></li>';
       } else {
-        roundTabs += '  <li data-toggle="tab"><a href="#">'+tournamentRoundsJSON[roundId].name+'</a></li>';
+        roundTabs += '  <li data-toggle="tab"><a href="#">'+tournamentRounds[roundId].name+'</a></li>';
       }
     }
     if (roundCount > 1) {
@@ -192,7 +192,7 @@
       var context = {
         tournamentId: tournamentId,
         tournamentName: tournamentName,
-        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
+        tournamentRound: JSON.stringify(tournamentRounds[roundId]),
         view: 'net'
       };
       $.post('/golf/getscores/', context).done(function(data) {
@@ -222,7 +222,7 @@
       var context = {
         tournamentId: tournamentId,
         tournamentName: tournamentName,
-        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
+        tournamentRound: JSON.stringify(tournamentRounds[roundId]),
         view: 'gross'
       };
       $.post('/golf/getscores/', context).done(function(data) {
@@ -252,7 +252,7 @@
       var context = {
         tournamentId: tournamentId,
         tournamentName: tournamentName,
-        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId])
+        tournamentRound: JSON.stringify(tournamentRounds[roundId])
       };
       $.post('/golf/getpayout/', context).done(function(data) {
         console.log(data);
@@ -364,61 +364,60 @@
     //Doing all of this in 1 post to save time/effort
     $('#enterScorecardButton').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-      var scores = [];
+      var players = [];
       $('#scorecard #playerNamesSelect').each(function() {
-        var score = {};
+        var player = {};
         var rowId = $(this).data('rowId');
         var clubMemberNumber = $('option:selected',this).val();
         var playerName = $('option:selected',this).text();
         var handicapIndex = $('option:selected',this).data('handicapIndex');
         var courseTeeId = parseInt($('#playerTee'+rowId).data('courseTeeId'), 10);
         var courseHCP = parseInt($('#hcp'+rowId).val(), 10);
-        score.clubMemberNumber = clubMemberNumber;
-        score.playerName = playerName;
-        score.handicapIndex = handicapIndex;
-        score.courseTeeId = courseTeeId;
-        score.courseHCP = courseHCP;
+        player.clubMemberNumber = clubMemberNumber;
+        player.playerName = playerName;
+        player.round = {};
+        player.round.handicapIndex = handicapIndex;
+        player.round.courseTeeId = courseTeeId;
+        player.round.courseHCP = courseHCP;
         
         var holesOut = $('[data-hole-out="'+rowId+'"]');
         var totalOut = 0;
+        player.round.score = [];
         holesOut.each(function(i, item) {
           var holeNumber = parseInt($(item).data('holeNumber'), 10);
-          score['hole'+holeNumber] = parseInt($(item).val(), 10);
+          player.round.score['hole'+holeNumber] = parseInt($(item).val(), 10);
           totalOut += parseInt($(item).val(), 10);
         });
-        score.totalOut = totalOut;
+        player.round.totalOut = totalOut;
         var holesIn = $('[data-hole-in="'+rowId+'"]');
         var totalIn = 0;
         holesIn.each(function(i, item) {
           var holeNumber = parseInt($(item).data('holeNumber'), 10);
-          score['hole'+holeNumber] = parseInt($(item).val(), 10);
+          player.round.score['hole'+holeNumber] = parseInt($(item).val(), 10);
           totalIn += parseInt($(item).val(), 10);
         });
-        score.totalIn = totalIn;
-        score.total = totalIn+totalOut;
-        score.totalNet = totalIn+totalOut-courseHCP;
-        scores.push(score);
+        player.round.totalIn = totalIn;
+        player.round.total = totalIn+totalOut;
+        player.round.totalNet = totalIn+totalOut-courseHCP;
+        player.round.scorecard = {};
+        player.round.scorecard.scorer = $('#newScorecardScorer').val();
+        player.round.scorecard.scorerId = $('#scorecardScorer').find('[value="'+player.round.scorecard.scorer+'"]').data('value');
+        player.round.scorecard.attest = $('#newScorecardAttest').val();
+        player.round.scorecard.attestId = $('#scorecardAttest').find('[value="'+player.round.scorecard.attest+'"]').data('value');
+        player.round.scorecard.startTime = moment($('#newScorecardStartTime').val()).format('YYYY-MM-DD HH:MM');
+        player.round.scorecard.finishTime = moment($('#newScorecardFinishTime').val()).format('YYYY-MM-DD HH:MM');
+        players.push(player);
       });
-      var scorer = $('#newScorecardScorer').val();
-      var scorerId = $('#scorecardScorer').find('[value="'+scorer+'"]').data('value');
-      var attest = $('#newScorecardAttest').val();
-      var attestId = $('#scorecardAttest').find('[value="'+attest+'"]').data('value');
-      var startTime = $('#newScorecardStartTime').val();
-      var finishTime = $('#newScorecardFinishTime').val();
       var context = {
-        startTime: moment(startTime).format('YYYY-MM-DD HH:MM'),
-        finishTime: moment(finishTime).format('YYYY-MM-DD HH:MM'),
-        scorer: scorer,
-        scorerId: scorerId,
-        attest: attest,
-        attestId: attestId,
-        tournamentId: tournamentId,
-        tournamentName: tournamentName,
-        tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
-        scores: JSON.stringify(scores),
+        tournament: {
+          id: tournamentId,
+          name: tournamentName
+        },
+        tournamentRound: JSON.stringify(tournamentRounds[roundId]),
+        players: players,
         view: view
       };
-      $.post('/golf/calculatescores/', context).done(function(data) {
+      $.post('/golf/updatescores/', context).done(function(data) {
         console.log(data);
         tournamentTable.clear();
         $.each(data.rows, function(i, item) {
@@ -442,7 +441,7 @@
 
     //tournament table
     tournamentTable = $('#tournamentTable').DataTable( {
-      'dom': 'Bfrtip',
+      'dom': 'Bf<"customTitle">rtip',
       'buttons': [
         {
           'text': '<u>A</u>dd Scorecard',
@@ -462,7 +461,7 @@
           }
         },
         {
-          'text': 'P<u>r</u>int',
+          'text': '<u>P</u>rint',
           'key': {
             'key': 'r',
             'shiftKey': true
@@ -486,7 +485,7 @@
             event.stopPropagation();
             $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
             var context = {
-              tournamentRoundJSON: JSON.stringify(tournamentRoundsJSON[roundId]),
+              tournamentRound: JSON.stringify(tournamentRounds[roundId]),
             };
             $.post('/golf/clearrounddata/', context).done(function(data) {
               tournamentTable.clear();
@@ -514,13 +513,13 @@
         "emptyTable": "Add a scorecard!"
       }
     });
-    tournamentTable.buttons().container().append('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentRoundsJSON[roundId].scheduledDate+'" /></b>');
+    $('div.customTitle').html('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentRounds[roundId].scheduledDate+'" /></b>');
 
     if (view == 'net') {
       $('#netScoresPill').trigger('click');
       $('#tournamentTableWrapper').show();
       $('#payoutForm').hide();
-    }
+
     if (view == 'gross') {
       $('#grossScoresPill').trigger('click');
       $('#tournamentTableWrapper').show();

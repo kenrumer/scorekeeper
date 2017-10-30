@@ -1,88 +1,83 @@
-from ..models import Tournament, TournamentRound, FormatPlugin, Player, Course, CourseTee, Club, Activity, PlayerPlugin
+from ..models import Tournament, TournamentRound, Round, Scorecard, FormatPlugin, Player, Course, CourseTee, Club, Activity, PlayerPlugin
 from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
 def homeView(request):
     """
     View function for home page
-    Basically sending the database for clubs, courses, tees, tournament rounds, tournaments, tournament formats, players, player plugins, activities
+    Sends the club name
     """
-    clubs = list(Club.objects.all().values())
-    clubsJSON = json.dumps(clubs, cls=DjangoJSONEncoder)
-    courses = list(Course.objects.all().values().order_by('priority'))
-    coursesJSON = json.dumps(courses, cls=DjangoJSONEncoder)
-    courseTees = list(CourseTee.objects.all().values('id', 'name', 'priority', 'default', 'slope', 'color', 'course__name', 'course__id').order_by('priority'))
-    courseTeesJSON = json.dumps(courseTees, cls=DjangoJSONEncoder)
-    tournaments = list(Tournament.objects.all().values())
-    tournamentsJSON = json.dumps(tournaments, cls=DjangoJSONEncoder)
-    tournamentRounds = list(TournamentRound.objects.all().values())
-    tournamentRoundsJSON = json.dumps(tournamentRounds, cls=DjangoJSONEncoder)
-    formatPlugins = list(FormatPlugin.objects.all().values().order_by('priority'))
-    formatPluginsJSON = json.dumps(formatPlugins, cls=DjangoJSONEncoder)
-    players = list(Player.objects.all().values())
-    playersJSON = json.dumps(players, cls=DjangoJSONEncoder)
-    playerPlugins = list(PlayerPlugin.objects.all().values())
-    playerPluginsJSON = json.dumps(playerPlugins, cls=DjangoJSONEncoder)
-    activities = list(Activity.objects.all().values())
-    activitiesJSON = json.dumps(activities, cls=DjangoJSONEncoder)
-    context = {
-        'clubs': clubs,
-        'courses': courses,
-        'courseTees': courseTees,
-        'tournaments': tournaments,
-        'tournamentRounds': tournamentRounds,
-        'formatPlugins': formatPlugins,
-        'players': players,
-        'playerplugins': playerPlugins,
-        'activities': activities,
-    }
-    #Used in settings and new tournament, if len is 0, need to create a new club wizard
-    if (len(clubs) == 0):
-        context['clubsJSON'] = {}
-    else:
-        context['clubsJSON'] = clubsJSON
+    retObject = getClub()
+    return render(request, 'golf/home.html', retObject)
+def getAllTournamentRounds(request):
+    return JsonResponse(json.dumps(list(TournamentRound.objects.all().values()), cls=DjangoJSONEncoder))
+def getAllCourseTees(request):
+    return JsonResponse(json.dumps(list(CourseTee.objects.all().values('id', 'name', 'priority', 'default', 'slope', 'color', 'course__name', 'course__id').order_by('priority')), cls=DjangoJSONEncoder))
+def getAllPlayerPlugins(request):
+    return JsonResponse(json.dumps(list(PlayerPlugin.objects.all().values()), cls=DjangoJSONEncoder))
+def getAllActivities(request):
+    return JsonResponse(json.dumps(list(Activity.objects.all().values()), cls=DjangoJSONEncoder))
 
-    #Used in new tournament, edit courses, settings
-    if (len(courses) == 0):
-        context['coursesJSON'] = {}
-    else:
-        context['coursesJSON'] = coursesJSON
+def getClub():
+    retObject = {}
+    retObject['club'] = json.dumps(Club.objects.order_by('-id').values('name', 'logo', 'default_tournament_name', 'players_last_updated')[0], cls=DjangoJSONEncoder)
+    retObject['data'] = json.dumps(json.loads(json.loads(json.dumps(Club.objects.order_by('-id').values('data')[0], cls=DjangoJSONEncoder))['data']))
+    return retObject
 
-    #Used in new tournament
-    if (len(courseTees) == 0):
-        context['courseTeesJSON'] = {}
-    else:
-        context['courseTeesJSON'] = courseTeesJSON
+def checkForTournamentDuplicate(request):
+    """
+    Ajax function to check if the tournament already exists
+    """
+    tournamentName = request.POST.get('tournamentName')
+    try:
+        Tournament.objects.get(name=tournamentName)
+        retObject = '{"duplicate": true}'
+    except Tournament.MultipleObjectsReturned:
+        retObject = '{"duplicate": true}'
+    except Tournament.DoesNotExist:
+        retObject = '{"duplicate": false}'
+    return JsonResponse(json.loads(retObject))
 
-    if (len(tournaments) == 0):
-        context['tournamentsJSON'] = {}
-    else:
-        context['tournamentsJSON'] = tournamentsJSON
+def getAllFormatPlugins(request):
+    return JsonResponse({'formatPlugins':list(FormatPlugin.objects.all().values().order_by('priority'))})
 
-    if (len(tournamentRounds) == 0):
-        context['tournamentRoundsJSON'] = {}
-    else:
-        context['tournamentRoundsJSON'] = tournamentRoundsJSON
+def getAllCourses(request):
+    return JsonResponse({'courses':list(Course.objects.all().values().order_by('priority'))})
 
-    if (len(formatPlugins) == 0):
-        context['formatPluginsJSON'] = {}
-    else:
-        context['formatPluginsJSON'] = formatPluginsJSON
+def getCourseTees(request):
+    retObject = []
+    courseJSON = json.loads(request.POST.get('courses'))
+    for course in courseJSON:
+        print (course)
+        #print (courseJSON)
+        courseId = course['id']
+        for courseTee in list(CourseTee.objects.filter(course=courseId).values('id', 'name', 'priority', 'default', 'slope', 'color', 'course__name', 'course__id').order_by('priority')):
+            retObject.append(courseTee);
+    print (retObject)
+    return JsonResponse({'courseTees':retObject})
 
-    if (len(players) == 0):
-        context['playersJSON'] = {}
-    else:
-        context['playersJSON'] = playersJSON
+def getAllTournaments(request):
+    retObjects = []
+    tournaments = Tournament.objects.order_by('-id').values()
+    for tournament in tournaments:
+        retObject = {}
+        retObject['name'] = tournament['name']
+        retObject['id'] = tournament['id']
+        trs = TournamentRound.objects.filter(tournament=tournament['id'])
+        for tr in trs:
+            retObject['start_time'] = tr.scheduled_date
+            retObject['finish_time'] = tr.scheduled_date
+            scs = Scorecard.objects.filter(round__tournament_round=tr.id)
+            for sc in scs:
+                if sc.start_time.date() < tr.scheduled_date:
+                    retObject['start_time'] = sc.start_time
+                if sc.finish_time.date() > tr.scheduled_date:
+                    retObject['finish_time'] = sc.finish_time
+        retObjects.append(retObject)
+                    
+    return JsonResponse({'tournaments':retObjects})
 
-    #Used in load players
-    if (len(playerPlugins) == 0):
-        context['playerPluginsJSON'] = {}
-    else:
-        context['playerPluginsJSON'] = playerPluginsJSON
-
-    if (len(activities) == 0):
-        context['activitiesJSON'] = {}
-    else:
-        context['activitiesJSON'] = activitiesJSON
-    return render(request, 'golf/home.html', context=context)
+def getAllPlayers(request):
+    return JsonResponse({'players':list(Player.objects.all().values().order_by('priority'))})

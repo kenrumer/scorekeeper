@@ -30,6 +30,11 @@
 
 {% block content %}
 
+    <ul class="nav nav-tabs">
+      <li id='netScoresPill' data-toggle='pill'><a href="#">Net Scores</a></li>
+      <li id='grossScoresPill' data-toggle='pill'><a href="#">Gross Scores</a></li>
+      <li id='payoutPill' data-toggle='pill'><a href="#">Payout</a></li>
+    </ul>
     <div id="tournamentTableWrapper">
       <div id="roundTabPlaceholder"></div>
       <table class="table tournamentTable cell-border compact stripe tournament-table" id="tournamentTable">
@@ -256,11 +261,6 @@
         <div class="col-sm-3"></div>
       </div>
     </div>
-    <ul class="nav nav-pills">
-      <li id='netScoresPill' data-toggle='pill'><a href="#">Net Scores</a></li>
-      <li id='grossScoresPill' data-toggle='pill'><a href="#">Gross Scores</a></li>
-      <li id='payoutPill' data-toggle='pill'><a href="#">Payout</a></li>
-    </ul>
 
     <div class="modal fade" id="enterScorecardCourse" tabindex="-1" role="dialog" aria-labelledby="enterScorecardCourseLabel">
       <div class="modal-dialog modalEnterScorecardCourse" role="document">

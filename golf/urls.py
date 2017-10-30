@@ -5,6 +5,12 @@ from .views import *
 
 urlpatterns = [
     url(r'^$', home.homeView, name='home'),
+    url(r'^getallformatplugins/$', csrf_exempt(home.getAllFormatPlugins), name='getallformatplugins'),
+    url(r'^getallcourses/$', csrf_exempt(home.getAllCourses), name='getallcourses'),
+    url(r'^getcoursetees/$', csrf_exempt(home.getCourseTees), name='getcoursetees'),
+    url(r'^checkfortournamentduplicate/$', csrf_exempt(home.checkForTournamentDuplicate), name='checkfortournamentduplicate'),
+    url(r'^getalltournaments/$', csrf_exempt(home.getAllTournaments), name='getalltournaments'),
+    url(r'^getallplayers/$', csrf_exempt(home.getAllPlayers), name='getallplayers'),
     
     url(r'^editcourses/$', courses.editCourses, name='editcourses'),
     url(r'^getcourses/$', courses.getCourses, name='getcourses'),
@@ -33,7 +39,6 @@ urlpatterns = [
     
     url(r'^editformats/$', tournaments.editFormats, name='editformats'),
 
-    url(r'^checkfortournamentduplicate/$', csrf_exempt(tournaments.checkForTournamentDuplicate), name='checkfortournamentduplicate'),
     url(r'^newtournament/$', csrf_exempt(tournaments.newTournament), name='newtournament'),
     url(r'^tournament/$', csrf_exempt(tournaments.tournament), name='tournament'),
     url(r'^clearrounddata/$', csrf_exempt(tournaments.clearRoundData), name='clearrounddata'),
@@ -41,7 +46,7 @@ urlpatterns = [
     url(r'^getscores/$', csrf_exempt(tournaments.getScores), name='getscores'),
     url(r'^getpayout/$', csrf_exempt(tournaments.getPayout), name='getpayout'),
     
-    url(r'^calculatescores/$', csrf_exempt(tournaments.calculateScores), name='calculatescores'),
+    url(r'^updatescores/$', csrf_exempt(tournaments.updateScores), name='updatescores'),
     url(r'^leaderboard/(?P<tournamentId>\d+)$', tournaments.editTournament, name='edittournament'),
     
     url(r'^newscorecard/$', scorecards.newScorecard, name='newscorecard'),

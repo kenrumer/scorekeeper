@@ -9,7 +9,7 @@ import math
     You can use it or call updatedTournamentStandings = super().mergePlayerResults(tournamentId, newPlayerResultsList)
         the newPlayerResultsList param in mergePlayers is [{clubMemberNumber:clubMemberNumber, teeId:teeId, grossScores:[grossScores], netScores:[netScores]}]
         the returned updatedTournamentStandings will have the same format, but include all scored players so you can set the styles
-    You also need to call super().updateTournament(tournamentId, updatedTournamentStandings) in order to update the database
+    You also need to call super().updateTournament(updatedTournamentStandings) in order to update the database
         updatedTournamentStandings has the format:
         [{clubMemberNumber:clubMemberNumber, teeId:teeId, grossScores:[grossScores], grossStyles:[grossStyles], netScores:[netScores], netStyles:[netStyles]}]
         and will write the database so the tournament tables can be drawn with the background colors for low net/skins
@@ -20,7 +20,7 @@ class SkinsAndPinsFormat(FormatBase):
         super().__init__(tournamentId, tournamentRoundId, scorecardId)
         pass
 
-    def calculateScores(self, request):
+    def updateScores(self, request):
         """
             Based on all scores from each player (on save from scorecard), what is the 'value' (store raw && net && cell style in the score table, assign score to player, round and scorecard)
             Retrieve players from the input (this saved scorecard) source and return an object.
@@ -45,6 +45,8 @@ class SkinsAndPinsFormat(FormatBase):
             standing['netScores'] = []
             standing['grossStyles'] = []
             standing['netStyles'] = []
+            standing['grossSkins'] = []
+            standing['netSkins'] = []
             lowestTotalGross = 1000
             lowestTotalNet = 1000
             lowestTotalOut = 1000
@@ -182,7 +184,6 @@ class SkinsAndPinsFormat(FormatBase):
                     lowestNet = standing['netScores'][i]
 
             for standing in updatedTournamentStandings:
-
                 if (lowestGrossCount == 1):
                     if (standing['grossScores'][i] == lowestGross):
                         standing['grossStyles'].append('background-color:#eee;')

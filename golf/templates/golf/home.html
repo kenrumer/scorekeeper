@@ -13,15 +13,8 @@
   <script src="{% static "scorekeeper/js/jquery.multi-select.js" %}" type="text/javascript"></script>
   <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
   <script>
-    var clubsJSON = JSON.parse(unescape('{{ clubsJSON|safe|escapejs }}'));
-    var coursesJSON = JSON.parse(unescape('{{ coursesJSON|safe }}'));
-    var courseTeesJSON = JSON.parse(unescape('{{ courseTeesJSON|safe }}'));
-    var tournamentsJSON = JSON.parse(unescape('{{ tournamentsJSON|safe }}'));
-    var tournamentRoundsJSON = JSON.parse(unescape('{{ tournamentRoundsJSON|safe }}'));
-    var formatPluginsJSON = JSON.parse(unescape('{{ formatPluginsJSON|safe }}'));
-    var playersJSON = JSON.parse(unescape('{{ playersJSON|safe }}'));
-    var playerPluginsJSON = JSON.parse(unescape('{{ playerPluginsJSON|safe }}'));
-    var activitiesJSON = JSON.parse(unescape('{{ activitiesJSON|safe }}'));
+    var club = JSON.parse('{{ club|safe }}');
+    var clubData = '{{ data|safe }}';
   </script>
   <link rel="stylesheet" href="{% static "/scorekeeper/css/bootstrap.fd.css" %}">
   <script src="{% static "scorekeeper/js/bootstrap.fd.js" %}" type="text/javascript"></script>
@@ -82,7 +75,7 @@
               <div class="col-sm-1">
               </div>
               <div class="col-sm-11">
-                Last loaded: <span id="playerLoadDate">{{ clubs.0.players_last_updated|date:"D M d Y" }}</span>
+                Last loaded: <span id="playerLoadDate"></span>
               </div>
             </div>
             <div class="row">
@@ -234,7 +227,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="newTournamentLabel">Enter New Tournament</h4>
+            <h4 class="modal-title" id="newTournamentLabel">Enter New Tournament - Name</h4>
           </div>
           <div class="modal-body newTournamentWizard-body">
             <div class="row bottomSpaced">
@@ -414,11 +407,11 @@
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-1">
-                <label for="editTournamentSearchEndDate">End date</label>
+                <label for="editTournamentSearchFinishDate">Finish date</label>
               </div>
               <div class="col-sm-3">
-                <div class="input-group date" id="editTournamentSearchEndDateDateTimePicker">
-                  <input type="text" class="form-control" id="editTournamentSearchEndDate" />
+                <div class="input-group date" id="editTournamentSearchFinishDateDateTimePicker">
+                  <input type="text" class="form-control" id="editTournamentSearchFinishDate" />
                   <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                   </span>
@@ -436,31 +429,7 @@
                    	</button>
                	  </span>
                	</div>
-               	<div class="list-group editTournamentList">
-                {% for tournament in tournaments %}
-                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editTournamentListItem" tournament-name="{{ tournament.name }}" data-tournament-id="{{ tournament.club_member_number }}">
-                    <div class="row">
-                      <div class="col-sm-1"></div>
-                      <div class="col-sm-10">
-                        <div class="input-group">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
-                            <ul class="dropdown-menu">
-                              <li><a href="#">Edit</a></li>
-                              <li><a href="#">Print</a></li>
-                              <li role="separator" class="divider"></li>
-                              <li><a href="#">Delete</a></li>
-                            </ul>
-                          </div>
-                     	    <input id="editTournamentId" type="text" class="form-control input-group-addon" style="text-align:right;background-color:#fff;" value="{{ tournament.id }}" data-original-value="{{ tournament.id }}" />
-                     	    <span class="input-group-btn" style="width:0px;"></span>
-                     	    <input id="editTournamentName" type="text" class="form-control input-group-addon" style="text-align:left;background-color:#fff;" value="{{ tournament.name }}" data-original-value="{{ tournament.name }}" />
-                     	  </div>
-                      </div>
-                      <div class="col-sm-1"></div>
-                    </div>
-                  </div>
-                {% endfor %}
+               	<div class="list-group editTournamentList" id="editTournamentList">
                	</div>
               </div>
             </div>
@@ -495,34 +464,7 @@
                    	</button>
                	  </span>
                	</div>
-               	<div class="list-group editPlayersList">
-                {% for player in players %}
-                  <div class="list-group-item" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="{{ player.name }}" data-club-member-number="{{ player.club_member_number }}">
-                    <div class="row">
-                      <div class="col-sm-1"></div>
-                      <div class="col-sm-10">
-                        <div class="input-group">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn fixed-width-btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
-                            <ul class="dropdown-menu">
-                              <li><a href="#">Activate</a></li>
-                              <li><a href="#">Inactivate</a></li>
-                              <li><a href="#">View Player Page</a></li>
-                              <li role="separator" class="divider"></li>
-                              <li><a href="#">Delete</a></li>
-                            </ul>
-                          </div>
-                     	    <input id="editPlayersClubMemberNumber" type="text" class="form-control input-group-addon" style="text-align:right;background-color:#fff;" value="{{ player.club_member_number }}" data-original-value="{{ player.club_member_number }}" />
-                     	    <span class="input-group-btn" style="width:0px;"></span>
-                     	    <input id="editPlayersName" type="text" class="form-control input-group-addon" style="text-align:left;background-color:#fff;" value="{{ player.name }}" data-original-value="{{ player.name }}" />
-                     	    <span class="input-group-btn" style="width:0px;"></span>
-                     	    <input id="editPlayersHandicapIndex" type="text" class="form-control input-group-addon" style="text-align:right;background-color:#fff;" value="{{ player.handicap_index }}" data-original-value="{{ player.handicap_index }}" />
-                        </div>
-                      </div>
-                      <div class="col-sm-1"></div>
-                    </div>
-                  </div>
-                {% endfor %}
+               	<div class="list-group editPlayersList" id="editPlayerList">
                	</div>
               </div>
             </div>

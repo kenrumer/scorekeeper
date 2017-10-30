@@ -145,6 +145,18 @@ body .modal-lg {
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
+.editTournamentId {
+  width: 85px !important;
+}
+.editTournamentName {
+  width: 625px !important;
+}
+.editTournamentStartDate {
+  width: 100px !important;
+}
+.editTournamentFinishDate {
+  width: 100px !important;
+}
 
 /*Edit Players*/
 #editPlayersSearch {
