@@ -22,6 +22,7 @@ class TournamentRound(models.Model):
     """
     name = models.CharField(max_length=200, verbose_name='Name', help_text='Enter the name of this round of the tournament (Default is Round #)')
     scheduled_date = models.DateField(verbose_name='Date Scheduled', null=True, blank=True, help_text='Date this round of the tournament was supposed to be played')
+    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
     format_plugin = models.ForeignKey('FormatPlugin', verbose_name='Format', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the scoring format for this round')
     tournament = models.ForeignKey('Tournament', verbose_name='Tournament Played', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament')
     available_courses = models.ManyToManyField('Course', verbose_name='Courses', blank=True, help_text='Select the courses players are playing and set the default for the card')
@@ -42,6 +43,7 @@ class FormatPlugin(models.Model):
     priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
     class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
+    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
@@ -219,22 +221,27 @@ class PlayerPlugin(models.Model):
     """
     Model representing the plugins that can communicate with external player stores
     """
-    name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the plugin')
-    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
+    name = models.CharField(verbose_name="Name", max_length=200, null=True, blank=True, help_text='Enter the name of the plugin')
+    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
+    filename = models.CharField(verbose_name="Filename", max_length=200, null=True, blank=True, help_text='Name of the module (filename) containing the class of your plugin')
+    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.name+' '+self.class_package+' '+self.class_name
+        return self.name+' '+self.class_package+' v'+self.version+' '+self.class_name
 
 class Activity(models.Model):
     """
     Model representing recent activity from the app
     """
     title = models.CharField(max_length=40, null=True, blank=True, help_text='Enter the title for this activity')
-    notes = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the notes for this activity')
-    date = models.DateField(verbose_name='Date', null=True, blank=True, help_text='Enter the date for the scorecard')
+    details = models.CharField(max_length=500, null=True, blank=True, help_text='Enter the details for this activity')
+    suspicious = models.BooleanField(verbose_name='Suspicious', default=False, help_text='Is this suspicious activity')
+    notes = models.CharField(max_length=500, null=True, blank=True, help_text='Enter the notes for this activity')
+    user = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the user for this activity')
+    date_time = models.DateTimeField(verbose_name='Date', null=True, blank=True, help_text='Enter the date for this activity')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
@@ -255,3 +262,18 @@ class PayoutPlugin(models.Model):
         String for representing the Model object (in Admin site etc.)
         """
         return self.class_package
+
+class TournamentRoundImportPlugin(models.Model):
+    """
+    Model representing a Tournament Round Importer
+    The tournament round importer is used to import files to the database
+    """
+    name = models.CharField(max_length=200, help_text='Enter the name of the format')
+    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting importer')
+    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
+    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        return self.name+' '+self.class_package+' '+self.class_name

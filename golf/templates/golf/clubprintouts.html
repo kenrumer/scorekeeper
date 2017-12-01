@@ -1,0 +1,305 @@
+{% load mathfilters %}
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <style>
+	  .row1 {
+	    background-color:#999999;
+	  }
+  </style>
+</head>
+<body style="font-size: x-small;">
+  {% for cr in clubPrintouts.crRange %}
+  <h2 style="text-align:center">{{ clubPrintouts.club.name }}</h2>
+  <h3 style="text-align:center">{% now "DATE_FORMAT" %}</h3>
+  <table style="width:100%">
+    <tr class="rows">
+      <th style="text-align:left">Number</th>
+      <th style="text-align:left">Name</th>
+      <th style="text-align:left">hcp</th>
+      {% if clubPrintouts.c1 %}
+      <th>{{ clubPrintouts.c1.slope }}</th>
+      {% endif %}
+      {% if clubPrintouts.c2 %}
+      <th>{{ clubPrintouts.c2.slope }}</th>
+      {% endif %}
+    </tr>
+    {% for player in clubPrintouts.players %}
+    <tr class="rows {% cycle 'row1' 'row2' %}">
+      <td style="text-align:left">{{ player.club_member_number }}</td>
+      <td style="text-align:left">{{ player.name }}</td>
+      <td style="text-align:left">{{ player.handicap_index }}</td>
+      {% if clubPrintouts.c1 %}
+      <td>{{ player.handicap_index|mul:clubPrintouts.c1.slope|div:113|floatformat:'0' }}</td>
+      {% endif %}
+      {% if clubPrintouts.c2 %}
+      <td>{{ player.handicap_index|mul:clubPrintouts.c2.slope|div:113|floatformat:'0' }}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </table>
+    {% if forloop.last is not True %}
+  <p style="page-break-before: always" ></p>
+    {% endif %}
+  {% endfor %}
+  {% for su in clubPrintouts.suRange %}
+    {% if forloop.first is True %}
+      {% if clubPrintouts.cr > 0 %}
+  <p style="page-break-before: always" ></p>
+      {% endif %}
+    {% endif %}
+  <h2 style="text-align:center">{{ clubPrintouts.club.name }}</h2>
+  <h3 style="text-align:center">Groups</h3>
+  <table style="width:100%">
+    {% for i in "xxxxxxx" %}
+    <tr class="rows">
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>{% if forloop.counter < 10 %}0{{ forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>{% if forloop.counter|add:"7" < 10 %}0{{ forloop.counter|add:"7" }}{% else %}{{ forloop.counter|add:"7" }}{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+    <tr class="rows">
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+    <tr class="rows">
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+    <tr class="rows">
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+      <td style="text-align:left;font-family:courier;font-size:large;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+      {% if forloop.last is not True %}
+    <tr class="rows">
+      <td style="text-align:left"></td>
+      <td style="text-align:left"></td>
+    </tr>
+    <tr class="rows">
+      <td style="text-align:left"></td>
+      <td style="text-align:left"></td>
+    </tr>
+    <tr class="rows">
+      <td style="text-align:left"></td>
+      <td style="text-align:left"></td>
+    </tr>
+    <tr class="rows">
+      <td style="text-align:left"></td>
+      <td style="text-align:left"></td>
+    </tr>
+      {% endif %}
+    {% endfor %}
+  </table>
+    {% if forloop.last is not True %}
+  <p style="page-break-before: always" ></p>
+    {% endif %}
+  {% endfor %}
+  {% for ss in clubPrintouts.ssRange %}
+    {% if forloop.first is True %}
+      {% if clubPrintouts.cr > 0 or clubPrintouts.su > 0 %}
+  <p style="page-break-before: always" ></p>
+      {% endif %}
+    {% endif %}
+  <h2 style="text-align:center">{{ clubPrintouts.club.name }}</h2>
+  <h3 style="text-align:center">Starter</h3>
+  <table style="width:100%">
+    {% for i in "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" %}
+    <tr class="rows">
+      <td style="text-align:left; font-family:courier;font-size:large;"><u>{% if forloop.counter < 10 %}0{{ forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+      <td style="text-align:left; font-family:courier;font-size:large;"><u>{{ forloop.counter|add:"30" }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+    {% endfor %}
+  </table>
+    {% if forloop.last is not True %}
+  <p style="page-break-before: always" ></p>
+    {% endif %}
+  {% endfor %}
+  {% for pc in clubPrintouts.pcRange %}
+    {% if forloop.first is True %}
+      {% if clubPrintouts.cr > 0 or clubPrintouts.su > 0 or clubPrintouts.ss > 0 %}
+  <p style="page-break-before: always" ></p>
+      {% endif %}
+    {% endif %}
+  <table align="center" style="border:3px solid #73AD21;height:710px;width:475px;margin-left: auto;margin-right: auto;margin-top: auto;margin-bottom: auto;">
+    <tr class="rows">
+      <td align="left">
+        <h1 style="text-align:center">{{ clubPrintouts.club.name }}</h1>
+      </td>
+    </tr>
+    <tr class="rows">
+      <td align="left">
+        <h2 style="text-align:center;">Hole #_____________</h2>
+      </td>
+    </tr>
+    <tr class="rows">
+      <td align="left">
+        <h2 style="text-align:center">
+          <img src="https://scorekeeper-kenrumer.c9users.io/static/scorekeeper/img/closesttothepin.jpeg" style="width:160px;height:120px"></img>
+        </h2>
+      </td>
+    </tr>
+    <tr class="rows">
+      <td align="left">
+        <h2 style="text-align:center">Closest to the Pin</h3>
+      </td>
+    </tr>
+    {% for i in "xxxxxxx" %}
+    <tr class="rows">
+      <td align="left" style="width:100%;text-align:center;font-family:courier;font-size:xx-large;">&nbsp;&nbsp;&nbsp;<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>&nbsp;&nbsp;&nbsp;</td>
+    </tr>
+    {% endfor %}
+  </table>
+    {% if forloop.last is not True %}
+  <p style="page-break-before: always" ></p>
+    {% endif %}
+  {% endfor %}
+  {% for nm in clubPrintouts.nmRange %}
+    {% if forloop.first is True %}
+      {% if clubPrintouts.cr > 0 or clubPrintouts.su > 0 or clubPrintouts.ss > 0 or clubPrintouts.pc > 0 %}
+  <p style="page-break-before: always" ></p>
+      {% endif %}
+    {% endif %}
+  <h3 style="text-align:center">{{ clubPrintouts.club.name }}</h3>
+    {% if forloop.last is not True %}
+  <p style="page-break-before: always" ></p>
+    {% endif %}
+  {% endfor %}
+  {% for mp in clubPrintouts.mpRange %}
+    {% if forloop.first is True %}
+      {% if clubPrintouts.cr > 0 or clubPrintouts.su > 0 or clubPrintouts.ss > 0 or clubPrintouts.pc > 0 or clubPrintouts.nm > 0 %}
+  <p style="page-break-before: always" ></p>
+      {% endif %}
+    {% endif %}
+  <h3 style="text-align:center">{{ clubPrintouts.club.name }}</h3>
+  <table style="width:100%;transform:rotate(90deg) translate(300px);">
+    <tr style="height:10%">
+      <td style="border: 3px solid #73AD21;">
+        Ken
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Dave
+      </td>
+    </tr>
+    <tr style="height:10%">
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Ken
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Dave
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr style="height:10%">
+      <td style="border: 3px solid #73AD21;">
+        Charlie
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Pete
+      </td>
+    </tr>
+    <tr style="height:10%">
+      <td>
+      </td>
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Ken
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Ken
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Dave
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr style="height:10%">
+      <td style="border: 3px solid #73AD21;">
+        Mac
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Wally
+      </td>
+    <tr style="height:10%">
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Brian
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Gerry
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr style="height:10%">
+      <td style="border: 3px solid #73AD21;">
+        Brian
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td style="border: 3px solid #73AD21;">
+        Gerry
+      </td>
+    </tr>
+  </table>
+    {% if forloop.last is not True %}
+  <p style="page-break-before: always" ></p>
+    {% endif %}
+  {% endfor %}
+</body>
+</html>

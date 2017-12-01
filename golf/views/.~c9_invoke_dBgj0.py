@@ -1,4 +1,4 @@
-from ..models import Tournament, TournamentRound, Round, Scorecard, FormatPlugin, Player, Course, CourseTee, Hole, Tee, Club, Activity, PlayerPlugin, TournamentRoundImportPlugin
+from ..models import Tournament, TournamentRound, Round, Scorecard, FormatPlugin, Player, Course, CourseTee, Club, Activity, PlayerPlugin
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 import json
@@ -11,15 +11,20 @@ def getAllCourseTees(request):
 def getAllPlayerPlugins(request):
     return JsonResponse(json.dumps(list(PlayerPlugin.objects.all().values()), cls=DjangoJSONEncoder))
 
+def getHomeView():
+    retObject = {}
+    retObject['club'] = json.dumps(Club.objects.order_by('-id').values('name', 'logo', 'default_tournament_name', 'players_last_updated')[0], cls=DjangoJSONEncoder)
+    retObject['data'] = json.dumps(json.loads(json.loads(json.dumps(Club.objects.order_by('-id').values('data')[0], cls=DjangoJSONEncoder))['data']))
+    retObject['courses'] = json.dumps(json.loads(json.loads(json.dumps(Course.objects.order_by('priority').values()[0], cls=DjangoJSONEncoder))))
+    return retObject
+
+    retObject = {}
 def homeView(request):
     """
     View function for home page
     Sends the club name
     """
-    retObject = {}
-    retObject['club'] = json.dumps(Club.objects.order_by('-id').values('name', 'logo', 'default_tournament_name', 'players_last_updated')[0], cls=DjangoJSONEncoder)
-    retObject['data'] = json.dumps(json.loads(json.loads(json.dumps(Club.objects.order_by('-id').values('data')[0], cls=DjangoJSONEncoder))['data']))
-    retObject['courseTees'] = json.dumps(list(CourseTee.objects.order_by('-default', 'priority').values('id', 'name', 'priority', 'default', 'slope', 'color', 'course__name', 'course__id')), cls=DjangoJSONEncoder)
+    retObject['club'] = getHomeView()
     return render(request, 'golf/home.html', retObject)
 
 def checkForTournamentDuplicate(request):
@@ -76,7 +81,7 @@ def getAllTournaments(request):
     return JsonResponse({'tournaments':tournamentObjects})
 
 def getAllPlayers(request):
-    return JsonResponse({'players':list(Player.objects.all().values().order_by('priority', 'name'))})
+    return JsonResponse({'players':list(Player.objects.all().values().order_by('priority'))})
     
 def getAllRecentActivities(request):
     return JsonResponse({'recentActivities':list(Activity.objects.all().values().order_by('id'))})
@@ -92,9 +97,8 @@ def getImportExportBackupData(request):
     databaseSize = "%.*f%s" % (2, size, suffixes[suffixIndex])
     
     retObject = {}
-    retObject['courses'] = list(Course.objects.all().values('id', 'name').order_by('priority'))
-    retObject['playerPlugins'] = list(PlayerPlugin.objects.all().values('id', 'name'))
-    retObject['formatPlugins'] = list(FormatPlugin.objects.all().values('id', 'name'))
-    retObject['tournamentRoundImportPlugins'] = list(TournamentRoundImportPlugin.objects.all().values('id', 'name'))
+    retObject['courses'] = list(Course.objects.all().values().order_by('priority'))
+    retObject['playerPlugins'] = list(PlayerPlugin.objects.all().values())
+    retObject['formatPlugins'] = list(FormatPlugin.objects.all().values())
     retObject['databaseSize'] = databaseSize
     return JsonResponse({'importExportBackupData':retObject})

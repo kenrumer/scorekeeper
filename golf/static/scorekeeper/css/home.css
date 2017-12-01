@@ -7,6 +7,9 @@ body .modal-lg {
   font-weight: bold;
   text-align:center;
 }
+.buttonText {
+  text-align: center;
+}
 .bottomSpaced {
   margin-bottom:8px;
 }
@@ -71,21 +74,6 @@ body .modal-lg {
 }
 .editPlayers {
   background: url('/static/scorekeeper/icons/golfplayers.png') no-repeat;
-  background-position: left center;
-  color: #666666;
-}
-.printIndexes {
-  background: url('/static/scorekeeper/icons/golfbag.png') no-repeat;
-  background-position: left center;
-  color: #666666;
-}
-.signupStarterSheets {
-  background: url('/static/scorekeeper/icons/golfball.png') no-repeat;
-  background-position: left center;
-  color: #666666;
-}
-.recentActivity {
-  background: url('/static/scorekeeper/icons/hourglass.png') no-repeat;
   background-position: left center;
   color: #666666;
 }
@@ -159,12 +147,6 @@ body .modal-lg {
 }
 
 /*Edit Players*/
-#editPlayersSearch {
-  padding: 3px;
-  border: solid 1px #E4E4E4;
-  border-radius: 6px;
-  background-color: #fff;
-}
 .editPlayersList {
   height: 246px;
   width: 100%;
@@ -173,14 +155,16 @@ body .modal-lg {
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
-
-/*Edit Courses*/
-#editCoursesSearch {
-  padding: 3px;
-  border: solid 1px #E4E4E4;
-  border-radius: 6px;
-  background-color: #fff;
+.editPlayersClubMemberNumber {
+  width: 105px !important;
 }
+.editPlayersName {
+  width: 720px !important;
+}
+.editPlayersHandicapIndex {
+  width: 85px !important;
+}
+/*Edit Courses*/
 .editCoursesList {
   height: 246px;
   width: 100%;
@@ -189,24 +173,53 @@ body .modal-lg {
   -webkit-padding-start: 0px;
   -moz-padding-start: 0px;
 }
-
-/*Recent Activity*/
-#recentActivitySearch {
-  padding: 3px;
-  border: solid 1px #E4E4E4;
-  border-radius: 6px;
-  background-color: #fff;
+.editCoursesPriority {
+  width: 84px !important;
 }
-.recentActivityList {
-  height: 288px;
+.editCoursesName {
+  width: 813px !important;
+}
+
+/* Printouts */
+.printouts {
+  background: url('/static/scorekeeper/icons/golfball.png') no-repeat;
+  background-position: left 20px;
+  color: #666666;
+}
+.optionPrintouts {
+  box-shadow: 0 8px 16px 0px rgba(0,0,0,0.4), 0 4px 5px 0px rgba(0,0,0,0.19);
+  border-radius: 8px;
   width: 100%;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  -webkit-padding-start: 0px;
-  -moz-padding-start: 0px;
+  height: 286px;
+  border-width: 2px !important;
+  border-style: outset !important;
+  border-color: buttonface !important;
+  border-image: initial !important;
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+  padding-bottom: 1px !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  padding-top: 1px !important;
+  text-align: center !important;
+}
+.printoutsTextbox {
+  padding-top: 18px;
 }
 
 /*Settings*/
 .settingsClubData {
   width:650px;
+}
+#settingsClubContent {
+  display: none;
+}
+#settingsPluginsContent {
+  display:none;
+}
+#settingsCoursesContent {
+  display: none;
+}
+#settingsCourseTeesContent {
+  display: none;
 }

@@ -5,8 +5,9 @@
 {% block title %} Tournament {% endblock %}
 
 {% block head_extra %}
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
-  <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+  <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -17,12 +18,12 @@
     var tournamentId = {{ tournamentId }};
     var tournamentName = '{{ tournamentName }}';
     var roundCount = {{ roundCount }};
-    var tournamentRoundsJSON = JSON.parse('{{ tournamentRoundsJSON|safe }}');
-    var availableCoursesJSON = JSON.parse('{{ availableCoursesJSON|safe }}');
-    var availableCourseTeesJSON = JSON.parse('{{ availableCourseTeesJSON|safe }}');
-    var playersJSON = JSON.parse('{{ playersJSON|safe }}');
+    var tournamentRounds = JSON.parse('{{ tournamentRounds|safe }}');
+    var availableCourses = JSON.parse('{{ availableCourses|safe }}');
+    var availableCourseTees = JSON.parse('{{ availableCourseTees|safe }}');
+    var players = JSON.parse('{{ players|safe }}');
     var roundId = 0;
-    var view = 'net';
+    var viewTab = 'net';
   </script>
   <link href="{% static "scorekeeper/css/tournament.css" %}" rel="stylesheet" type="text/css">
   <script src="{% static "scorekeeper/js/tournament.js" %}" type="text/javascript"></script>
@@ -30,14 +31,37 @@
 
 {% block content %}
 
-    <ul class="nav nav-tabs">
-      <li id='netScoresPill' data-toggle='pill'><a href="#">Net Scores</a></li>
-      <li id='grossScoresPill' data-toggle='pill'><a href="#">Gross Scores</a></li>
-      <li id='payoutPill' data-toggle='pill'><a href="#">Payout</a></li>
-    </ul>
+    <div class="row">
+      <div class="col-sm-3">
+        <ul class="nav nav-tabs">
+          <li id="netScoresTab" data-toggle="tab"><a href="#">Net Scores</a></li>
+          <li id="grossScoresTab" data-toggle="tab"><a href="#">Gross Scores</a></li>
+          <li id="payoutTab" data-toggle="tab"><a href="#">Payout</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-5">
+        <div class="row">
+          <div class="col-sm-8">
+            Name: {{ tournamentName }}
+          </div>
+          <div class="col-sm-1">
+            <label for="roundDate" style="text-align:center;font-weight: bold;">
+              Date:
+            </label>
+          </div>
+          <div class="col-sm-3">
+            <!-- Value set by tournament.js -->
+            <input class="form-control input-sm" type="text" id="roundDate" />
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div id="roundTabPlaceholder"></div>
+      </div>
+    </div>
+
     <div id="tournamentTableWrapper">
-      <div id="roundTabPlaceholder"></div>
-      <table class="table tournamentTable cell-border compact stripe tournament-table" id="tournamentTable">
+      <table class="table tournamentTable cell-border compact stripe tournament-table" cellspacing="0" id="tournamentTable">
         <thead border=true>
           <tr>
             <th>__</th><th style="width:48px;">Edit</th><th style="width:310px;">Player</th><th>TEE</th><th>01</th><th>02</th><th>03</th>
@@ -59,207 +83,7 @@
       </table>
     </div>
 
-    <div id="payoutForm">
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-4">
-          <table id="payoutSkins">
-            <thead>
-              <th colspan="3">
-                Skins Total:<span id="payoutSkinsTotalDisplay"></span>
-              </th>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-        <div class="col-sm-4">
-          <table id="payoutSweeps">
-            <thead>
-              <th colspan="3">
-                Sweeps Total:<span id="payoutSweepsTotalDisplay"></span>
-              </th>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-        <div class="col-sm-2"></div>
-        <div class="col-sm-4"></div>
-        <div class="col-sm-1"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutPlayerCount">Number of Players</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutPlayerCount" type="number" min="0" max="1000" value="0">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutBuyIn">* Buy In $</label>
-        </div>
-        <div class="col-sm-1">
-          <input class="form-control input-sm" id="payoutBuyIn" type="number" min="0" max="1000" value="10">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutTotal">= Total Payout $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutTotal" type="number" min="0" max="1000" value="0" disabled>
-        </div>
-        <div class="col-sm-5"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutClubDuesPercent">Club Dues %</label>
-        </div>
-        <div class="col-sm-1">
-          <input class="form-control input-sm" id="payoutClubDuesPercent" type="number" min="0" max="100" value="10">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutClubDues">- Club Dues $</label>
-        </div>
-        <div class="col-sm-1">
-          <input class="form-control input-sm" id="payoutClubDues" type="number" min="0" max="1000" value="0">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutTotal2">= Remaining Payout $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutTotal2" type="number" min="0" max="1000" value="0">
-        </div>
-        <div class="col-sm-5"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutProximityTotal">Total For Proximity $</label>
-        </div>
-        <div class="col-sm-1">
-          <input class="form-control input-sm" id="payoutProximityTotal" type="number" min="0" max="1000" value="10">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutProximityCount">/ Number of Proximities</label>
-        </div>
-        <div class="col-sm-1">
-          <input class="form-control input-sm" id="payoutProximityCount" type="number" min="0" max="1000" value="2">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutEachProximity">= Payout per Proximity $</label>
-        </div>
-        <div class="col-sm-1">
-          <input class="form-control input-sm" id="payoutEachProximity" type="number" min="0" max="1000" value="5">
-        </div>
-        <div class="col-sm-5"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutTotal3">Remaining Payout $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutTotal3" type="number" min="0" max="1000" value="0">
-        </div>
-        <div class="col-sm-9"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsPercent">Sweeps %</label>
-        </div>
-        <div class="col-sm-1">
-          <input class="form-control input-sm" id="payoutSweepsPercent" type="number" min="0" max="100" value="70">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsTotal">Sweeps $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSweepsTotal" type="number" min="0" max="100" value="0">
-        </div>
-        <div class="col-sm-7"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsNetPercent">Pay Sweeps Net %</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSweepsNetPercent" type="number" min="0" max="100" value="70">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsNetTotal">Pay Sweeps Net $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSweepsNetTotal" type="number" min="0" max="100" value="0">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsNetCount">Pay Sweeps Net #</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSweepsNetCount" type="number" min="0" max="100" value="0">
-        </div>
-        <div class="col-sm-5"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsGrossPercent">Pay Sweeps Gross %</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSweepsGrossPercent" type="number" min="0" max="100" value="30">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsGrossTotal">Pay Sweeps Gross $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSweepsGrossTotal" type="number" min="0" max="100" value="0">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutSweepsGrossCount">Pay Sweeps Gross #</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSweepsGrossCount" type="number" min="0" max="100" value="0">
-        </div>
-        <div class="col-sm-5"></div>
-      </div>
-      <div class="row bottomSpaced">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          <label for="payoutSkinsPercent">Skins %</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSkinsPercent" type="number" min="0" max="100" value="30">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutSkinsTotal">Skins $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutSkinsTotal" type="number" min="0" max="100" value="0">
-        </div>
-        <div class="col-sm-1">
-          <label for="payoutPerSkin">Per Skin $</label>
-        </div>
-        <div class="col-sm-1">
-          <!-- value set by tournament.js -->
-          <input class="form-control input-sm" id="payoutPerSkin" type="number" min="0" max="100" value="0">
-        </div>
-        <div class="col-sm-3"></div>
-      </div>
+    <div id="tournamentPayoutWrapper">
     </div>
 
     <div class="modal fade" id="enterScorecardCourse" tabindex="-1" role="dialog" aria-labelledby="enterScorecardCourseLabel">

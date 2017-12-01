@@ -1,4 +1,4 @@
-/* global $, tournamentId, tournamentName, roundCount, tournamentRounds, playersJSON, availableCoursesJSON, availableCourseTeesJSON, roundId, moment, view */
+/* global $, tournamentId, tournamentName, roundCount, tournamentRounds, players, availableCourses, availableCourseTees, roundId, moment, viewTab */
   var tournamentTable;
   var addRowId = 0;
 
@@ -46,7 +46,7 @@
   
   function playerList() {
     var playerList = "";
-    $.each(playersJSON, function(i, item) {
+    $.each(players, function(i, item) {
       playerList += '<option value='+item.club_member_number+' data-handicap-index='+item.handicap_index+'>'+item.name+'</option>';
     });
     return playerList;
@@ -54,16 +54,16 @@
   
   function teeList() {
     var teeList = "";
-    if (availableCourseTeesJSON.length == 0) {
+    if (availableCourseTees.length == 0) {
       return "";
     }
-    if (availableCourseTeesJSON.length == 1) {
-      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTeesJSON[0].slope+'" data-course-tee-color="'+availableCourseTeesJSON[0].color+'" data-course-tee-id="'+availableCourseTeesJSON[0].id+'" style="background-color:'+availableCourseTeesJSON[0].color+'">'+availableCourseTeesJSON[0].color+'</div>';
+    if (availableCourseTees.length == 1) {
+      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTees[0].slope+'" data-course-tee-color="'+availableCourseTees[0].color+'" data-course-tee-id="'+availableCourseTees[0].id+'" style="background-color:'+availableCourseTees[0].color+'">'+availableCourseTees[0].color+'</div>';
     } else {
-      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTeesJSON[0].slope+'" data-course-tee-color="'+availableCourseTeesJSON[0].color+'" data-course-tee-id="'+availableCourseTeesJSON[0].id+'" class="dropdown">';
-      teeList += '  <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+availableCourseTeesJSON[0].color+'" type="button" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>';
+      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTees[0].slope+'" data-course-tee-color="'+availableCourseTees[0].color+'" data-course-tee-id="'+availableCourseTees[0].id+'" class="dropdown">';
+      teeList += '  <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+availableCourseTees[0].color+'" type="button" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>';
       teeList += '  <ul id="courseTees'+addRowId+'" class="dropdown-menu" aria-labelledby="teeSelectButton'+addRowId+'">';
-      $.each(availableCourseTeesJSON, function(i, item) {
+      $.each(availableCourseTees, function(i, item) {
         teeList += '    <li style="background-color:'+item.color+'"><a href="#" id="courseTeeChangeButton" data-row-id="'+addRowId+'" data-course-tee-slope="'+item.slope+'" data-course-tee-color="'+item.color+'" data-course-tee-id="'+item.id+'">'+item.color+'</a></li>';
       });
       teeList += '  </ul></div>';
@@ -73,7 +73,7 @@
 
   function addHeaderToScorecard() {
     var headerRow = '<tr>';
-    headerRow += '  <th><button id="addRowToScorecard" class="plusMinusButton">+</button></th>';
+    headerRow += '  <th><button id="addRowToScorecard" class="form-control input-sm">+</button></th>';
     headerRow += '  <th>Player</th>';
     headerRow += '  <th>TEE</th>';
     for (var i = 1; i < 10; i++) {
@@ -88,7 +88,7 @@
     headerRow += '  <th><input class="scorecardCell" value="HCP" disabled></th>';
     headerRow += '  <th><input class="scorecardCell" value="NET" disabled></th>';
     headerRow += '</tr>';
-    $.each(availableCourseTeesJSON, function(i, item) {
+    $.each(availableCourseTees, function(i, item) {
       headerRow += '<tr style="background-color:'+item.color+'">';
       headerRow += '  <th></th>';
       headerRow += '  <th></th>';
@@ -126,20 +126,20 @@
   }
 
   function addRowToScorecard() {
-    var appendText = '<tr id="scorecardRow'+addRowId+'" data-row-id="'+addRowId+'" data-slope='+availableCourseTeesJSON[0].slope+'>';
-    appendText += '<td><button class="plusMinusButton" id="removeRowFromScorecard" data-row-id="'+addRowId+'">-</button></td>';
-    appendText += '<td><select id="playerNamesSelect" style="width: 140px" data-row-id="'+addRowId+'"><option>----------------------------</option>'+playerList()+'</select></td><td>'+teeList()+'</td>';
+    var appendText = '<tr id="scorecardRow'+addRowId+'" data-row-id="'+addRowId+'" data-slope='+availableCourseTees[0].slope+'>';
+    appendText += '<td><button class="form-control input-sm" id="removeRowFromScorecard" data-row-id="'+addRowId+'">-</button></td>';
+    appendText += '<td><select class="form-control input-sm" id="playerNamesSelect" style="width: 140px" data-row-id="'+addRowId+'"><option>----------------------------</option>'+playerList()+'</select></td><td>'+teeList()+'</td>';
     for (var i = 0; i < 9; i++) {
-      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-out="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTeesJSON[0].tees[i].par+'></td>';
+      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-out="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTees[0].tees[i].par+'></td>';
     }
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalOut'+addRowId+'" value="'+availableCourseTeesJSON[0].parOut+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalOut'+addRowId+'" value="'+availableCourseTees[0].parOut+'" disabled></td>';
     for (var i = 9; i < 18; i++) {
-      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-in="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTeesJSON[0].tees[i].par+'></td>';
+      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-in="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTees[0].tees[i].par+'></td>';
     }
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalIn'+addRowId+'" value="'+availableCourseTeesJSON[0].parIn+'" disabled></td>';
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="total'+addRowId+'" value="'+availableCourseTeesJSON[0].parTotal+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalIn'+addRowId+'" value="'+availableCourseTees[0].parIn+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="total'+addRowId+'" value="'+availableCourseTees[0].parTotal+'" disabled></td>';
     appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="hcp'+addRowId+'" value="0" disabled></td>';
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalNet'+addRowId+'" value="'+availableCourseTeesJSON[0].parTotal+'" disabled></td></tr>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalNet'+addRowId+'" value="'+availableCourseTees[0].parTotal+'" disabled></td></tr>';
     $('#scorecard >tbody').append(appendText);
     $('#scorecard #scorecardRow'+addRowId+' #playerNamesSelect').focus();
     addRowId++;
@@ -155,13 +155,120 @@
     $('#scorecardAttest').empty();
     $('#newScorecardScorer').val('');
     $('#newScorecardAttest').val('');
-    $.each(playersJSON, function(i, item) {
+    $.each(players, function(i, item) {
       var option = '<option data-value="'+item.club_member_number+'" value="'+item.name+'"></option>';
       $('#scorecardScorer').append(option);
       $('#scorecardAttest').append(option);
     });
     $('#scorecard tbody').html('');
     addRowToScorecard();
+  }
+  function showNetTab() {
+    $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    var context = {
+      tournamentId: tournamentId,
+      tournamentName: tournamentName,
+      tournamentRound: JSON.stringify(tournamentRounds[roundId]),
+      viewTab: 'net'
+    };
+    $.post('/golf/getscores/', context).done(function(data) {
+      console.log(data);
+      $('#payoutForm').hide();
+      $('#tournamentTableWrapper').show();
+      tournamentTable.clear();
+      $.each(data.rows, function(i, item) {
+        var row = tournamentTable.row.add(item);
+        var rowNode = row.node();
+        $.each(data.styles[i], function(j, item1) {
+          if (j < 9) {
+            var thisTD = $(rowNode).find('td').eq(4+j);
+            thisTD.css(item1.split(':')[0], item1.split(':')[1]);
+          } else {
+            var thisTD = $(rowNode).find('td').eq(5+j);
+            thisTD.css(item1.split(':')[0], item1.split(':')[1]);
+          }
+        });
+      });
+      tournamentTable.draw();
+      viewTab = 'net';
+    }).fail(function(xhr, textStatus, error) {
+      $('#errorDialog').modal({}).show();
+      $('#errorHeader').text('failed to load net scores!');
+      $('#errorText').text(xhr.responseText);
+      console.log('failed to load net scores!');
+      console.log(xhr.responseText);
+      console.log(textStatus);
+      console.log(error);
+    }).always(function(a, textStatus, b) {
+      $('#loadingDialog').modal('hide');
+    });
+  }
+
+  function showGrossTab() {
+    $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    var context = {
+      tournamentId: tournamentId,
+      tournamentName: tournamentName,
+      tournamentRound: JSON.stringify(tournamentRounds[roundId]),
+      viewTab: 'gross'
+    };
+    $.post('/golf/getscores/', context).done(function(data) {
+      console.log(data);
+      $('#payoutForm').hide();
+      $('#tournamentTableWrapper').show();
+      tournamentTable.clear();
+      $.each(data.rows, function(i, item) {
+        var row = tournamentTable.row.add(item);
+        var rowNode = row.node();
+        $.each(data.styles[i], function(j, item1) {
+          if (j < 9) {
+            var thisTD = $(rowNode).find('td').eq(4+j);
+            thisTD.css(item1.split(':')[0], item1.split(':')[1]);
+          } else {
+            var thisTD = $(rowNode).find('td').eq(5+j);
+            thisTD.css(item1.split(':')[0], item1.split(':')[1]);
+          }
+        });
+      });
+      tournamentTable.draw();
+      viewTab = 'gross';
+    }).fail(function(xhr, textStatus, error) {
+      $('#errorDialog').modal({}).show();
+      $('#errorHeader').text('failed to load gross scores!');
+      $('#errorText').text(xhr.responseText);
+      console.log('failed to load gross scores!');
+      console.log(xhr.responseText);
+      console.log(textStatus);
+      console.log(error);
+    }).always(function(a, textStatus, b) {
+      $('#loadingDialog').modal('hide');
+    });
+  }
+
+  function showPayoutTab() {
+    $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+    var context = {
+      tournamentId: tournamentId,
+      tournamentName: tournamentName,
+      roundId: roundId,
+      tournamentRound: JSON.stringify(tournamentRounds[roundId])
+    };
+    $.post('/golf/getpayout/', context).done(function(data) {
+      viewTab = 'payout';
+      $('#tournamentTableWrapper').hide();
+      $('#tournamentPayoutWrapper').html(data);
+      $('#tournamentPayoutWrapper').show();
+    }).fail(function(xhr, textStatus, error) {
+      $('#errorDialog').modal({}).show();
+      $('#errorHeader').text('failed to load payout!');
+      $('#errorText').text(xhr.responseText);
+      console.log('failed to load payout!');
+      console.log(xhr.responseText);
+      console.log(textStatus);
+      console.log(error);
+    }).always(function(a, textStatus, b) {
+      $('#loadingDialog').modal('hide');
+    });
   }
 
   /* Will put this back in after testing
@@ -171,13 +278,17 @@
 
   $(document).ready(function() {
 
+    var d = new Date();
+    var month = (d.getMonth()<9)?'0'+d.getMonth()+1:d.getMonth()+1;
+    var day = (d.getDate()<10)?'0'+d.getDate():d.getDate();
+    $('#roundDate').val(month+'/'+day+'/'+d.getFullYear());
     //TODO: Add the rounds tabs functionality, totals page
     var roundTabs = '<ul class="nav nav-tabs navbar-right">';
     for (var i = 0; i < roundCount; i++) {
       if (roundId == i) {
-        roundTabs += '  <li class="active" data-toggle="tab"><a href="#">'+tournamentRounds[roundId].name+'</a></li>';
+        roundTabs += '  <li class="active" data-toggle="tab"><a href="#">'+tournamentRounds[i].name+'</a></li>';
       } else {
-        roundTabs += '  <li data-toggle="tab"><a href="#">'+tournamentRounds[roundId].name+'</a></li>';
+        roundTabs += '  <li data-toggle="tab"><a href="#">'+tournamentRounds[i].name+'</a></li>';
       }
     }
     if (roundCount > 1) {
@@ -186,135 +297,20 @@
     roundTabs += '</ul>';
     $('#roundTabPlaceholder').html(roundTabs);
 
-    $('#netScoresPill a').click(function(event) {
-      console.log('net clicked');
-      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-      var context = {
-        tournamentId: tournamentId,
-        tournamentName: tournamentName,
-        tournamentRound: JSON.stringify(tournamentRounds[roundId]),
-        view: 'net'
-      };
-      $.post('/golf/getscores/', context).done(function(data) {
-        console.log(data);
-        $('#payoutForm').hide();
-        $('#tournamentTableWrapper').show();
-        tournamentTable.clear();
-        $.each(data.rows, function(i, item) {
-          tournamentTable.row.add(item).draw();
-        });
-        view = 'net';
-        $('#loadingDialog').modal('hide');
-      }).fail(function(xhr, textStatus, error) {
-        $('#loadingDialog').modal('hide');
-        $('#errorDialog').modal({}).show();
-        $('#errorHeader').text('failed to load net scores!');
-        $('#errorText').text(xhr.responseText);
-        console.log('failed to load net scores!');
-        console.log(xhr.responseText);
-        console.log(textStatus);
-        console.log(error);
-      });
+    $('#netScoresTab a').click(function(event) {
+      showNetTab();
     });
 
-    $('#grossScoresPill').click(function(event) {
-      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-      var context = {
-        tournamentId: tournamentId,
-        tournamentName: tournamentName,
-        tournamentRound: JSON.stringify(tournamentRounds[roundId]),
-        view: 'gross'
-      };
-      $.post('/golf/getscores/', context).done(function(data) {
-        console.log(data);
-        $('#payoutForm').hide();
-        $('#tournamentTableWrapper').show();
-        tournamentTable.clear();
-        $.each(data.rows, function(i, item) {
-          tournamentTable.row.add(item).draw();
-        });
-        view = 'gross';
-        $('#loadingDialog').modal('hide');
-      }).fail(function(xhr, textStatus, error) {
-        $('#loadingDialog').modal('hide');
-        $('#errorDialog').modal({}).show();
-        $('#errorHeader').text('failed to load gross scores!');
-        $('#errorText').text(xhr.responseText);
-        console.log('failed to load gross scores!');
-        console.log(xhr.responseText);
-        console.log(textStatus);
-        console.log(error);
-      });
+    $('#grossScoresTab').click(function(event) {
+      showGrossTab();
     });
 
-    $('#payoutPill a').click(function(event) {
-      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-      var context = {
-        tournamentId: tournamentId,
-        tournamentName: tournamentName,
-        tournamentRound: JSON.stringify(tournamentRounds[roundId])
-      };
-      $.post('/golf/getpayout/', context).done(function(data) {
-        console.log(data);
-        view = 'payout';
-        $('#tournamentTableWrapper').hide();
-        $('#payoutForm').show();
-        $('#payoutPlayerCount').val(data.net.rows.length);
-        var payoutTotal = data.net.rows.length * parseInt($('#payoutBuyIn').val(), 10);
-        $('#payoutTotal').val(payoutTotal);
-        var payoutClubDues = ($('#payoutClubDuesPercent').val() / 100) * payoutTotal;
-        $('#payoutClubDues').val(payoutClubDues);
-        var payoutTotal2 = payoutTotal - payoutClubDues;
-        $('#payoutTotal2').val(payoutTotal2);
-        var payoutTotal3 = payoutTotal2 - $('#payoutProximityTotal').val();
-        $('#payoutTotal3').val(payoutTotal3);
-        var payoutSkinsTotal = parseInt(($('#payoutSkinsPercent').val() / 100) * payoutTotal3, 10);
-        $('#payoutSkinsTotal').val(payoutSkinsTotal);
-        $('#payoutSkinsTotalDisplay').html(payoutSkinsTotal)
-        var payoutSweepsTotal = parseInt(($('#payoutSweepsPercent').val() / 100) * payoutTotal3, 10);
-        $('#payoutSweepsTotal').val(payoutSweepsTotal);
-        var payoutSweepsNetTotal = parseInt(($('#payoutSweepsNetPercent').val() / 100) * payoutSweepsTotal, 10);
-        $('#payoutSweepsNetTotal').val(payoutSweepsNetTotal);
-        var payoutSweepsNetCount = 0;
-        if (payoutSweepsNetTotal <= 160) {
-          payoutSweepsNetCount = 3;
-        } else {
-          if (payoutSweepsNetTotal <= 300) {
-            payoutSweepsNetCount = 4;
-          } else {
-            payoutSweepsNetCount = 5;
-          }
-        }
-        $('#payoutSweepsNetCount').val(payoutSweepsNetCount);
-        var payoutSweepsGrossTotal = parseInt(($('#payoutSweepsGrossPercent').val() / 100) * payoutSweepsTotal, 10);
-        $('#payoutSweepsGrossTotal').val(payoutSweepsGrossTotal);
-        var payoutSweepsGrossCount = 0;
-        if (payoutSweepsGrossTotal <= 160) {
-          payoutSweepsGrossCount = 3;
-        } else {
-          if (payoutSweepsGrossTotal <= 300) {
-            payoutSweepsGrossCount = 4;
-          } else {
-            payoutSweepsGrossCount = 5;
-          }
-        }
-        $('#payoutSweepsGrossCount').val(payoutSweepsGrossCount);
-        $('#payoutSweepsTotalDisplay').html(payoutSweepsTotal)
-        $('#loadingDialog').modal('hide');
-      }).fail(function(xhr, textStatus, error) {
-        $('#loadingDialog').modal('hide');
-        $('#errorDialog').modal({}).show();
-        $('#errorHeader').text('failed to load payout!');
-        $('#errorText').text(xhr.responseText);
-        console.log('failed to load payout!');
-        console.log(xhr.responseText);
-        console.log(textStatus);
-        console.log(error);
-      });
+    $('#payoutTab a').click(function(event) {
+      showPayoutTab();
     });
     
     //Load the courses list for select course modal
-    $.each(availableCourseTeesJSON, function (i, item) {
+    $.each(availableCourseTees, function (i, item) {
       var option = '<option value="'+item.id+'">'+item.name+'</option>';
       $('#enterScorecardCourse').append(option);
     });
@@ -368,66 +364,72 @@
       $('#scorecard #playerNamesSelect').each(function() {
         var player = {};
         var rowId = $(this).data('rowId');
-        var clubMemberNumber = $('option:selected',this).val();
-        var playerName = $('option:selected',this).text();
-        var handicapIndex = $('option:selected',this).data('handicapIndex');
-        var courseTeeId = parseInt($('#playerTee'+rowId).data('courseTeeId'), 10);
         var courseHCP = parseInt($('#hcp'+rowId).val(), 10);
-        player.clubMemberNumber = clubMemberNumber;
-        player.playerName = playerName;
+        player.clubMemberNumber = $('option:selected',this).val();
+        player.playerName = $('option:selected',this).text();
+        player.handicapIndex = $('option:selected',this).data('handicapIndex');
         player.round = {};
-        player.round.handicapIndex = handicapIndex;
-        player.round.courseTeeId = courseTeeId;
+        player.round.courseTeeId = parseInt($('#playerTee'+rowId).data('courseTeeId'), 10);
         player.round.courseHCP = courseHCP;
         
-        var holesOut = $('[data-hole-out="'+rowId+'"]');
         var totalOut = 0;
-        player.round.score = [];
+        player.round.score = {};
+        var holesOut = $('[data-hole-out="'+rowId+'"]');
         holesOut.each(function(i, item) {
-          var holeNumber = parseInt($(item).data('holeNumber'), 10);
-          player.round.score['hole'+holeNumber] = parseInt($(item).val(), 10);
+          player.round.score['hole'+parseInt($(item).data('holeNumber'), 10)] = parseInt($(item).val(), 10);
           totalOut += parseInt($(item).val(), 10);
         });
         player.round.totalOut = totalOut;
-        var holesIn = $('[data-hole-in="'+rowId+'"]');
         var totalIn = 0;
+        var holesIn = $('[data-hole-in="'+rowId+'"]');
         holesIn.each(function(i, item) {
-          var holeNumber = parseInt($(item).data('holeNumber'), 10);
-          player.round.score['hole'+holeNumber] = parseInt($(item).val(), 10);
+          player.round.score['hole'+parseInt($(item).data('holeNumber'), 10)] = parseInt($(item).val(), 10);
           totalIn += parseInt($(item).val(), 10);
         });
         player.round.totalIn = totalIn;
         player.round.total = totalIn+totalOut;
         player.round.totalNet = totalIn+totalOut-courseHCP;
-        player.round.scorecard = {};
-        player.round.scorecard.scorer = $('#newScorecardScorer').val();
-        player.round.scorecard.scorerId = $('#scorecardScorer').find('[value="'+player.round.scorecard.scorer+'"]').data('value');
-        player.round.scorecard.attest = $('#newScorecardAttest').val();
-        player.round.scorecard.attestId = $('#scorecardAttest').find('[value="'+player.round.scorecard.attest+'"]').data('value');
-        player.round.scorecard.startTime = moment($('#newScorecardStartTime').val()).format('YYYY-MM-DD HH:MM');
-        player.round.scorecard.finishTime = moment($('#newScorecardFinishTime').val()).format('YYYY-MM-DD HH:MM');
         players.push(player);
       });
+      var scorecard = {};
+      scorecard.scorer = $('#newScorecardScorer').val();
+      scorecard.scorerId = $('#scorecardScorer').find('[value="'+scorecard.scorer+'"]').data('value');
+      scorecard.attest = $('#newScorecardAttest').val();
+      scorecard.attestId = $('#scorecardAttest').find('[value="'+scorecard.attest+'"]').data('value');
+      scorecard.startTime = moment($('#newScorecardStartTime').val()).format('YYYY-MM-DD HH:MM');
+      scorecard.finishTime = moment($('#newScorecardFinishTime').val()).format('YYYY-MM-DD HH:MM');
       var context = {
-        tournament: {
-          id: tournamentId,
-          name: tournamentName
-        },
+        tournamentId: tournamentId,
+        tournamentName: tournamentName,
         tournamentRound: JSON.stringify(tournamentRounds[roundId]),
-        players: players,
-        view: view
+        scorecard: JSON.stringify(scorecard),
+        players: JSON.stringify(players),
+        viewTab: viewTab
       };
       $.post('/golf/updatescores/', context).done(function(data) {
-        console.log(data);
         tournamentTable.clear();
         $.each(data.rows, function(i, item) {
-          tournamentTable.row.add(item).draw();
+          var rowNode = tournamentTable.row.add(item).node();
+          $.each(data.styles[i], function(j, item1) {
+            if (j < 9) {
+              var thisTD = $(rowNode).find('td').eq(4+j);
+              var styles = item1.split(' ');
+              for (var k = 0; k < styles.length; k++) {
+                thisTD.css(item1[k].split(':')[0], item1[k].split(':')[1]);
+              }
+            } else {
+              var thisTD = $(rowNode).find('td').eq(5+j);
+              var styles = item1.split(' ');
+              console.log(styles)
+              for (var k = 0; k < styles.length; k++) {
+                thisTD.css(item1[k].split(':')[0], item1[k].split(':')[1]);
+              }
+            }
+          });
         });
-        $('#loadingDialog').modal('hide');
+        tournamentTable.draw();
         $('#enterScorecard').modal('hide');
-        //TODO: set tables data and styles
       }).fail(function(xhr, textStatus, error) {
-        $('#loadingDialog').modal('hide');
         $('#errorDialog').modal({}).show();
         $('#errorHeader').text('failed to store scorecard!');
         $('#errorText').text(xhr.responseText);
@@ -435,8 +437,9 @@
         console.log(xhr.responseText);
         console.log(textStatus);
         console.log(error);
+      }).always(function() {
+        $('#loadingDialog').modal('hide');
       });
-      $('#loadingDialog').modal('hide');
     });
 
     //tournament table
@@ -451,7 +454,7 @@
           },
           'action': function ( event, dt, node, config ) {
             event.stopPropagation();
-            if (availableCoursesJSON.length > 1) {
+            if (availableCourses.length > 1) {
               $('#enterScorecardCourse').modal({backdrop: 'static'}, event.target).show();
             } else {
               addRowId = 0;
@@ -469,9 +472,9 @@
           'action': function ( event, dt, node, config) {
             event.stopPropagation();
             $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-            var context = {
-              tournamentId: tournamentId
-            };
+            //var context = {
+            //  tournamentId: tournamentId
+            //};
             window.open('/golf/printtournament/');
           }
         },
@@ -489,10 +492,8 @@
             };
             $.post('/golf/clearrounddata/', context).done(function(data) {
               tournamentTable.clear();
-              $('#loadingDialog').modal('hide');
               console.log(data);
             }).fail(function(xhr, textStatus, error) {
-              $('#loadingDialog').modal('hide');
               $('#errorDialog').modal({}).show();
               $('#errorHeader').text('failed to clear round from scorecard!');
               $('#errorText').text(xhr.responseText);
@@ -500,6 +501,8 @@
               console.log(xhr.responseText);
               console.log(textStatus);
               console.log(error);
+            }).always(function(a, textStatus, b) {
+              $('#loadingDialog').modal('hide');
             });
           }
         }
@@ -513,20 +516,20 @@
         "emptyTable": "Add a scorecard!"
       }
     });
-    $('div.customTitle').html('<b id="tournamentName">Tournament Name: '+tournamentName+'</b>&nbsp;||&nbsp;<b>Date Played: <input type="text" id="roundDate0" value="'+tournamentRounds[roundId].scheduledDate+'" /></b>');
 
-    if (view == 'net') {
-      $('#netScoresPill').trigger('click');
-      $('#tournamentTableWrapper').show();
-      $('#payoutForm').hide();
-
-    if (view == 'gross') {
-      $('#grossScoresPill').trigger('click');
+    if (viewTab == 'net') {
+      $('#netScoresTab').trigger('click');
       $('#tournamentTableWrapper').show();
       $('#payoutForm').hide();
     }
-    if (view == 'payout') {
-      $('#payoutPill').trigger('click');
+    showNetTab();
+    if (viewTab == 'gross') {
+      $('#grossScoresTab').trigger('click');
+      $('#tournamentTableWrapper').show();
+      $('#payoutForm').hide();
+    }
+    if (viewTab == 'payout') {
+      $('#payoutTab').trigger('click');
       $('#tournamentTableWrapper').hide();
       $('#payoutForm').show();
     }

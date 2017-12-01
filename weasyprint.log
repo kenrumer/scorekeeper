@@ -1,0 +1,6 @@
+Relative URI reference without a base URI: <img src="/static/scorekeeper/img/closesttothepin.jpeg">
+Relative URI reference without a base URI: <img src="/static/scorekeeper/img/closesttothepin.jpeg">
+Ignored `align:center` at 1:12, unknown property.
+Ignored `align:center` at 1:12, unknown property.
+Ignored `align:center` at 1:51, unknown property.
+Error: Expected <ident> for declaration name, got function. at 1:12.

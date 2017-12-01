@@ -13,7 +13,7 @@
 </head>
 <body>
     {% for club in clubs %}
-    <h3 style="text-align:center">{{ club.name }}</h3>
+    <h3 style="text-align:center">{{ clubPrintouts.club.name }}</h3>
     {% endfor %}
     <h4 style="text-align:center">{% now "DATE_FORMAT" %}</h4>
     <table style="width:100%">
@@ -21,11 +21,11 @@
             <th style="text-align:left">Number</th>
             <th style="text-align:left">Name</th>
             <th style="text-align:left">hcp</th>
-            {% for courseTee in courseTees %}
-            <th>{{ courseTee.course__name }} - {{ courseTee.name }} | {{ courseTee.slope }}</th>
+            {% for courseTee in clubPrintouts.courseTees %}
+            <th>{{ courseTee.slope }}</th>
             {% endfor %}
         </tr>
-        {% for player in players %}
+        {% for player in clubPrintouts.players %}
         <tr class="rows {% cycle 'row1' 'row2' %}">
             <td style="text-align:left">{{ player.club_member_number }}</td>
             <td style="text-align:left">{{ player.name }}</td>

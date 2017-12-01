@@ -18,7 +18,7 @@ def newPlayer(request):
 def loadPlayers(request):
     """
     Getter function for list of players from ghin, this calls a plugin from club PlayerPlugin
-    A lot of research... Get the Module(file) get the class (getattr), instansiate the class () call the function
+    Get the Module(file) get the class (getattr), instansiate the class () call the function
     """
     clubs = list(Club.objects.values('id', 'name', 'logo', 'player_plugin__class_package', 'player_plugin__class_name', 'data'))
     for club in clubs:

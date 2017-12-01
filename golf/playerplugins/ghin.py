@@ -87,6 +87,8 @@ class GHINPlayers(PlayerBase):
             name = tr.xpath('td[3]/a')[0].text
             ghin_number = tr.xpath('td[2]')[0].text
             handicap_index = ''.join(i for i in tr.xpath('td[4]')[0].text if i in '0123456789.')
+            if (handicap_index == ''):
+                handicap_index = 1
             new_player_list.append({'club_member_number': ghin_number, 'name': name, 'handicap_index': handicap_index, 'player_type__id': 1, 'data': {}})
         super(GHINPlayers, self).mergePlayers(new_player_list)
         super(GHINPlayers, self).storePlayers()

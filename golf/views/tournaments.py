@@ -37,9 +37,13 @@ def newTournament(request):
     Set tournament rounds
     """
     for tournamentRound in tournamentRounds:
-        d = datetime.strptime(tournamentRound['scheduledDate'], '%m/%d/%Y')
+        """
+        Get the tournament formatId
+        Initialize Format Data
+        """
         fp = FormatPlugin.objects.get(id=tournamentRound['formatId'])
-        tr = TournamentRound(scheduled_date=d, tournament=t, format_plugin=fp, name=tournamentRound['name'])
+        d = datetime.strptime(tournamentRound['scheduledDate'], '%m/%d/%Y')
+        tr = TournamentRound(scheduled_date=d, tournament=t, format_plugin=fp, data=fp.data, name=tournamentRound['name'])
         tr.save()
         tournamentRound['id'] = tr.id
         """
@@ -129,46 +133,48 @@ def updateScores(request):
     Return the rankings grosses and nets and colors per cell
     """
     tournamentId = request.POST['tournamentId']
+    tournamentName = request.POST['tournamentName']
     tournamentRound = json.loads(request.POST['tournamentRound'])
-    view = request.POST['view']
+    scorecard = json.loads(request.POST['scorecard'])
+    players = json.loads(request.POST['players'])
+    viewTab = request.POST['viewTab']
 
     s = Scorecard()
-    if (request.POST['scorer'] != ''):
+    if (scorecard['scorer'] != ''):
         try:
-            scorer = Player.objects.get(club_member_number=request.POST['scorerId'])
+            scorer = Player.objects.get(club_member_number=scorecard['scorerId'])
             s.scorer = scorer
         except Player.DoesNotExist:
-            s.external_scorer = request.POST['scorer']
-    if (request.POST['attest'] != ''):
+            s.external_scorer = scorecard['scorer']
+    if (scorecard['attest'] != ''):
         try:
-            attest = Player.objects.get(club_member_number=request.POST['attestId'])
+            attest = Player.objects.get(club_member_number=scorecard['attestId'])
             s.attest = attest
         except Player.DoesNotExist:
-            s.external_attest = request.POST['attest']
-    if (request.POST['startTime'] != ''):
-        s.start_time = request.POST['startTime']
-    if (request.POST['finishTime'] != ''):
-        s.finish_time = request.POST['finishTime']
+            s.external_attest = scorecard['attest']
+    if (scorecard['startTime'] != ''):
+        s.start_time = scorecard['startTime']
+    if (scorecard['finishTime'] != ''):
+        s.finish_time = scorecard['finishTime']
     s.save()
-    
-    scores = request.POST['scores']
-    for score in scores:
-        score['scorecardId'] = s.id
+
+    for player in players:
+        player['scorecardId'] = s.id
 
     formatPlugin = FormatPlugin.objects.get(id=tournamentRound['formatId'])
     classModule = importlib.import_module('golf.formatplugins.'+formatPlugin.class_package)
     classAccess = getattr(classModule, formatPlugin.class_name)
     classInst = classAccess(tournamentId, tournamentRound['id'])
-    classInst.updateScores(request.POST)
+    classInst.updateScores(players)
     
-    roundStatus = getTournamentRoundStatus(tournamentRound['id'], view)
+    roundStatus = getTournamentRoundStatus(tournamentRound['id'], viewTab)
     return JsonResponse(roundStatus)
 
 def getScores(request):
     tournamentId = request.POST['tournamentId']
     tournamentRound = json.loads(request.POST['tournamentRound'])
-    view = request.POST['view']
-    roundStatus = getTournamentRoundStatus(tournamentRound['id'], view)
+    viewTab = request.POST['viewTab']
+    roundStatus = getTournamentRoundStatus(tournamentRound['id'], viewTab)
     return JsonResponse(roundStatus)
 
 def getPayout(request):
@@ -179,61 +185,18 @@ def getPayout(request):
     classModule = importlib.import_module('golf.formatplugins.'+formatPlugin.class_package)
     classAccess = getattr(classModule, formatPlugin.class_name)
     classInst = classAccess(tournamentId, tournamentRound['id'])
-    resultList = classInst.calculateScores(request.POST)
-    
-    roundStatus = getTournamentRoundPayoutStatus(tournamentRound['id'])
-    return JsonResponse(roundStatus)
+    resultHtml = classInst.showPayout()
 
-def getTournamentRoundPayoutStatus(tournamentRoundId):
-    return {
-        'net': getTournamentRoundStatus(tournamentRoundId, 'net'),
-        'gross': getTournamentRoundStatus(tournamentRoundId, 'gross'),
-        'netSkins':getTournamentRoundSkinStatus(tournamentRoundId, 'net'),
-        'skins':getTournamentRoundSkinStatus(tournamentRoundId, 'gross')
-    }
-
-def getTournamentRoundSkinStatus(tournamentRoundId, view):
-    """
-    This method returns the current tournament status
-    """
-    skins = []
-    order = 'total'
-    if (view == 'net'):
-        order = 'net'
-    try:
-        rounds = Round.objects.filter(tournament_round=tournamentRoundId).order_by(order)
-    except:
-        print ('Failed to get rounds')
-        print (tournamentRoundId)
-        return False
-    i = 1
-    for r in rounds:
-        try:
-            scores = Score.objects.filter(round=r.id).order_by('tee__hole__number')
-        except:
-            print ('Failed to get scores')
-            print (r.id)
-            return False
-        skin = []
-        playerName = r.player.name
-        for index, item in enumerate(scores):
-            if (view == 'net'):
-                if (item.skin_net == 1):
-                    skin.append(i)
-            else:
-                if (item.skin == 1):
-                    skin.append(i)
-        skins.append(skin)
-    return { 'playerName': playerName, 'skins': skins }
+    return HttpResponse(resultHtml)
     
-def getTournamentRoundStatus(tournamentRoundId, view):
+def getTournamentRoundStatus(tournamentRoundId, viewTab):
     """
     This method returns the current tournament status in an easy way for datatables to read
     """
     rows = []
     styles = []
     order = 'total'
-    if (view == 'net'):
+    if (viewTab == 'net'):
         order = 'net'
     try:
         rounds = Round.objects.filter(tournament_round=tournamentRoundId).order_by(order)
@@ -252,13 +215,13 @@ def getTournamentRoundStatus(tournamentRoundId, view):
         style = []
         row = []
         row.append(i)
-        row.append('<div class="btn-group"><button type="button" class="btn btn-default" onclick="javascript:editScorecard();" aria-label="Edit Scorecard"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></button><button type="button" class="btn btn-default" onclick="javascript:editScorecardRow();" aria-label="Edit Scorecard Row"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></div>')
+        row.append('<div class="btn-group"><button type="button" class="btn btn-xs btn-default" onclick="javascript:editScorecard();" aria-label="Edit Scorecard"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></button><button type="button" class="btn btn-xs btn-default" onclick="javascript:editScorecardRow();" aria-label="Edit Scorecard Row"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></div>')
         row.append(r.player.name)
         row.append(r.course_handicap)
         for index, item in enumerate(scores):
             if (index == 9):
                 row.append(r.total_out)
-            if (view == 'net'):
+            if (viewTab == 'net'):
                 style.append(item.score_net_style)
                 row.append(item.score_net)
             else:

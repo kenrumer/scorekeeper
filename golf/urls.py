@@ -11,6 +11,12 @@ urlpatterns = [
     url(r'^checkfortournamentduplicate/$', csrf_exempt(home.checkForTournamentDuplicate), name='checkfortournamentduplicate'),
     url(r'^getalltournaments/$', csrf_exempt(home.getAllTournaments), name='getalltournaments'),
     url(r'^getallplayers/$', csrf_exempt(home.getAllPlayers), name='getallplayers'),
+    url(r'^getallrecentactivities/$', csrf_exempt(home.getAllRecentActivities), name='getallrecentactivities'),
+    url(r'^getimportexportbackupdata/$', csrf_exempt(home.getImportExportBackupData), name='getimportexportbackupdata'),
+
+    url(r'^exportcourse/(?P<courseId>\d+)$', csrf_exempt(exports.course), name='exportcourse'),
+    url(r'^exportloadplayersplugin/(?P<loadPlayersPluginId>\d+)$', csrf_exempt(exports.loadPlayersPlugin), name='exportloadplayersplugin'),
+    url(r'^clubprintouts/$', csrf_exempt(exports.clubPrintouts), name='clubprintouts'),
     
     url(r'^editcourses/$', courses.editCourses, name='editcourses'),
     url(r'^getcourses/$', courses.getCourses, name='getcourses'),
@@ -32,10 +38,10 @@ urlpatterns = [
     
     url(r'^editplayers/$', players.editPlayers, name='editplayers'),
     url(r'^getplayers/$', csrf_exempt(players.getPlayers), name='getplayers'),
-    url(r'^newplayer/$', players.newPlayer, name='newplayer'),
+    url(r'^newplayer/$', csrf_exempt(players.newPlayer), name='newplayer'),
     url(r'^loadplayers/$', csrf_exempt(players.loadPlayers), name='loadplayers'),
-    url(r'^printplayers/$', csrf_exempt(printables.printPlayers), name='printplayers'),
-    url(r'^printsignupsheets/$', csrf_exempt(printables.printSignupSheets), name='printsignupsheets'),
+    url(r'^printplayers/$', csrf_exempt(exports.printPlayers), name='printplayers'),
+    url(r'^printsignupsheets/$', csrf_exempt(exports.printSignupSheets), name='printsignupsheets'),
     
     url(r'^editformats/$', tournaments.editFormats, name='editformats'),
 
