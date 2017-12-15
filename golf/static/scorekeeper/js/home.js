@@ -6,12 +6,12 @@
 
   $(document).ready(function() {
   
-    $('#titleClubName').html(club.name);
+    $('#titleClubName').html(club[0].fields.name);
     $('#playerLoadDate').html(moment(club.players_last_updated).format('MM/DD/YYYY hh:mm A'));
     //Menu buttons
     //New Tournament Wizard
     $('#newTournamentButton').click(function(event) {
-      $('#newTournamentName').val(club.default_tournament_name+' - '+moment().format('MM/DD/YYYY'));
+      $('#newTournamentName').val(club[0].fields.default_tournament_name+' - '+moment().format('MM/DD/YYYY'));
       $('#newTournamentRoundCount').val(1);
       $('#newTournament').modal({backdrop: 'static'}, event.target).show();
     });
@@ -23,12 +23,11 @@
       };
       $.post('/golf/checkfortournamentduplicate/', context).done(function(data) {
         var duplicate = data.duplicate;
-        if (duplicate == true) {
+        if (data.duplicate == true) {
           $('#newTournamentDuplicate').modal({backdrop: 'static', keyboard: false}, event.target).show();
         } else {
           context = {};
-          $.post('/golf/getallformatplugins/', context).done(function(data) {
-            var formatPlugins = data.formatPlugins;
+          $.post('/golf/getallformatplugins/', context).done(function(formatPlugins) {
             $('#newTournament').modal('hide');
             var roundCount = parseInt($('#newTournamentRoundCount').val(), 10);
             $('#newTournamentRoundsPlaceholder').html('');
@@ -41,8 +40,8 @@
               roundsInput += '    </div>';
              	roundsInput += '    <div class="col-sm-3">';
              	roundsInput += '       <select class="form-control" id="newTournamentRoundsFormatPlugin'+i+'">';
-              $.each(formatPlugins, function (i, item) {
-             	  roundsInput += '          <option value="'+item.id+'">'+item.name+'</option>';
+              $.each(formatPlugins, function (i, formatPlugin) {
+             	  roundsInput += '          <option value="'+formatPlugin.pk+'">'+formatPlugin.fields.name+'</option>';
               });
              	roundsInput += '       </select>';
              	roundsInput += '    </div>';
@@ -89,6 +88,7 @@
       });
     });
   
+    // Create Duplicate tournament
     $('#newTournamentDuplicateCancelTournament').click(function(event) {
       $('#newTournamentDuplicate').modal('hide');
       $('#newTournament').modal('hide');
@@ -97,8 +97,7 @@
       $('#newTournamentDuplicate').modal('hide');
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       var context = {};
-      $.post('/golf/getallformatplugins/', context).done(function(data) {
-        var formatPlugins = data.formatPlugins;
+      $.post('/golf/getallformatplugins/', context).done(function(formatPlugins) {
         var roundCount = parseInt($('#newTournamentRoundCount').val(), 10);
         //Show choose dates
         $('#newTournamentRoundsPlaceholder').html('');
@@ -111,8 +110,8 @@
           roundsInput += '    </div>';
          	roundsInput += '    <div class="col-sm-3">';
          	roundsInput += '       <select class="form-control" id="newTournamentRoundsFormatPlugin'+i+'">';
-          $.each(formatPlugins, function (i, item) {
-         	  roundsInput += '          <option value="'+item.id+'">'+item.name+'</option>';
+          $.each(formatPlugins, function (i, formatPlugin) {
+         	  roundsInput += '          <option value="'+formatPlugin.pk+'">'+formatPlugin.fields.name+'</option>';
           });
          	roundsInput += '       </select>';
          	roundsInput += '    </div>';
@@ -146,79 +145,61 @@
       $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
     });
   
+    // Rounds page
     $('#newTournamentRoundsBackButton').click(function(event) {
       $('#newTournamentRounds').modal('hide');
       $('#newTournament').modal({backdrop: 'static'}, event.target).show();
     });
     $('#newTournamentRoundsNextButton').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-      var context = {};
-      $.post('/golf/getallcourses/', context).done(function(data) {
-        var courses = data.courses;
-        $('#newTournamentCoursesMS').multiSelect('refresh');
-        newTournamentCoursesSelectedCourseList = [];
-        newTournamentCoursesAvailableCourseList = courses;
-        $.each(courses, function (i, item) {
-          if (item.default) {
-            $('#newTournamentCoursesMS').multiSelect('addOption', { value: item.id, text: item.name });
-            $('#newTournamentCoursesMS').multiSelect('select', item.id.toString());
-          } else {
-            $('#newTournamentCoursesMS').multiSelect('addOption', { value: item.id, text: item.name });
-          }
-        });
-        $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
-      }).fail(function(xhr, textStatus, error) {
-        $('#errorHeader').text('failed to load courses!');
-        $('#errorText').text(xhr.responseText);
-        console.log('failed to load courses!');
-        console.log(xhr.responseText);
-        console.log(textStatus);
-        console.log(error);
-        $('#errorDialog').modal({}).show();
-      }).always(function(a, textStatus, b) {
-        $('#newTournamentRounds').modal('hide');
-        $('#loadingDialog').modal('hide');
+      $('#newTournamentCoursesMS').empty();
+      $('#newTournamentCoursesMS').multiSelect('refresh');
+      newTournamentCoursesSelectedCourseList = [];
+      newTournamentCoursesAvailableCourseList = courses;
+      $.each(courses, function (i, course) {
+        if (course.fields.default) {
+          $('#newTournamentCoursesMS').multiSelect('addOption', { value: course.pk, text: course.fields.name });
+          $('#newTournamentCoursesMS').multiSelect('select', course.pk.toString());
+        } else {
+          $('#newTournamentCoursesMS').multiSelect('addOption', { value: course.pk, text: course.fields.name });
+        }
       });
+      $('#newTournamentRounds').modal('hide');
+      $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
+      $('#loadingDialog').modal('hide');
     });
   
+    // Courses page
     $('#newTournamentCoursesBackButton').click(function(event) {
       $('#newTournamentCourses').modal('hide');
       $('#newTournamentRounds').modal({backdrop: 'static'}, event.target).show();
     });
     $('#newTournamentCoursesNextButton').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-      var context = {
-        courses: JSON.stringify(newTournamentCoursesSelectedCourseList)
-      };
-      $.post('/golf/getcoursetees/', context).done(function(data) {
-        var courseTees = data.courseTees;
-        newTournamentCourseTeesSelectedCourseTeeList = [];
-        newTournamentCourseTeesAvailableCourseTeeList = courseTees;
-        $('#newTournamentCourseTeesMS').multiSelect('refresh');
-        $.each(courseTees, function (i, item) {
-          if (item.default) {
-            $('#newTournamentCourseTeesMS').multiSelect('addOption', { value: item.id, text: item.course__name+' - '+item.name });
-            $('#newTournamentCourseTeesMS').multiSelect('select', item.id.toString());
-          } else {
-            $('#newTournamentCourseTeesMS').multiSelect('addOption', { value: item.id, text: item.course__name+' - '+item.name });
-          }
-        });
-        $('#newTournamentCourseTees').modal({backdrop: 'static'}, event.target).show();
-      }).fail(function(xhr, textStatus, error) {
-        $('#newTournament').modal('hide');
-        $('#errorHeader').text('failed to load course tees!');
-        $('#errorText').text(xhr.responseText);
-        console.log('failed to load course tees!');
-        console.log(xhr.responseText);
-        console.log(textStatus);
-        console.log(error);
-        $('#errorDialog').modal({}).show();
-      }).always(function(a, textStatus, b) {
-        $('#newTournamentCourses').modal('hide');
-        $('#loadingDialog').modal('hide');
+      var selectedCourses = newTournamentCoursesSelectedCourseList;
+      var selectedCourseTees = [];
+      $.each(selectedCourses, function(i, selectedCourse) {
+        Array.prototype.push.apply(selectedCourseTees, courseTees.filter(function(element) { return element.fields.course === selectedCourse.pk}));
       });
+      newTournamentCourseTeesSelectedCourseTeeList = [];
+      newTournamentCourseTeesAvailableCourseTeeList = selectedCourseTees;
+      $('#newTournamentCourseTeesMS').empty();
+      $('#newTournamentCourseTeesMS').multiSelect('refresh');
+      $.each(selectedCourseTees, function (i, selectedCourseTee) {
+        var courseName = newTournamentCoursesSelectedCourseList.filter(function(element) { return element.pk === selectedCourseTee.fields.course})[0].fields.name;
+        if (selectedCourseTee.fields.default) {
+          $('#newTournamentCourseTeesMS').multiSelect('addOption', { value: selectedCourseTee.pk, text: courseName+' - '+selectedCourseTee.fields.name });
+          $('#newTournamentCourseTeesMS').multiSelect('select', selectedCourseTee.pk.toString());
+        } else {
+          $('#newTournamentCourseTeesMS').multiSelect('addOption', { value: selectedCourseTee.pk, text: courseName+' - '+selectedCourseTee.fields.name });
+        }
+      });
+      $('#newTournamentCourseTees').modal({backdrop: 'static'}, event.target).show();
+      $('#newTournamentCourses').modal('hide');
+      $('#loadingDialog').modal('hide');
     });
-  
+
+    // Course tees page
     $('#newTournamentCourseTeesBackButton').click(function(event) {
       $('#newTournamentCourseTees').modal('hide');
       $('#newTournamentCourses').modal({backdrop: 'static'}, event.target).show();
@@ -239,8 +220,8 @@
         tournamentName: $('#newTournamentName').val(),
         tournamentRounds: JSON.stringify(tournamentRounds),
         roundCount: roundCount,
-        availableCourses: JSON.stringify(newTournamentCoursesSelectedCourseList),
-        availableCourseTees: JSON.stringify(newTournamentCourseTeesSelectedCourseTeeList)
+        courses: JSON.stringify(newTournamentCoursesSelectedCourseList),
+        courseTees: JSON.stringify(newTournamentCourseTeesSelectedCourseTeeList)
       };
       $.post('/golf/newtournament/', context).done(function(data) {
         $.redirect('/golf/tournament/', data, 'POST', '', true);
@@ -264,9 +245,17 @@
       var context = {};
       $.post('/golf/getalltournaments/', context).done(function(data) {
         var tournaments = data.tournaments;
+        var tournamentRounds = data.tournamentRounds;
         var tournamentRows = '';
-        $.each(tournaments, function(i, item) {
-          var tournamentRow = '<div class="list-group-item editTournamentListItem" style="padding:0px 0px 0px 0px;" id="editTournamentListItem" tournament-name="'+item.name+'" data-tournament-id="'+item.id+'">';
+        $.each(tournaments, function(i, tournament) {
+          var thisTournamentRounds = tournamentRounds.reduce(function(a, e, j) { if (e.fields.tournament === tournament.pk) a.push(e); return a; }, []);
+          var tournamentStart = "no rounds";
+          var tournamentEnd = "no rounds";
+          if (thisTournamentRounds.length > 0) {
+            tournamentStart = thisTournamentRounds.reduce((m, v, i) => (v.fields.scheduled_date < m.fields.scheduled_date) && i ? v : m).fields.scheduled_date;
+            tournamentEnd = thisTournamentRounds.reduce((m, v, i) => (v.fields.scheduled_date > m.fields.scheduled_date) && i ? v : m).fields.scheduled_date;
+          }
+          var tournamentRow = '<div class="list-group-item editTournamentListItem" style="padding:0px 0px 0px 0px;" id="editTournamentListItem" tournament-name="'+tournament.fields.name+'" data-tournament-id="'+tournament.pk+'">';
           tournamentRow += '  <div class="row">';
           tournamentRow += '    <div class="col-sm-1"></div>';
           tournamentRow += '    <div class="col-sm-10">';
@@ -281,13 +270,20 @@
           tournamentRow += '            <li><a href="#">Delete</a></li>';
           tournamentRow += '          </ul>';
           tournamentRow += '        </div>';
-          tournamentRow += '   	    <input id="editTournamentId" type="number" class="form-control input-group-addon editTournamentId" style="text-align:right;background-color:#fff;" value="'+item.id+'" data-original-value="'+item.id+'" readOnly disabled />';
+          tournamentRow += '   	    <input id="editTournamentId" type="number" class="form-control input-group-addon editTournamentId" style="text-align:right;background-color:#fff;" value="'+tournament.pk+'" data-original-value="'+tournament.pk+'" readOnly disabled />';
           tournamentRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
-          tournamentRow += '   	    <input id="editTournamentName" type="text" class="form-control input-group-addon editTournamentName" style="text-align:left;background-color:#fff;" value="'+item.name+'" data-original-value="'+item.name+'" />';
-          tournamentRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
-          tournamentRow += '   	    <input id="editTournamentStartDate" type="text" class="form-control input-group-addon editTournamentStartDate" style="text-align:left;background-color:#fff;" value="'+moment(item.start_time).format('MM/DD/YYYY')+'" data-original-value="'+moment(item.start_time).format('MM/DD/YYYY')+'" />';
-          tournamentRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
-          tournamentRow += '   	    <input id="editTournamentFinishDate" type="text" class="form-control input-group-addon editTournamentFinishDate" style="text-align:left;background-color:#fff;" value="'+moment(item.finish_time).format('MM/DD/YYYY')+'" data-original-value="'+moment(item.finish_time).format('MM/DD/YYYY')+'" />';
+          tournamentRow += '   	    <input id="editTournamentName" type="text" class="form-control input-group-addon editTournamentName" style="text-align:left;background-color:#fff;" value="'+tournament.fields.name+'" data-original-value="'+tournament.fields.name+'" />';
+          if (thisTournamentRounds.length > 0) {
+            tournamentRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
+            tournamentRow += '   	    <input id="editTournamentStartDate" type="text" class="form-control input-group-addon editTournamentStartDate" style="text-align:left;background-color:#fff;" value="'+moment(tournamentStart).format('MM/DD/YYYY')+'" data-original-value="'+moment(tournamentStart).format('MM/DD/YYYY')+'" />';
+            tournamentRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
+            tournamentRow += '   	    <input id="editTournamentFinishDate" type="text" class="form-control input-group-addon editTournamentFinishDate" style="text-align:left;background-color:#fff;" value="'+moment(tournamentEnd).format('MM/DD/YYYY')+'" data-original-value="'+moment(tournamentEnd).format('MM/DD/YYYY')+'" />';
+          } else {
+            tournamentRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
+            tournamentRow += '   	    <input id="editTournamentStartDate" type="text" class="form-control input-group-addon editTournamentStartDate" style="text-align:left;background-color:#fff;" value="'+tournamentStart+'" data-original-value="'+tournamentStart+'" />';
+            tournamentRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
+            tournamentRow += '   	    <input id="editTournamentFinishDate" type="text" class="form-control input-group-addon editTournamentFinishDate" style="text-align:left;background-color:#fff;" value="'+tournamentEnd+'" data-original-value="'+tournamentEnd+'" />';
+          }
           tournamentRow += '   	  </div>';
           tournamentRow += '    </div>';
           tournamentRow += '    <div class="col-sm-1"></div>';
@@ -363,7 +359,6 @@
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       var context = {};
       $.post('/golf/loadplayers/', context).done(function(data) {
-        $('#loadingDialog').modal('hide');
         var d = new Date();
         var day = (d.getDate()<10)?'0'+d.getDate():d.getDate();
         var month = (d.getMonth()<10)?'0'+d.getMonth()+1:d.getMonth()+1;
@@ -382,6 +377,8 @@
         console.log(xhr.responseText);
         console.log(textStatus);
         console.log(error);
+      }).always(function(a, textStatus, b) {
+        $('#loadingDialog').modal('hide');
       });
     });
   
@@ -389,11 +386,10 @@
     $('#editPlayersButton').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       var context = {};
-      $.post('/golf/getallplayers/', context).done(function(data) {
-        var players = data.players;
+      $.post('/golf/getallplayers/', context).done(function(players) {
         var playerRows = '';
-        $.each(players, function(i, item) {
-          var playerRow = '<div class="list-group-item editPlayersListItem" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="'+item.name+'" data-club-member-number="'+item.club_member_number+'">';
+        $.each(players, function(i, player) {
+          var playerRow = '<div class="list-group-item editPlayersListItem" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="'+player.fields.name+'" data-club-member-number="'+player.fields.club_member_number+'">';
           playerRow += '  <div class="row">';
           playerRow += '    <div class="col-sm-1"></div>';
           playerRow += '      <div class="col-sm-10">';
@@ -408,11 +404,11 @@
           playerRow += '              <li><a href="#">Delete</a></li>';
           playerRow += '            </ul>';
           playerRow += '         </div>';
-          playerRow += '	    <input id="editPlayersClubMemberNumber" type="text" class="form-control input-group-addon editPlayersClubMemberNumber" style="text-align:right;background-color:#fff;" value="'+item.club_member_number+'" data-original-value="'+item.club_member_number+'" />';
+          playerRow += '	    <input id="editPlayersClubMemberNumber" type="text" class="form-control input-group-addon editPlayersClubMemberNumber" style="text-align:right;background-color:#fff;" value="'+player.fields.club_member_number+'" data-original-value="'+player.fields.club_member_number+'" />';
           playerRow += '     	    <span class="input-group-btn" style="width:0px;"></span>';
-          playerRow += '	    <input id="editPlayersName" type="text" class="form-control input-group-addon editPlayersName" style="text-align:left;background-color:#fff;" value="'+item.name+'" data-original-value="'+item.name+'" />';
+          playerRow += '	    <input id="editPlayersName" type="text" class="form-control input-group-addon editPlayersName" style="text-align:left;background-color:#fff;" value="'+player.fields.name+'" data-original-value="'+player.fields.name+'" />';
           playerRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
-          playerRow += '	    <input id="editPlayersHandicapIndex" type="text" class="form-control input-group-addon editPlayersHandicapIndex" style="text-align:right;background-color:#fff;" value="'+item.handicap_index+'" data-original-value="'+item.handicap_index+'" />';
+          playerRow += '	    <input id="editPlayersHandicapIndex" type="text" class="form-control input-group-addon editPlayersHandicapIndex" style="text-align:right;background-color:#fff;" value="'+player.fields.handicap_index+'" data-original-value="'+player.fields.handicap_index+'" />';
           playerRow += '       </div>';
           playerRow += '    </div>';
           playerRow += '    <div class="col-sm-1"></div>';
@@ -463,11 +459,11 @@
       };
       $.post('/golf/newplayer/', context).done(function(data) {
         context = {};
-        $.post('/golf/getallplayers/', context).done(function(data) {
+        $.post('/golf/getallplayers/', context).done(function(players) {
           var players = data.players;
           var playerRows = '';
-          $.each(players, function(i, item) {
-            var playerRow = '<div class="list-group-item editPlayersListItem" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="'+item.name+'" data-club-member-number="'+item.club_member_number+'">';
+          $.each(players, function(i, player) {
+            var playerRow = '<div class="list-group-item editPlayersListItem" style="padding:0px 0px 0px 0px;" id="editPlayersListItem" data-name="'+player.fields.name+'" data-club-member-number="'+player.fields.club_member_number+'">';
             playerRow += '  <div class="row">';
             playerRow += '    <div class="col-sm-1"></div>';
             playerRow += '      <div class="col-sm-10">';
@@ -482,11 +478,11 @@
             playerRow += '              <li><a href="#">Delete</a></li>';
             playerRow += '            </ul>';
             playerRow += '         </div>';
-            playerRow += '	    <input id="editPlayersClubMemberNumber" type="text" class="form-control input-group-addon editPlayersClubMemberNumber" style="text-align:right;background-color:#fff;" value="'+item.club_member_number+'" data-original-value="'+item.club_member_number+'" />';
+            playerRow += '	    <input id="editPlayersClubMemberNumber" type="text" class="form-control input-group-addon editPlayersClubMemberNumber" style="text-align:right;background-color:#fff;" value="'+player.fields.club_member_number+'" data-original-value="'+player.fields.club_member_number+'" />';
             playerRow += '     	    <span class="input-group-btn" style="width:0px;"></span>';
-            playerRow += '	    <input id="editPlayersName" type="text" class="form-control input-group-addon editPlayersName" style="text-align:left;background-color:#fff;" value="'+item.name+'" data-original-value="'+item.name+'" />';
+            playerRow += '	    <input id="editPlayersName" type="text" class="form-control input-group-addon editPlayersName" style="text-align:left;background-color:#fff;" value="'+player.fields.name+'" data-original-value="'+player.fields.name+'" />';
             playerRow += '   	    <span class="input-group-btn" style="width:0px;"></span>';
-            playerRow += '	    <input id="editPlayersHandicapIndex" type="text" class="form-control input-group-addon editPlayersHandicapIndex" style="text-align:right;background-color:#fff;" value="'+item.handicap_index+'" data-original-value="'+item.handicap_index+'" />';
+            playerRow += '	    <input id="editPlayersHandicapIndex" type="text" class="form-control input-group-addon editPlayersHandicapIndex" style="text-align:right;background-color:#fff;" value="'+player.fields.handicap_index+'" data-original-value="'+player.fields.handicap_index+'" />';
             playerRow += '       </div>';
             playerRow += '    </div>';
             playerRow += '    <div class="col-sm-1"></div>';
@@ -592,10 +588,14 @@
     var option = '<option value="0">------------------------------------------------------</option>';
     $('#clubPrintoutsCourse1').append(option);
     $('#clubPrintoutsCourse2').append(option);
-    $.each(courseTees, function(i, item) {
-      option = '<option value="'+item.id+'">'+item.course__name+' - '+item.name+'</option>';
-      $('#clubPrintoutsCourse1').append(option);
-      $('#clubPrintoutsCourse2').append(option);
+    $.each(courseTees, function(i, courseTee) {
+      $.each(courses, function(j, course) {
+        if (course.pk == courseTee.fields.course) {
+          option = '<option value="'+courseTee.pk+'">'+course.fields.name+' - '+courseTee.fields.name+'</option>';
+          $('#clubPrintoutsCourse1').append(option);
+          $('#clubPrintoutsCourse2').append(option);
+        }
+      });
     });
     $('#clubprintoutsButton').click(function(event) {
       var cr = $('#clubPrintoutsRosterCount').val();
@@ -612,6 +612,86 @@
     });
 
     //Import/Export/Backup
+    $("#importCourses").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Course(s)'}).on('files.bs.filedialog', function(ev) {
+        console.log(ev.files[0].content);
+        var files = ev.files;
+        var fd = new FormData();
+        for (var i = 0; i < files.length; i++) {
+			    fd.append('files', files[i]);
+		    }
+        $.ajax({
+          url:'/golf/importcourses/',
+          data: fd,
+          cache: false,
+          contentType: false,
+          processData: false,
+          method: 'POST',
+          type: 'POST'
+        }).done(function(data) {
+        }).fail(function(xhr, textStatus, error) {
+          $('#errorHeader').text('failed to import the course!');
+          $('#errorText').text(xhr.responseText);
+          console.log('failed to import the course!');
+          console.log(xhr.responseText);
+          console.log(textStatus);
+          console.log(error);
+          $('#errorDialog').modal({}).show();
+        }).always(function(a, textStatus, b) {
+          $('#loadingDialog').modal('hide');
+        });
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importTournamentRoundImportPlugins").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Tournament Round Import Plugin(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importLoadPlayersPlugins").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Load Player Plugin(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importTournamentFormatPlugins").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Tournament Format Plugin(s)'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
+    $("#importDatabase").click(function() {
+      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Database'}).on('files.bs.filedialog', function(ev) {
+        var files = ev.files;
+        var text = "";
+        files.forEach(function(f) {
+          text += f.name + "<br/>";
+        });
+        console.log(text);
+      }).on('cancel.bs.filedialog', function(ev) {
+        console.log("Cancelled!");
+      });
+    });
     $('#exportCourses').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
       var course = $('#importExportCourse').val();
@@ -630,7 +710,41 @@
       var loadPlayersPluginId = $('#importExportLoadPlayersPlugins').find('[value="'+loadPlayersPlugin+'"]').data('value');
       var a = document.createElement('A');
       a.href = '/golf/exportloadplayersplugin/'+loadPlayersPluginId;
-      a.download = loadPlayersPlugin+'.json';
+      a.download = loadPlayersPlugin+'.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      $('#loadingDialog').modal('hide');
+    });
+    $('#exportTournamentFormatPlugins').click(function(event) {
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      var tournamentFormat = $('#importExportTournamentFormat').val();
+      var tournamentFormatId = $('#importExportTournamentFormats').find('[value="'+tournamentFormat+'"]').data('value');
+      var a = document.createElement('A');
+      a.href = '/golf/exporttournamentformatplugin/'+tournamentFormatId;
+      a.download = tournamentFormat+'.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      $('#loadingDialog').modal('hide');
+    });
+    $('#exportTournamentRoundImportPlugins').click(function(event) {
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      var tournamentRoundImport = $('#exportTournamentRoundImportPlugin').val();
+      var tournamentRoundImportId = $('#exportTournamentRoundImportPlugins').find('[value="'+tournamentRoundImport+'"]').data('value');
+      var a = document.createElement('A');
+      a.href = '/golf/exporttournamentroundimportplugin/'+tournamentRoundImportId;
+      a.download = tournamentRoundImport+'.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      $('#loadingDialog').modal('hide');
+    });
+    $('#exportDatabase').click(function(event) {
+      $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      var a = document.createElement('A');
+      a.href = '/golf/exportdatabase/';
+      a.download = 'db.sqlite3';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -749,15 +863,15 @@
         this.qs1.cache();
         this.qs2.cache();
         var valueId = parseInt(values[0], 10);
-        newTournamentCoursesSelectedCourseList.push(newTournamentCoursesAvailableCourseList.filter(function(element) { return element.id === valueId})[0]);
-        newTournamentCoursesAvailableCourseList = newTournamentCoursesAvailableCourseList.filter(function(element) { return element.id !== valueId });
+        newTournamentCoursesSelectedCourseList.push(newTournamentCoursesAvailableCourseList.filter(function(element) { return element.pk === valueId})[0]);
+        newTournamentCoursesAvailableCourseList = newTournamentCoursesAvailableCourseList.filter(function(element) { return element.pk !== valueId });
       },
       afterDeselect: function(values) {
         this.qs1.cache();
         this.qs2.cache();
         var valueId = parseInt(values[0], 10);
-        newTournamentCoursesAvailableCourseList.push(newTournamentCoursesSelectedCourseList.filter(function(element) { return element.id === valueId })[0]);
-        newTournamentCoursesSelectedCourseList = newTournamentCoursesSelectedCourseList.filter(function(element) { return element.id !== valueId });
+        newTournamentCoursesAvailableCourseList.push(newTournamentCoursesSelectedCourseList.filter(function(element) { return element.pk === valueId })[0]);
+        newTournamentCoursesSelectedCourseList = newTournamentCoursesSelectedCourseList.filter(function(element) { return element.pk !== valueId });
       }
     });
     $('#newTournamentCourseTeesMS').multiSelect( {
@@ -791,15 +905,15 @@
         this.qs1.cache();
         this.qs2.cache();
         var valueId = parseInt(values[0], 10);
-        newTournamentCourseTeesSelectedCourseTeeList.push(newTournamentCourseTeesAvailableCourseTeeList.filter(function(element) { return element.id === valueId})[0]);
-        newTournamentCourseTeesAvailableCourseTeeList = newTournamentCourseTeesAvailableCourseTeeList.filter(function(element) { return element.id !== valueId });
+        newTournamentCourseTeesSelectedCourseTeeList.push(newTournamentCourseTeesAvailableCourseTeeList.filter(function(element) { return element.pk === valueId})[0]);
+        newTournamentCourseTeesAvailableCourseTeeList = newTournamentCourseTeesAvailableCourseTeeList.filter(function(element) { return element.pk !== valueId });
       },
       afterDeselect: function(values) {
         this.qs1.cache();
         this.qs2.cache();
         var valueId = parseInt(values[0], 10);
-        newTournamentCourseTeesAvailableCourseTeeList.push(newTournamentCourseTeesSelectedCourseTeeList.filter(function(element) { return element.id === valueId })[0]);
-        newTournamentCourseTeesSelectedCourseTeeList = newTournamentCourseTeesSelectedCourseTeeList.filter(function(element) { return element.id !== valueId });
+        newTournamentCourseTeesAvailableCourseTeeList.push(newTournamentCourseTeesSelectedCourseTeeList.filter(function(element) { return element.pk === valueId })[0]);
+        newTournamentCourseTeesSelectedCourseTeeList = newTournamentCourseTeesSelectedCourseTeeList.filter(function(element) { return element.pk !== valueId });
       }
     });
     $('#editTournamentSearchStartDateDateTimePicker').datetimepicker({format: 'MM/DD/YYYY'});
@@ -844,66 +958,6 @@
         settingsCourseTeeList = settingsCourseTeeList.filter(function(element) { return element !== parseInt(value[0], 10) });
         console.log(settingsCourseTeeList);
       }
-    });
-    $("#importCourses").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Course(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
-    $("#importTournamentRoundImportPlugins").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Tournament Round Import Plugin(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
-    $("#importLoadPlayersPlugins").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Load Player Plugin(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
-    $("#importTournamentFormatPlugins").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Tournament Format Plugin(s)'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
-    });
-    $("#importDatabase").click(function() {
-      $.FileDialog({multiple: true, dropheight: 290, title: 'Import Database'}).on('files.bs.filedialog', function(ev) {
-        var files = ev.files;
-        var text = "";
-        files.forEach(function(f) {
-          text += f.name + "<br/>";
-        });
-        console.log(text);
-      }).on('cancel.bs.filedialog', function(ev) {
-        console.log("Cancelled!");
-      });
     });
     $('#settingsClubCourses').multiSelect( {
       selectableHeader: '<input type="text" class="form-control search-input" autocomplete="off" placeholder="Select the default club courses">',

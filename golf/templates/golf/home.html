@@ -13,9 +13,9 @@
   <script src="{% static "scorekeeper/js/jquery.multi-select.js" %}" type="text/javascript"></script>
   <script src="{% static "scorekeeper/js/jquery.quicksearch.js" %}" type="text/javascript"></script>
   <script>
-    var club = JSON.parse('{{ club|safe }}');
-    var clubData = '{{ data|safe }}';
-    var courseTees = JSON.parse('{{ courseTees|safe }}');
+    var club = JSON.parse('{{ club|escapejs }}');
+    var courseTees = JSON.parse('{{ courseTees|escapejs }}');
+    var courses = JSON.parse('{{ courses|escapejs }}')
   </script>
   <link rel="stylesheet" href="{% static "/scorekeeper/css/bootstrap.fd.css" %}">
   <script src="{% static "scorekeeper/js/bootstrap.fd.js" %}" type="text/javascript"></script>

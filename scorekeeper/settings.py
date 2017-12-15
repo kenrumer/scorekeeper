@@ -119,9 +119,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-STATIC_ROOT = '/home/kenrumer/scorekeeper/golf/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'golf/static')
 STATIC_URL = '/static/'
 
 
-MEDIA_ROOT = '/home/kenrumer/scorekeeper/golf/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'golf/media')
 MEDIA_URL = '/media/'

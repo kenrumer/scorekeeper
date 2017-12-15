@@ -1,16 +1,14 @@
 from weasyprint import HTML, CSS
 from django.template.loader import get_template
 from django.template import Context
-from ..models import Player, CourseTee, Club, Course, Hole, Tee, PlayerPlugin
-from django.http import HttpResponse, JsonResponse
+from ..models import Player, CourseTee, Club, Course, Hole, Tee, PlayerPlugin, FormatPlugin, TournamentRoundImportPlugin
+from django.http import HttpResponse, JsonResponse, FileResponse
 import json
 from django.forms.models import model_to_dict
-
-def getClub():
-    retObject = {}
-    retObject['club'] = json.dumps(Club.objects.order_by('-id').values('name', 'logo', 'default_tournament_name', 'players_last_updated')[0], cls=DjangoJSONEncoder)
-    retObject['data'] = json.dumps(json.loads(json.loads(json.dumps(Club.objects.order_by('-id').values('data')[0], cls=DjangoJSONEncoder))['data']))
-    return retObject
+import zipfile
+import os
+import tempfile
+from django.conf import settings
 
 def printPlayers(request):
     """
@@ -78,44 +76,3 @@ def printSignupSheets(request):
     response = HttpResponse(pdfFile, content_type='application/pdf')
     response['Content-Disposition'] = 'filename="signupsheets.pdf"'
     return response
-
-def course(request, courseId):
-    """
-    View function for home page
-    Sends the selected course, tees and holes in json format
-    """
-    retObject = {}
-    c = Course.objects.get(id=courseId)
-    retObject['priority'] = c.priority
-    retObject['default'] = c.default
-    retObject['name'] = c.name
-    retObject['holes'] = {}
-    retObject['holes'] = list(Hole.objects.filter(course_id=courseId).order_by('number').values('number', 'name'))
-    cts = CourseTee.objects.filter(course_id=courseId).values('id', 'priority', 'default', 'slope', 'color', 'name')
-    retObject['courseTees'] = []
-    i = 0
-    for ct in cts:
-        tempObject = {}
-        tempObject['priority'] = ct['priority']
-        tempObject['default'] = ct['default']
-        tempObject['slope'] = ct['slope']
-        tempObject['color'] = ct['color']
-        tempObject['name'] = ct['name']
-        tempObject['tees'] = {}
-        tempObject['tees'] = list(Tee.objects.filter(course_tee_id=ct['id']).order_by('hole__number').values('handicap', 'par', 'yardage'))
-        retObject['courseTees'].append(tempObject)
-    return JsonResponse({'course':retObject})
-
-def loadPlayersPlugin(request, loadPlayersPluginId):
-    """
-    View function for home page
-    Sends the selected load player plugin in json format
-    """
-    retObject = {}
-    pp = PlayerPlugin.objects.get(id=loadPlayersPluginId)
-    retObject['name'] = pp.name
-    retObject['version'] = pp.version
-    retObject['priority'] = pp.priority
-    retObject['module'] = pp.module
-    retObject['className'] = pp.className
-    return JsonResponse({'loadPlayersPluginId': retObject})

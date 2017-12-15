@@ -25,30 +25,13 @@ class TournamentRound(models.Model):
     data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
     format_plugin = models.ForeignKey('FormatPlugin', verbose_name='Format', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the scoring format for this round')
     tournament = models.ForeignKey('Tournament', verbose_name='Tournament Played', on_delete=models.SET_NULL, null=True, blank=True, help_text='Select the tournament')
-    available_courses = models.ManyToManyField('Course', verbose_name='Courses', blank=True, help_text='Select the courses players are playing and set the default for the card')
-    available_course_tees = models.ManyToManyField('CourseTee', verbose_name='Course and tee', blank=True, help_text='Select the courses and tees players are playing')
+    courses = models.ManyToManyField('Course', verbose_name='Courses', blank=True, help_text='Select the courses players are playing and set the default for the card')
+    course_tees = models.ManyToManyField('CourseTee', verbose_name='Course and tee', blank=True, help_text='Select the courses and tees players are playing')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
         """
         return self.name+' - '+self.format_plugin.name+' - '+self.scheduled_date.strftime('%m/%d/%Y')
-
-class FormatPlugin(models.Model):
-    """
-    Model representing a Tournament Format
-    The tournament format is used to calculate all scores and cell styles for gross and net
-    Currently also used for payout, but probably becomes a seperate plugin
-    """
-    name = models.CharField(max_length=200, help_text='Enter the name of the format')
-    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
-    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
-    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
-    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
-    def __str__(self):
-        """
-        String for representing the Model object (in Admin site etc.)
-        """
-        return self.name+' '+self.class_package+' '+self.class_name
 
 class Round(models.Model):
     """
@@ -217,21 +200,6 @@ class Player(models.Model):
         """
         return str(self.club_member_number)+': '+self.name
 
-class PlayerPlugin(models.Model):
-    """
-    Model representing the plugins that can communicate with external player stores
-    """
-    name = models.CharField(verbose_name="Name", max_length=200, null=True, blank=True, help_text='Enter the name of the plugin')
-    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
-    filename = models.CharField(verbose_name="Filename", max_length=200, null=True, blank=True, help_text='Name of the module (filename) containing the class of your plugin')
-    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
-    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
-    def __str__(self):
-        """
-        String for representing the Model object (in Admin site etc.)
-        """
-        return self.name+' '+self.class_package+' v'+self.version+' '+self.class_name
-
 class Activity(models.Model):
     """
     Model representing recent activity from the app
@@ -248,6 +216,46 @@ class Activity(models.Model):
         """
         return self.title
 
+class PlayerPlugin(models.Model):
+    """
+    Model representing the plugins that can communicate with external player stores
+    """
+    name = models.CharField(verbose_name="Name", max_length=200, null=True, blank=True, help_text='Enter the name of the plugin')
+    description = models.CharField(max_length=512, null=True, blank=True, help_text='Enter the description of the format')
+    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
+    class_archive = models.FileField(upload_to="uploads/playerplugin", null=True, help_text="The file uploaded by the user")
+    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class module')
+    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class within the module')
+    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
+    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        return self.name
+        #return self.name+' v'+str(self.version)+' '+self.class_name
+
+class FormatPlugin(models.Model):
+    """
+    Model representing a Tournament Format
+    The tournament format is used to calculate all scores and cell styles for gross and net
+    Currently also used for payout, but probably becomes a seperate plugin
+    """
+    name = models.CharField(max_length=200, help_text='Enter the name of the format')
+    description = models.CharField(max_length=512, null=True, blank=True, help_text='Enter the description of the format')
+    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
+    class_archive = models.FileField(upload_to="uploads/formatplugin", null=True, help_text="The file uploaded by the user")
+    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class module')
+    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
+    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
+    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        return self.name
+        #return self.name+' v'+str(self.version)+' '+self.class_name
+
 class PayoutPlugin(models.Model):
     """
     Model representing the plugins that will calculate payout for the overall tournament
@@ -255,13 +263,15 @@ class PayoutPlugin(models.Model):
     This plugin needs to return players that are paid (overall tournament and per round) for net scores, gross scores, skins, values for pins, number of drawings, others (magic holes, hole in one)
     """
     name = models.CharField(max_length=200, help_text="Enter the name of the plugin")
-    class_package = models.CharField(max_length=200, help_text="Name of the module (filename with the .py) containing the class of your plugin")
+    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
+    filename = models.CharField(verbose_name="Filename", max_length=200, null=True, blank=True, help_text='Name of the module (filename) containing the class of your plugin')
     class_name = models.CharField(max_length=200, help_text="Enter the name of the class with the module")
+    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.class_package
+        return self.name+' v'+self.version+' '+self.class_name
 
 class TournamentRoundImportPlugin(models.Model):
     """
@@ -269,11 +279,15 @@ class TournamentRoundImportPlugin(models.Model):
     The tournament round importer is used to import files to the database
     """
     name = models.CharField(max_length=200, help_text='Enter the name of the format')
-    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting importer')
-    class_package = models.CharField(max_length=200, null=True, blank=True, help_text='Name of the module (filename without the .py) containing the class of your plugin')
+    description = models.CharField(max_length=512, null=True, blank=True, help_text='Enter the description of the format')
+    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
+    class_archive = models.FileField(upload_to="uploads/formatplugin", null=True, help_text="The file uploaded by the user")
+    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class module')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
+    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting importer')
+    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
         """
-        return self.name+' '+self.class_package+' '+self.class_name
+        return self.name+' v'+self.version+' '+self.class_name
