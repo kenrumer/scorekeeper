@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load user_tags %}
+
 {% block title %} Scorekeeper {% endblock %}
 
 {% block head_extra %}
@@ -15,12 +17,13 @@
   <script>
     var club = JSON.parse('{{ club|escapejs }}');
     var courseTees = JSON.parse('{{ courseTees|escapejs }}');
-    var courses = JSON.parse('{{ courses|escapejs }}')
+    var courses = JSON.parse('{{ courses|escapejs }}');
+    var csrf_token = '{{ csrf_token }}';
   </script>
   <link rel="stylesheet" href="{% static "/scorekeeper/css/bootstrap.fd.css" %}">
   <script src="{% static "scorekeeper/js/bootstrap.fd.js" %}" type="text/javascript"></script>
-  <script src="{% static "scorekeeper/js/home.js" %}" type="text/javascript"></script>
-  <link href="{% static "scorekeeper/css/home.css" %}" media="screen" rel="stylesheet" type="text/css">
+  <script src="{% static "scorekeeper/js/director.js" %}" type="text/javascript"></script>
+  <link href="{% static "scorekeeper/css/director.css" %}" media="screen" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
@@ -106,6 +109,7 @@
             </div>
           </button>
         </div>
+{% if request.user|has_group:'Admins' %}
         <div class="row bottomSpaced">
           <button class="rounded shadow optionButton editcourses" id="editCoursesButton">
             <div class="row">
@@ -124,6 +128,7 @@
             </div>
           </button>
         </div>
+{% endif %}
       </div>
       <div class="col-sm-7">
         <div class="row bottomSpaced">
@@ -198,7 +203,7 @@
                     <label for="clubPrintoutsSlopeCourse1">Course1</label>
                   </div>
                   <div class="col-sm-6">
-                    <!-- Value set by home.js -->
+                    <!-- Value set by director.js -->
                     <select class="form-control" id="clubPrintoutsCourse1"></select>
                   </div>
                 </div>
@@ -208,7 +213,7 @@
                     <label for="clubPrintoutsSlopeCourse2">Course2</label>
                   </div>
                   <div class="col-sm-6">
-                    <!-- Value set by home.js -->
+                    <!-- Value set by director.js -->
                     <select class="form-control" id="clubPrintoutsCourse2"></select>
                   </div>
                 </div>
@@ -222,8 +227,9 @@
           </div>
           </div>
         </div>
+{% if request.user|has_group:'Admins' %}
         <div class="row bottomSpaced">
-          <div class="col-sm-12">
+          <div class="col-sm-6">
             <button class="rounded shadow optionButton importexport" id="importExportBackupButton">
               <div class="row">
                 <div class="col-sm-1"></div>
@@ -240,9 +246,7 @@
               </div>
             </button>
           </div>
-        <div class="row bottomSpaced">
-        </div>
-          <div class="col-sm-12">
+          <div class="col-sm-6">
             <button class="rounded shadow optionButton settings" id="settingsButton">
               <div class="row">
                 <div class="col-sm-1">
@@ -268,6 +272,7 @@
             </button>
           </div>
         </div>
+{% endif %}
       </div>
     </div>
 
@@ -288,7 +293,7 @@
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-5">
-                <!-- value set in home.js -->
+                <!-- value set in director.js -->
                 <input type=text class="newTournamentName form-control" id="newTournamentName" />
               </div>
               <div class="col-sm-3"></div>
@@ -354,7 +359,7 @@
             <h4 class="modal-title" id="newTournamentRoundsLabel">Enter New Tournament - Set Rounds</h4>
           </div>
           <div class="modal-body newTournamentWizard-body">
-            <div id="newTournamentRoundsPlaceholder"><!-- page is built in home.js--></div>
+            <div id="newTournamentRoundsPlaceholder"><!-- page is built in director.js--></div>
           </div>
           <div class="modal-footer">
             <div class="col-sm-6"></div>
@@ -382,7 +387,7 @@
               <div class="col-sm-1"></div>
               <div class="col-sm-10">
                 <select id="newTournamentCoursesMS" multiple="multiple" name="newTournamentCoursesMS[]">
-                  <!-- options added by home.js -->
+                  <!-- options added by director.js -->
                 </select>
               </div>
               <div class="col-sm-1"></div>
@@ -414,7 +419,7 @@
               <div class="col-sm-1"></div>
               <div class="col-sm-10">
                 <select id="newTournamentCourseTeesMS" multiple="multiple" name="newTournamentCourseTeesMS[]">
-                  <!-- options added by home.js -->
+                  <!-- options added by director.js -->
                 </select>
               </div>
               <div class="col-sm-1"></div>
@@ -567,6 +572,7 @@
       </div>
     </div>
 
+{% if request.user|has_group:'Admins' %}
     <!-- Edit courses -->
     <div class="modal fade" id="editCourses" tabindex="-1" role="dialog" aria-labelledby="editCoursesLabel">
       <div class="modal-dialog modalEditCourses modal-lg" role="document">
@@ -610,7 +616,8 @@
         </div>
       </div>
     </div>
-
+{% endif %}
+{% if request.user|has_group:'Admins' %}
     <!-- Import export backup -->
     <div class="modal fade" id="importExportBackup" tabindex="-1" role="dialog" aria-labelledby="importExportBackupLabel">
       <div class="modal-dialog modal-settings modal-lg" role="document">
@@ -628,7 +635,7 @@
               <div class="col-sm-4">
                 <input class="form-control" list="importExportCourses" id="importExportCourse">
                   <datalist id="importExportCourses">
-                    <!-- Values set by home.js -->
+                    <!-- Values set by director.js -->
                   </datalist>
                 </input>
               </div>
@@ -648,23 +655,23 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-3">
-                <label for="importExportTournamentRoundImportPlugin">Tournament Round Import Plugins</label>
+                <label for="importExportRoundImportPlugin">Round Import Plugins</label>
               </div>
               <div class="col-sm-4">
-                <input class="form-control" list="importExportTournamentRoundImportPlugins" id="importExportTournamentRoundImportPlugin">
-                  <datalist id="importExportTournamentRoundImportPlugins">
-                    <!-- Values set by home.js -->
+                <input class="form-control" list="importExportRoundImportPlugins" id="importExportRoundImportPlugin">
+                  <datalist id="importExportRoundImportPlugins">
+                    <!-- Values set by director.js -->
                   </datalist>
                 </input>
               </div>
               <div class="col-sm-1">
-                <button class="btn fixed-width-btn btn-primary" id="exportTournamentRoundImportPlugins">
+                <button class="btn fixed-width-btn btn-primary" id="exportRoundImportPlugins">
                   Export
                 </button>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-1">
-                <button class="btn fixed-width-btn btn-primary" id="importTournamentRoundImportPlugins">
+                <button class="btn fixed-width-btn btn-primary" id="importRoundImportPlugins">
                   Import
                 </button>
               </div>
@@ -673,23 +680,23 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-3">
-                <label for="importExportLoadPlayersPlugin">Load Players Plugins</label>
+                <label for="importExportPlayerPlugin">Player Plugins</label>
               </div>
               <div class="col-sm-4">
-                <input class="form-control" list="importExportLoadPlayersPlugins" id="importExportLoadPlayersPlugin">
-                  <datalist id="importExportLoadPlayersPlugins">
-                    <!-- values set by home.js -->
+                <input class="form-control" list="importExportPlayerPlugins" id="importExportPlayerPlugin">
+                  <datalist id="importExportPlayerPlugins">
+                    <!-- values set by director.js -->
                   </datalist>
                 </input>
               </div>
               <div class="col-sm-1">
-                <button class="btn fixed-width-btn btn-primary" id="exportLoadPlayersPlugins">
+                <button class="btn fixed-width-btn btn-primary" id="exportPlayerPlugins">
                   Export
                 </button>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-1">
-                <button class="btn fixed-width-btn btn-primary" id="importLoadPlayersPlugins">
+                <button class="btn fixed-width-btn btn-primary" id="importPlayerPlugins">
                   Import
                 </button>
               </div>
@@ -698,23 +705,23 @@
             <div class="row bottomSpaced">
               <div class="col-sm-1"></div>
               <div class="col-sm-3">
-                <label for="importExportTournamentFormat">Tournament Format Plugins</label>
+                <label for="importExportFormatPlugin">Format Plugins</label>
               </div>
               <div class="col-sm-4">
-                <input class="form-control" list="importExportTournamentFormats" id="importExportTournamentFormat">
-                  <datalist id="importExportTournamentFormats">
-                    <!-- Values set by home.js -->
+                <input class="form-control" list="importExportFormatPlugins" id="importExportFormatPlugin">
+                  <datalist id="importExportFormatPlugins">
+                    <!-- Values set by director.js -->
                   </datalist>
                 </input>
               </div>
               <div class="col-sm-1">
-                <button class="btn fixed-width-btn btn-primary" id="exportTournamentFormatPlugins">
+                <button class="btn fixed-width-btn btn-primary" id="exportFormatPlugins">
                   Export
                 </button>
               </div>
               <div class="col-sm-1"></div>
               <div class="col-sm-1">
-                <button class="btn fixed-width-btn btn-primary" id="importTournamentFormatPlugins">
+                <button class="btn fixed-width-btn btn-primary" id="importFormatPlugins">
                   Import
                 </button>
               </div>
@@ -726,7 +733,7 @@
                 <label for="importExportDatabaseStatus">Database</label>
               </div>
               <div class="col-sm-2">
-                <!-- Value set by home.js -->
+                <!-- Value set by director.js -->
                 <input class="form-control" id="importExportDatabaseStatus" readonly />
               </div>
               <div class="col-sm-1">
@@ -757,7 +764,8 @@
         </div>
       </div>
     </div>
-
+{% endif %}
+{% if request.user|has_group:'Admins' %}
     <!-- Settings -->
     <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel">
       <div class="modal-dialog modal-settings modal-lg" role="document">
@@ -795,7 +803,7 @@
           <label for="settingsClubName">Club Name</label>
         </div>
         <div class="col-sm-3">
-          <!-- Value set by home.js -->
+          <!-- Value set by director.js -->
           <input class="form-control" type="text" id="settingsClubName" value="{{ clubs.0.name }}">
         </div>
         <div class="col-sm-2">
@@ -892,6 +900,7 @@
         </div>
       </div>
     </div>
+{% endif %}
 
     <!-- Loading modal -->
     <div class="modal fade" id="loadingDialog" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:visible;">

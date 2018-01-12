@@ -1,6 +1,7 @@
+
 from .view_course import *
 from .view_documentation import *
-from .view_home import *
+from .view_director import *
 from .view_player import *
 from .view_printout import *
 from .view_import import *

@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'golf.middleware.AjaxAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'scorekeeper.urls'
@@ -125,3 +126,13 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'golf/media')
 MEDIA_URL = '/media/'
+
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/golf/'
+
+
+LOGIN_URL = '/accounts/login/'
+
+LOGIN_EXEMPT_URLS = (
+    r'^about\.html$',
+)

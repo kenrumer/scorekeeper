@@ -1,6 +1,7 @@
-/* global $, tournamentId, tournamentName, roundCount, tournamentRounds, players, availableCourses, availableCourseTees, roundId, moment, viewTab */
+/* global $, tournament, tournamentRounds, players, courses, courseTees, tees, roundId, moment, viewTab, csrf_token */
   var tournamentTable;
   var addRowId = 0;
+  var scorecardCourseId = 0;
 
   function updateScorecardRound(data) {
     var rowId = $(data).data('rowId');
@@ -24,18 +25,18 @@
     /*addRowId = 0;
     $('#addRowToScorecard').css('display', 'block');
     if (courses.length > 1) {
-      $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $('#enterScorecardCourse').modal({backdrop: 'static'}, event.target).show();
     } else {
       $('#scorecard >tbody').html('');
       addRowToScorecard();
-      $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $('#enterScorecard').modal({backdrop: 'static'}, event.target).show();
     }*/
   }
 
   function editScorecardRow(playerId) {
     /*addRowId = 0;
     if (!courses.length > 1) {
-      $('#enterScorecardCourse').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      $('#enterScorecardCourse').modal({backdrop: 'static'}, event.target).show();
     } else {
       $('#scorecard >tbody').html('');
       addRowToScorecard();
@@ -46,25 +47,25 @@
   
   function playerList() {
     var playerList = "";
-    $.each(players, function(i, item) {
-      playerList += '<option value='+item.club_member_number+' data-handicap-index='+item.handicap_index+'>'+item.name+'</option>';
+    $.each(players, function(i, player) {
+      playerList += '<option value='+player.fields.club_member_number+' data-handicap-index='+player.fields.handicap_index+'>'+player.fields.name+'</option>';
     });
     return playerList;
   }
   
   function teeList() {
     var teeList = "";
-    if (availableCourseTees.length == 0) {
+    if (courseTees.length == 0) {
       return "";
     }
-    if (availableCourseTees.length == 1) {
-      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTees[0].slope+'" data-course-tee-color="'+availableCourseTees[0].color+'" data-course-tee-id="'+availableCourseTees[0].id+'" style="background-color:'+availableCourseTees[0].color+'">'+availableCourseTees[0].color+'</div>';
+    if (courseTees.length == 1) {
+      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+courseTees[0].fields.slope+'" data-course-tee-color="'+courseTees[0].fields.color+'" data-course-tee-id="'+courseTees[0].pk+'" style="background-color:'+courseTees[0].fields.color+'">'+courseTees[0].fields.color+'</div>';
     } else {
-      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+availableCourseTees[0].slope+'" data-course-tee-color="'+availableCourseTees[0].color+'" data-course-tee-id="'+availableCourseTees[0].id+'" class="dropdown">';
-      teeList += '  <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+availableCourseTees[0].color+'" type="button" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>';
+      teeList = '<div id="playerTee'+addRowId+'" data-course-tee-slope="'+courseTees[0].slope+'" data-course-tee-color="'+courseTees[0].fields.color+'" data-course-tee-id="'+courseTees[0].pk+'" class="dropdown">';
+      teeList += '  <button id="teeSelectButton'+addRowId+'" class="dropdown-toggle" style="background-color:'+courseTees[0].fields.color+'" type="button" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>';
       teeList += '  <ul id="courseTees'+addRowId+'" class="dropdown-menu" aria-labelledby="teeSelectButton'+addRowId+'">';
-      $.each(availableCourseTees, function(i, item) {
-        teeList += '    <li style="background-color:'+item.color+'"><a href="#" id="courseTeeChangeButton" data-row-id="'+addRowId+'" data-course-tee-slope="'+item.slope+'" data-course-tee-color="'+item.color+'" data-course-tee-id="'+item.id+'">'+item.color+'</a></li>';
+      $.each(courseTees, function(i, courseTee) {
+        teeList += '    <li style="background-color:'+courseTee.fields.color+'"><a href="#" id="courseTeeChangeButton" data-row-id="'+addRowId+'" data-course-tee-slope="'+courseTee.fields.slope+'" data-course-tee-color="'+courseTee.fields.color+'" data-course-tee-id="'+courseTee.pk+'">'+courseTee.fields.color+'</a></li>';
       });
       teeList += '  </ul></div>';
     }
@@ -88,36 +89,45 @@
     headerRow += '  <th><input class="scorecardCell" value="HCP" disabled></th>';
     headerRow += '  <th><input class="scorecardCell" value="NET" disabled></th>';
     headerRow += '</tr>';
-    $.each(availableCourseTees, function(i, item) {
-      headerRow += '<tr style="background-color:'+item.color+'">';
+    $.each(courseTees, function(i, courseTee) {
+      var thisTees = tees.filter(function (el) { return el.fields.course_tee == courseTee.pk });
+      headerRow += '<tr style="background-color:'+courseTee.fields.color+'">';
       headerRow += '  <th></th>';
       headerRow += '  <th></th>';
-      headerRow += '  <th>'+item.color+'</th>';
+      headerRow += '  <th>'+courseTee.fields.color+'</th>';
+      var yardageOut = 0;
       for (var i = 0; i < 9; i++) {
-        headerRow += '  <th><input class="scorecardCell" value="'+item.tees[i].yardage+'" disabled></th>';
+        headerRow += '  <th><input class="scorecardCell" value="'+thisTees[i].fields.yardage+'" disabled></th>';
+        yardageOut += thisTees[i].fields.yardage;
       }
-      headerRow += '  <th><input class="scorecardCell" value="'+item.yardageIn+'" disabled></th>';
+      headerRow += '  <th><input class="scorecardCell" value="'+yardageOut+'" disabled></th>';
+      var yardageIn = 0;
       for (var i = 9; i < 18; i++) {
-        headerRow += '  <th><input class="scorecardCell" value="'+item.tees[i].yardage+'" disabled></th>';
+        headerRow += '  <th><input class="scorecardCell" value="'+thisTees[i].fields.yardage+'" disabled></th>';
+        yardageIn += thisTees[i].fields.yardage;
       }
-      headerRow += '  <th><input class="scorecardCell" value="'+item.yardageOut+'" disabled></th>';
-      headerRow += '  <th><input class="scorecardCell" value="'+item.yardageTotal+'" disabled></th>';
+      headerRow += '  <th><input class="scorecardCell" value="'+yardageIn+'" disabled></th>';
+      headerRow += '  <th><input class="scorecardCell" value="'+parseInt(yardageOut+yardageIn, 10)+'" disabled></th>';
       headerRow += '  <th></th>';
       headerRow += '  <th></th>';
       headerRow += '</tr>';
-      headerRow += '<tr style="background-color:'+item.color+'">';
+      headerRow += '<tr style="background-color:'+courseTee.fields.color+'">';
       headerRow += '  <th></th>';
       headerRow += '  <th></th>';
       headerRow += '  <th>Par</th>';
+      var parOut = 0;
       for (var i = 0; i < 9; i++) {
-        headerRow += '  <th><input class="scorecardCell" value="'+item.tees[i].par+'" disabled></th>';
+        headerRow += '  <th><input class="scorecardCell" value="'+thisTees[i].fields.par+'" disabled></th>';
+        parOut += thisTees[i].fields.par;
       }
-      headerRow += '  <th><input class="scorecardCell" value="'+item.parIn+'" disabled></th>';
+      headerRow += '  <th><input class="scorecardCell" value="'+parOut+'" disabled></th>';
+      var parIn = 0;
       for (var i = 9; i < 18; i++) {
-        headerRow += '  <th><input class="scorecardCell" value="'+item.tees[i].par+'" disabled></th>';
+        headerRow += '  <th><input class="scorecardCell" value="'+thisTees[i].fields.par+'" disabled></th>';
+        parIn += thisTees[i].fields.par;
       }
-      headerRow += '  <th><input class="scorecardCell" value="'+item.parOut+'" disabled></th>';
-      headerRow += '  <th><input class="scorecardCell" value="'+item.parTotal+'" disabled></th>';
+      headerRow += '  <th><input class="scorecardCell" value="'+parIn+'" disabled></th>';
+      headerRow += '  <th><input class="scorecardCell" value="'+parseInt(parOut+parIn, 10)+'" disabled></th>';
       headerRow += '  <th></th>';
       headerRow += '  <th></th>';
       headerRow += '</tr>';
@@ -125,27 +135,33 @@
     $("#scorecard thead").append(headerRow);
   }
 
-  function addRowToScorecard() {
-    var appendText = '<tr id="scorecardRow'+addRowId+'" data-row-id="'+addRowId+'" data-slope='+availableCourseTees[0].slope+'>';
+  function addRowToScorecard(courseId) {
+    var thisCourseTees = courseTees.filter(function(el) {return el.fields.course = courseId});
+    var thisTees = tees.filter(function (el) { return thisCourseTees.indexOf(el.fields.course_tee != -1) });
+    var appendText = '<tr id="scorecardRow'+addRowId+'" data-row-id="'+addRowId+'" data-slope='+courseTees[0].fields.slope+'>';
     appendText += '<td><button class="form-control input-sm" id="removeRowFromScorecard" data-row-id="'+addRowId+'">-</button></td>';
     appendText += '<td><select class="form-control input-sm" id="playerNamesSelect" style="width: 140px" data-row-id="'+addRowId+'"><option>----------------------------</option>'+playerList()+'</select></td><td>'+teeList()+'</td>';
+    var parOut = 0;
     for (var i = 0; i < 9; i++) {
-      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-out="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTees[0].tees[i].par+'></td>';
+      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-out="'+addRowId+'" type=number min=1 max=99 value='+thisTees[i].par+'></td>';
+      parOut += thisTees[i].par;
     }
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalOut'+addRowId+'" value="'+availableCourseTees[0].parOut+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalOut'+addRowId+'" value="'+parOut+'" disabled></td>';
+    var parIn = 0
     for (var i = 9; i < 18; i++) {
-      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-in="'+addRowId+'" type=number min=1 max=99 value='+availableCourseTees[0].tees[i].par+'></td>';
+      appendText += '<td><input class="scorecardCell" id="hole'+i+'" data-hole-number="'+i+'" data-row-id="'+addRowId+'" data-hole-in="'+addRowId+'" type=number min=1 max=99 value='+thisTees[i].par+'></td>';
+      parIn += thisTees[i].par;
     }
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalIn'+addRowId+'" value="'+availableCourseTees[0].parIn+'" disabled></td>';
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="total'+addRowId+'" value="'+availableCourseTees[0].parTotal+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalIn'+addRowId+'" value="'+parIn+'" disabled></td>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="total'+addRowId+'" value="'+parIn+parOut+'" disabled></td>';
     appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="hcp'+addRowId+'" value="0" disabled></td>';
-    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalNet'+addRowId+'" value="'+availableCourseTees[0].parTotal+'" disabled></td></tr>';
+    appendText += '<td><input class="scorecardCell" data-row-id="'+addRowId+'" id="totalNet'+addRowId+'" value="'+parIn+parOut+'" disabled></td></tr>';
     $('#scorecard >tbody').append(appendText);
     $('#scorecard #scorecardRow'+addRowId+' #playerNamesSelect').focus();
     addRowId++;
   }
   
-  function makeScorecard() {
+  function makeScorecard(courseId) {
     $('#scorecard thead').html('');
     addHeaderToScorecard();
     //Load the players for the scorecard scorer, attest
@@ -155,19 +171,19 @@
     $('#scorecardAttest').empty();
     $('#newScorecardScorer').val('');
     $('#newScorecardAttest').val('');
-    $.each(players, function(i, item) {
-      var option = '<option data-value="'+item.club_member_number+'" value="'+item.name+'"></option>';
+    $.each(players, function(i, player) {
+      var option = '<option data-value="'+player.fields.club_member_number+'" value="'+player.fields.name+'"></option>';
       $('#scorecardScorer').append(option);
       $('#scorecardAttest').append(option);
     });
     $('#scorecard tbody').html('');
-    addRowToScorecard();
+    addRowToScorecard(courseId);
   }
+
   function showNetTab() {
     $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
     var context = {
-      tournamentId: tournamentId,
-      tournamentName: tournamentName,
+      tournament: JSON.stringify(tournament),
       tournamentRound: JSON.stringify(tournamentRounds[roundId]),
       viewTab: 'net'
     };
@@ -194,7 +210,7 @@
     }).fail(function(xhr, textStatus, error) {
       $('#errorDialog').modal({}).show();
       $('#errorHeader').text('failed to load net scores!');
-      $('#errorText').text(xhr.responseText);
+      $('#errorText').text(xhr.status + ' ' + error);
       console.log('failed to load net scores!');
       console.log(xhr.responseText);
       console.log(textStatus);
@@ -207,8 +223,7 @@
   function showGrossTab() {
     $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
     var context = {
-      tournamentId: tournamentId,
-      tournamentName: tournamentName,
+      tournament: JSON.stringify(tournament),
       tournamentRound: JSON.stringify(tournamentRounds[roundId]),
       viewTab: 'gross'
     };
@@ -235,7 +250,7 @@
     }).fail(function(xhr, textStatus, error) {
       $('#errorDialog').modal({}).show();
       $('#errorHeader').text('failed to load gross scores!');
-      $('#errorText').text(xhr.responseText);
+      $('#errorText').text(xhr.status + ' ' + error);
       console.log('failed to load gross scores!');
       console.log(xhr.responseText);
       console.log(textStatus);
@@ -248,8 +263,7 @@
   function showPayoutTab() {
     $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
     var context = {
-      tournamentId: tournamentId,
-      tournamentName: tournamentName,
+      tournament: JSON.stringify(tournament),
       roundId: roundId,
       tournamentRound: JSON.stringify(tournamentRounds[roundId])
     };
@@ -261,7 +275,7 @@
     }).fail(function(xhr, textStatus, error) {
       $('#errorDialog').modal({}).show();
       $('#errorHeader').text('failed to load payout!');
-      $('#errorText').text(xhr.responseText);
+      $('#errorText').text(xhr.status + ' ' + error);
       console.log('failed to load payout!');
       console.log(xhr.responseText);
       console.log(textStatus);
@@ -277,21 +291,20 @@
   });*/
 
   $(document).ready(function() {
-
     var d = new Date();
     var month = (d.getMonth()<9)?'0'+d.getMonth()+1:d.getMonth()+1;
     var day = (d.getDate()<10)?'0'+d.getDate():d.getDate();
+    $('#roundName').text(tournament.fields.name);
     $('#roundDate').val(month+'/'+day+'/'+d.getFullYear());
-    //TODO: Add the rounds tabs functionality, totals page
     var roundTabs = '<ul class="nav nav-tabs navbar-right">';
-    for (var i = 0; i < roundCount; i++) {
+    for (var i = 0; i < tournamentRounds.length; i++) {
       if (roundId == i) {
-        roundTabs += '  <li class="active" data-toggle="tab"><a href="#">'+tournamentRounds[i].name+'</a></li>';
+        roundTabs += '  <li class="active" data-toggle="tab"><a href="#">'+tournamentRounds[i].fields.name+'</a></li>';
       } else {
-        roundTabs += '  <li data-toggle="tab"><a href="#">'+tournamentRounds[i].name+'</a></li>';
+        roundTabs += '  <li data-toggle="tab"><a href="#">'+tournamentRounds[i].fields.name+'</a></li>';
       }
     }
-    if (roundCount > 1) {
+    if (tournamentRounds.length > 1) {
       roundTabs += '  <li data-toggle="tab"><a href="#">Total</a></li>';
     }
     roundTabs += '</ul>';
@@ -301,7 +314,7 @@
       showNetTab();
     });
 
-    $('#grossScoresTab').click(function(event) {
+    $('#grossScoresTab a').click(function(event) {
       showGrossTab();
     });
 
@@ -310,16 +323,18 @@
     });
     
     //Load the courses list for select course modal
-    $.each(availableCourseTees, function (i, item) {
-      var option = '<option value="'+item.id+'">'+item.name+'</option>';
-      $('#enterScorecardCourse').append(option);
+    $.each(courses, function(i, course) {
+      var option = '<option value="'+course.pk+'">'+course.fields.name+'</option>';
+      $('#enterScorecardCourses').append(option);
     });
     
     //Select course actions
     $('#enterScorecardCourseButton').click(function(event) {
       $('#enterScorecardCourse').modal('hide');
-      makeScorecard();
-      $('#enterScorecard').modal({backdrop: 'static', keyboard: false}, event.target).show();
+      //Get the selected course and build the scorecard, I think pass the pk to makescorecard...
+      scorecardCourseId = $('#enterScorecardCourses').val();
+      makeScorecard(scorecardCourseId);
+      $('#enterScorecard').modal({backdrop: 'static'}, event.target).show();
     });
 
     //Scorecard actions
@@ -327,7 +342,7 @@
       updateScorecardRound(this);
     });
     $('#scorecard').on('click', '#addRowToScorecard', function(event) {
-      addRowToScorecard();
+      addRowToScorecard(scorecardCourseId);
     });
     $('#scorecard').on('click', '#removeRowFromScorecard', function() {
       var rowId = $(this).data('rowId');
@@ -360,7 +375,7 @@
     //Doing all of this in 1 post to save time/effort
     $('#enterScorecardButton').click(function(event) {
       $('#loadingDialog').modal({backdrop: 'static', keyboard: false}, event.target).show();
-      var players = [];
+      var scplayers = [];
       $('#scorecard #playerNamesSelect').each(function() {
         var player = {};
         var rowId = $(this).data('rowId');
@@ -389,7 +404,7 @@
         player.round.totalIn = totalIn;
         player.round.total = totalIn+totalOut;
         player.round.totalNet = totalIn+totalOut-courseHCP;
-        players.push(player);
+        scplayers.push(player);
       });
       var scorecard = {};
       scorecard.scorer = $('#newScorecardScorer').val();
@@ -399,11 +414,11 @@
       scorecard.startTime = moment($('#newScorecardStartTime').val()).format('YYYY-MM-DD HH:MM');
       scorecard.finishTime = moment($('#newScorecardFinishTime').val()).format('YYYY-MM-DD HH:MM');
       var context = {
-        tournamentId: tournamentId,
-        tournamentName: tournamentName,
+        tournamentId: tournament.pk,
+        tournamentName: tournament.fields.name,
         tournamentRound: JSON.stringify(tournamentRounds[roundId]),
         scorecard: JSON.stringify(scorecard),
-        players: JSON.stringify(players),
+        players: JSON.stringify(scplayers),
         viewTab: viewTab
       };
       $.post('/golf/updatescores/', context).done(function(data) {
@@ -432,7 +447,7 @@
       }).fail(function(xhr, textStatus, error) {
         $('#errorDialog').modal({}).show();
         $('#errorHeader').text('failed to store scorecard!');
-        $('#errorText').text(xhr.responseText);
+        $('#errorText').text(xhr.status + ' ' + error);
         console.log('failed to store scorecard!');
         console.log(xhr.responseText);
         console.log(textStatus);
@@ -454,7 +469,7 @@
           },
           'action': function ( event, dt, node, config ) {
             event.stopPropagation();
-            if (availableCourses.length > 1) {
+            if (courses.length > 1) {
               $('#enterScorecardCourse').modal({backdrop: 'static'}, event.target).show();
             } else {
               addRowId = 0;
@@ -496,7 +511,7 @@
             }).fail(function(xhr, textStatus, error) {
               $('#errorDialog').modal({}).show();
               $('#errorHeader').text('failed to clear round from scorecard!');
-              $('#errorText').text(xhr.responseText);
+              $('#errorText').text(xhr.status + ' ' + error);
               console.log('failed to clear round from scorecard!');
               console.log(xhr.responseText);
               console.log(textStatus);
@@ -522,6 +537,13 @@
       $('#tournamentTableWrapper').show();
       $('#payoutForm').hide();
     }
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        }
+      }
+    });
     showNetTab();
     if (viewTab == 'gross') {
       $('#grossScoresTab').trigger('click');

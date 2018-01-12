@@ -24,8 +24,20 @@
         <a href="/golf/" class="navbar-brand">
           <img class="imglogo" src="{% static "scorekeeper/img/scorekeeper-logo.png" %}">
         </a>
-        <span class="navbar-text nav navbar-nav navbar-right" id="titleClubName"></span>
       </div>
+      <ul class="nav navbar-nav">
+        <li id="titleClubName"><a href="#"></a></li>
+        <li id="titleClubLogo"><a href="#"></a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {% if user.is_authenticated %}
+        <li><a href="#"><span class="glyphicon glyphicon-user"></span> {{ user.get_username }}</a></li>
+        <li><a href="{% url 'logout'%}?next={{request.path}}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        {% else %}
+        <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+        {% endif %}
+      </ul>
     </div>
   </nav>
 

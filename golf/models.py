@@ -71,8 +71,9 @@ class Scorecard(models.Model):
     finish_time = models.DateTimeField(verbose_name='Date Finished', null=True, blank=True, help_text='Select the date this round was finished')
     external_scorer = models.CharField(max_length=200, verbose_name='External Scorer Name', null=True, blank=True,  help_text='Enter the name of the scorer if it is not a player')
     external_attest = models.CharField(max_length=200, verbose_name='External Attest Name', null=True, blank=True, help_text='Enter the name of the attest if it is not a player')
-    scorer = models.ForeignKey('Player', related_name='player_scorer', verbose_name='Scorer Player Id', null=True, blank=True, help_text='Enter the player that kept score')
-    attest = models.ForeignKey('Player', related_name='player_attest', verbose_name='Attest Player Id', null=True, blank=True, help_text='Enter the player that attests the score')
+    scorer = models.ForeignKey('Player', related_name='player_scorer', verbose_name='Scorer Player', null=True, blank=True, help_text='Enter the player that kept score')
+    attest = models.ForeignKey('Player', related_name='player_attest', verbose_name='Attest Player', null=True, blank=True, help_text='Enter the player that attests the score')
+    course = models.ForeignKey('Course', related_name='course_played', verbose_name='Course Played', null=True, blank=True, help_text='Enter the course for this scorecard')
     def __str__(self):
         """
         String for representing the Model object (in Admin site etc.)
@@ -216,6 +217,27 @@ class Activity(models.Model):
         """
         return self.title
 
+class RoundImportPlugin(models.Model):
+    """
+    Model representing a Round Importer
+    The round importer is used to import files uploaded by a user to the database
+    """
+    name = models.CharField(max_length=200, help_text='Enter the name of the format')
+    description = models.CharField(max_length=512, null=True, blank=True, help_text='Enter the description of the round importer')
+    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
+    class_archive = models.FileField(upload_to="uploads/roundimportplugin", null=True, help_text="The file uploaded by the user")
+    class_archive_name = models.CharField(max_length=200, null=True, blank=True, help_text="The name of the file uploaded by the user")
+    class_module = models.FileField(upload_to="roundimportplugins", null=True, help_text='The class module file')
+    class_module_name = models.CharField(max_length=200, null=True, blank=True, help_text='The name of the class module provided by the user')
+    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
+    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting importer')
+    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
+    def __str__(self):
+        """
+        String for representing the Model object (in Admin site etc.)
+        """
+        return self.name+' v'+self.version+' '+self.class_name
+
 class PlayerPlugin(models.Model):
     """
     Model representing the plugins that can communicate with external player stores
@@ -224,7 +246,9 @@ class PlayerPlugin(models.Model):
     description = models.CharField(max_length=512, null=True, blank=True, help_text='Enter the description of the format')
     version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
     class_archive = models.FileField(upload_to="uploads/playerplugin", null=True, help_text="The file uploaded by the user")
-    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class module')
+    class_archive_name = models.CharField(max_length=200, null=True, blank=True, help_text="The name of the file uploaded by the user")
+    class_module = models.FileField(upload_to="playerplugins", null=True, help_text='The class module file')
+    class_module_name = models.CharField(max_length=200, null=True, blank=True, help_text='The name of the class module provided by the user')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class within the module')
     priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
     data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
@@ -245,7 +269,9 @@ class FormatPlugin(models.Model):
     description = models.CharField(max_length=512, null=True, blank=True, help_text='Enter the description of the format')
     version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
     class_archive = models.FileField(upload_to="uploads/formatplugin", null=True, help_text="The file uploaded by the user")
-    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class module')
+    class_archive_name = models.CharField(max_length=200, null=True, blank=True, help_text="The name of the file uploaded by the user")
+    class_module = models.FileField(upload_to="formatplugins", null=True, help_text='The class module file')
+    class_module_name = models.CharField(max_length=200, null=True, blank=True, help_text='The name of the class module provided by the user')
     class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
     priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting format')
     data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
@@ -266,25 +292,6 @@ class PayoutPlugin(models.Model):
     version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
     filename = models.CharField(verbose_name="Filename", max_length=200, null=True, blank=True, help_text='Name of the module (filename) containing the class of your plugin')
     class_name = models.CharField(max_length=200, help_text="Enter the name of the class with the module")
-    data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
-    def __str__(self):
-        """
-        String for representing the Model object (in Admin site etc.)
-        """
-        return self.name+' v'+self.version+' '+self.class_name
-
-class TournamentRoundImportPlugin(models.Model):
-    """
-    Model representing a Tournament Round Importer
-    The tournament round importer is used to import files to the database
-    """
-    name = models.CharField(max_length=200, help_text='Enter the name of the format')
-    description = models.CharField(max_length=512, null=True, blank=True, help_text='Enter the description of the format')
-    version = models.IntegerField(verbose_name="Version", default=1, null=True, blank=True, help_text="Incrementing version number to keep names unique")
-    class_archive = models.FileField(upload_to="uploads/formatplugin", null=True, help_text="The file uploaded by the user")
-    class_module = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class module')
-    class_name = models.CharField(max_length=200, null=True, blank=True, help_text='Enter the name of the class with the module')
-    priority = models.IntegerField(verbose_name='Priority', default=-1, help_text='Highest priority will be listed first in selecting importer')
     data = models.CharField(max_length=516, null=True, blank=True, help_text='Data such as username and password used to login to your clubs player data store (used by your plugin)')
     def __str__(self):
         """

@@ -21,6 +21,7 @@ def newTournament(request):
     """
     Ajax function to create a new tournament.
     TODO: Setup is an interesting concept... Can we ask if this is a team tourney
+    url: '/golf/newtournament/'
     """
     tournamentName = request.POST.get('tournamentName')
     tournamentRounds = json.loads(request.POST.get('tournamentRounds'))
@@ -28,18 +29,21 @@ def newTournament(request):
     courses = json.loads(request.POST.get('courses'))
     courseTees = json.loads(request.POST.get('courseTees'))
 
-    retObject = {}
+    resObject = {}
+    resObject['courseTees'] = courseTees
+    resObject['courses'] = courses
+
     """
     Create tournament
     """
     t = Tournament(name=tournamentName)
     t.save()
-    retObject['tournamentName'] = serializers.serialize('json', t)
+    tempTournament = serializers.serialize('json', [t])
+    resObject['tournament'] = json.loads(tempTournament[1:-1])
 
     """
     Create tournament rounds
     """
-    tournamentRoundsAry = []
     for tournamentRound in tournamentRounds:
         """
         Get the tournament formatId
@@ -49,88 +53,44 @@ def newTournament(request):
         d = datetime.strptime(tournamentRound['scheduledDate'], '%m/%d/%Y')
         tr = TournamentRound(scheduled_date=d, tournament=t, format_plugin=fp, data=fp.data, name=tournamentRound['name'])
         tr.save()
-        tournamentRoundsAry.append(tr.id)
         """
-        Set tournament courses and tees
+        Set tournament round courses and tees
         """
         for course in courses:
             tr.courses.add(course['pk'])
         for courseTee in courseTees:
             tr.course_tees.add(courseTee['pk'])
         tr.save()
-    retObject['tournamentRounds'] = serializers.serialize('json', TournamentRound.objects.filter(id__in=tournamentRoundsAry))
-    #tournamentRounds = json.dumps(tournamentRounds, cls=DjangoJSONEncoder)
-    #courses = json.dumps(courses, cls=DjangoJSONEncoder)
+    resObject['tournamentRounds'] = json.loads(serializers.serialize('json', TournamentRound.objects.filter(tournament=t)))
 
     """
     Set tournament course tees
     """
+    courseTeeIds = []
     for courseTee in courseTees:
-        courseTee["tees"] = list(Tee.objects.filter(course_tee__id=courseTee['pk']).values('id', 'yardage', 'par', 'hole__name', 'hole__number').order_by('hole__number'))
-        courseTee["hole_count"] = len(courseTee['tees'])
-        courseTee['yardageOut'] = 0
-        courseTee['parOut'] = 0
-        courseTee['yardageIn'] = 0
-        courseTee['parIn'] = 0
-        #Someday should be able to work with 9 hole courses... Not today
-        if (int(courseTee['hole_count']) == 9):
-            for front in range(9):
-                courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
-                courseTee['parOut'] += int(courseTee['tees'][front]['par'])
-            courseTee['yardageOut'] = courseTee['yardageOut']
-            courseTee['yardageTotal'] = courseTee['yardageOut']
-            courseTee['parOut'] = courseTee['parOut']
-            courseTee['parTotal'] = courseTee['parOut']
-        if (int(courseTee['hole_count']) == 18):
-            for front in range(9):
-                courseTee['yardageOut'] += int(courseTee['tees'][front]['yardage'])
-                courseTee['parOut'] += int(courseTee['tees'][front]['par'])
-            for back in range(9, 18):
-                courseTee['yardageIn'] += int(courseTee['tees'][back]['yardage'])
-                courseTee['parIn'] += int(courseTee['tees'][back]['par'])
-            courseTee['yardageTotal'] = courseTee['yardageOut'] + courseTee['yardageIn']
-            courseTee['parTotal'] = courseTee['parOut'] + courseTee['parIn']
-    courseTees = json.dumps(courseTees, cls=DjangoJSONEncoder)
-    retObject['tournament'] = serializers.serialize('json', t)
-    print(retObject)
-
-    context = {
-        "tournamentId": t.id,
-        "tournamentName": tournamentName,
-        "roundCount": roundCount,
-        "tournamentRounds": tournamentRounds,
-        "courses": courses,
-        "courseTees": courseTees
-    }
-    return JsonResponse(context)
-
-def tournament(request):
-    """
-    View function for editting a tournament (even if new)
-    """
-    tournamentId = request.POST.get('tournamentId')
-    tournamentName = request.POST.get('tournamentName')
-    roundCount = request.POST.get('roundCount')
-    tournamentRounds = json.loads(request.POST.get('tournamentRounds'))
-    availableCourses = json.loads(request.POST.get('availableCourses'))
-    courseTees = json.loads(request.POST.get('courseTees'))
+        courseTeeIds.append(courseTee['pk'])
+    resObject['tees'] = json.loads(serializers.serialize('json', Tee.objects.filter(course_tee__in=courseTeeIds).order_by('hole__number')))
 
     """
     Get all players
     """
-    players = list(Player.objects.values())
-    players = json.dumps(players, cls=DjangoJSONEncoder)
+    resObject['players'] = json.loads(serializers.serialize('json', Player.objects.all().order_by('name', 'priority')))
+    return JsonResponse(resObject)
 
-    context = {
-        "tournamentId": tournamentId,
-        "tournamentName": tournamentName,
-        "roundCount": roundCount,
-        "tournamentRounds": json.dumps(tournamentRounds, cls=DjangoJSONEncoder),
-        "availableCourses": json.dumps(availableCourses, cls=DjangoJSONEncoder),
-        "courseTees": json.dumps(courseTees, cls=DjangoJSONEncoder),
-        "players": players
-    }
-    return render(request, 'golf/tournament.html', context=context)
+def tournament(request):
+    """
+    View function for editting a tournament (even if new)
+    url: '/golf/tournament/'
+    """
+    resObject = {}
+    resObject['courseTees'] = request.POST.get('courseTees')
+    resObject['courses'] = request.POST.get('courses')
+    resObject['tees'] = request.POST.get('tees')
+    resObject['tournament'] = request.POST.get('tournament')
+    resObject['tournamentRounds'] = request.POST.get('tournamentRounds')
+    resObject['players'] = request.POST.get('players')
+
+    return render(request, 'golf/tournament.html', context=resObject)
 
 def updateScores(request):
     """
@@ -177,10 +137,9 @@ def updateScores(request):
     return JsonResponse(roundStatus)
 
 def getScores(request):
-    tournamentId = request.POST['tournamentId']
     tournamentRound = json.loads(request.POST['tournamentRound'])
     viewTab = request.POST['viewTab']
-    roundStatus = getTournamentRoundStatus(tournamentRound['id'], viewTab)
+    roundStatus = getTournamentRoundStatus(tournamentRound, viewTab)
     return JsonResponse(roundStatus)
 
 def getPayout(request):
@@ -195,7 +154,7 @@ def getPayout(request):
 
     return HttpResponse(resultHtml)
     
-def getTournamentRoundStatus(tournamentRoundId, viewTab):
+def getTournamentRoundStatus(tournamentRound, viewTab):
     """
     This method returns the current tournament status in an easy way for datatables to read
     """
@@ -205,10 +164,10 @@ def getTournamentRoundStatus(tournamentRoundId, viewTab):
     if (viewTab == 'net'):
         order = 'net'
     try:
-        rounds = Round.objects.filter(tournament_round=tournamentRoundId).order_by(order)
+        rounds = Round.objects.filter(tournament_round=tournamentRound['pk']).order_by(order)
     except:
         print ('Failed to get rounds')
-        print (tournamentRoundId)
+        print (tournamentRound)
         return False
     i = 1
     for r in rounds:

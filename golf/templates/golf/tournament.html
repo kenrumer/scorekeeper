@@ -15,15 +15,16 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css">
   <script src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
   <script type="text/javascript">
-    var tournamentId = {{ tournamentId }};
-    var tournamentName = '{{ tournamentName }}';
-    var roundCount = {{ roundCount }};
-    var tournamentRounds = JSON.parse('{{ tournamentRounds|safe }}');
-    var availableCourses = JSON.parse('{{ availableCourses|safe }}');
-    var availableCourseTees = JSON.parse('{{ availableCourseTees|safe }}');
-    var players = JSON.parse('{{ players|safe }}');
+    var tournament = JSON.parse('{{ tournament|escapejs }}');
+    console.log(tournament);
+    var tournamentRounds = JSON.parse('{{ tournamentRounds|escapejs }}');
+    var courses = JSON.parse('{{ courses|escapejs }}');
+    var courseTees = JSON.parse('{{ courseTees|escapejs }}');
+    var players = JSON.parse('{{ players|escapejs }}');
+    var tees = JSON.parse('{{ tees|escapejs }}');
     var roundId = 0;
     var viewTab = 'net';
+    var csrf_token = '{{ csrf_token }}';
   </script>
   <link href="{% static "scorekeeper/css/tournament.css" %}" rel="stylesheet" type="text/css">
   <script src="{% static "scorekeeper/js/tournament.js" %}" type="text/javascript"></script>
@@ -31,33 +32,33 @@
 
 {% block content %}
 
-    <div class="row">
-      <div class="col-sm-3">
-        <ul class="nav nav-tabs">
-          <li id="netScoresTab" data-toggle="tab"><a href="#">Net Scores</a></li>
-          <li id="grossScoresTab" data-toggle="tab"><a href="#">Gross Scores</a></li>
-          <li id="payoutTab" data-toggle="tab"><a href="#">Payout</a></li>
-        </ul>
-      </div>
-      <div class="col-sm-5">
-        <div class="row">
-          <div class="col-sm-8">
-            Name: {{ tournamentName }}
-          </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav nav-tabs">
+        <li class="nav-item" id="netScoresTab" data-toggle="tab"><a class="nav-link active" href="#">Net Scores</a></li>
+        <li class="nav-item" id="grossScoresTab" data-toggle="tab"><a class="nav-link" href="#">Gross Scores</a></li>
+        <li class="nav-item" id="payoutTab" data-toggle="tab"><a class="nav-link" href="#">Payout</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-center">
+        <li>
           <div class="col-sm-1">
-            <label for="roundDate" style="text-align:center;font-weight: bold;">
-              Date:
+            <label for="roundName">
+              Name
             </label>
           </div>
-          <div class="col-sm-3">
-            <!-- Value set by tournament.js -->
-            <input class="form-control input-sm" type="text" id="roundDate" />
+          <div class="col-sm-6">
+            <span id="roundName"></span>
           </div>
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <div id="roundTabPlaceholder"></div>
-      </div>
+          <div class="col-sm-1">
+            <label for="roundDate">Date</label>
+          </div>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="roundDate" value="" />
+          </div>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right" id="roundTabPlaceholder">
+          <!-- Value set by tournament.js -->
+      </ul>
     </div>
 
     <div id="tournamentTableWrapper">
@@ -94,8 +95,8 @@
             <h4 class="modal-title" id="enterScorecardCourseLabel">Enter Scorecard Course</h4>
           </div>
           <div class="modal-body tournament-scorecard">
-            <select class="enterScorecardCourse form-control" id="enterScorecardCourse">
-              <!-- options added by edittournament.js -->
+            <select class="enterScorecardCourse form-control" id="enterScorecardCourses">
+              <!-- options added by tournament.js -->
             </select>
           </div>
           <div class="modal-footer">
@@ -119,10 +120,10 @@
           <div class="modal-body">
             <table id="scorecard" class="display compact" width="100%">
               <thead>
-                <!-- rows added by edittournament.js -->
+                <!-- rows added by tournament.js -->
               </thead>
               <tbody class="scorecardBody">
-                <!-- rows added by edittournament.js -->
+                <!-- rows added by tournament.js -->
               </tbody>
             </table>
           </div>
@@ -153,14 +154,14 @@
               <div class="col-sm-3">
                 <input class="form-control input-sm" list="scorecardScorer" id="newScorecardScorer" placeholder="Scorer">
                   <datalist id="scorecardScorer">
-                    <!-- rows added by edittournament.js -->
+                    <!-- rows added by tournament.js -->
                   </datalist>
                 </input>
               </div>
               <div class="col-sm-3">
                 <input class="form-control input-sm" list="scorecardAttest" id="newScorecardAttest" placeholder="Attest">
                   <datalist id="scorecardAttest">
-                    <!-- rows added by edittournament.js -->
+                    <!-- rows added by tournament.js -->
                   </datalist>
                 </input>
               </div>

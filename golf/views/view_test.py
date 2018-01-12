@@ -1,7 +1,7 @@
 from django.template.loader import get_template
 from django.template import Context
 from django.core import serializers
-from ..models import Player, CourseTee, Club, Course, Hole, Tee, PlayerPlugin, FormatPlugin, TournamentRoundImportPlugin
+from ..models import Player, CourseTee, Club, Course, Hole, Tee, PlayerPlugin, FormatPlugin, RoundImportPlugin
 from django.http import HttpResponse, JsonResponse, FileResponse
 import json
 import zipfile

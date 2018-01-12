@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Tournament, TournamentRound, FormatPlugin, Player, Round, Score, Scorecard, Course, CourseTee, Tee, Hole, Club, Activity, PlayerPlugin, TournamentRoundImportPlugin
+from .models import Tournament, TournamentRound, FormatPlugin, Player, Round, Score, Scorecard, Course, CourseTee, Tee, Hole, Club, Activity, PlayerPlugin, RoundImportPlugin
 
 
 admin.site.register(Tournament)
@@ -19,4 +19,4 @@ admin.site.register(Hole)
 admin.site.register(Club)
 admin.site.register(Activity)
 admin.site.register(PlayerPlugin)
-admin.site.register(TournamentRoundImportPlugin)
+admin.site.register(RoundImportPlugin)

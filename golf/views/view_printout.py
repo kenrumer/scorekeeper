@@ -1,7 +1,7 @@
 from weasyprint import HTML, CSS
 from django.template.loader import get_template
 from django.template import Context
-from ..models import Player, CourseTee, Club, Course, Hole, Tee, PlayerPlugin, FormatPlugin, TournamentRoundImportPlugin
+from ..models import Player, CourseTee, Club, Course, Hole, Tee, PlayerPlugin, FormatPlugin, RoundImportPlugin
 from django.http import HttpResponse, JsonResponse, FileResponse
 import json
 from django.forms.models import model_to_dict
